@@ -1,0 +1,12 @@
+name: OreFlow
+description: $description
+prefix: Ore
+version: '${version}'
+
+main: pl.Ljimex.oreFlow.OreFlow
+loader: pl.Ljimex.oreFlow.OreFlowLoader
+api-version: '1.20'
+load: STARTUP
+
+authors: [ Ljimex ]
+website: https://github.com/Ljinmex/OreFlow
