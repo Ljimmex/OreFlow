@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OreFlow - Roadmap & Dokumentacja Projektu</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --primary: #f59e0b;
+            --primary-light: #fbbf24;
+            --secondary: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #475569;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 3px solid var(--primary);
+            padding: 40px 0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+        }
+
+        header .subtitle {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-done { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .badge-progress { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .badge-todo { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); border: 1px solid var(--text-muted); }
+        .badge-phase { background: rgba(59, 130, 246, 0.2); color: var(--secondary); border: 1px solid var(--secondary); }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card h3 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--bg-hover); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .section {
+            background: var(--bg-card);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .section-header:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .section-content {
+            padding: 25px;
+            display: none;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        .toggle-icon {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+
+        .section-header.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .sprint {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .sprint-header {
+            padding: 18px 22px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .sprint-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sprint-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .sprint-title h3 {
+            font-size: 1.25rem;
+            color: var(--text);
+        }
+
+        .sprint-meta {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .sprint-content {
+            padding: 0 22px 22px;
+            display: none;
+        }
+
+        .sprint-content.active {
+            display: block;
+        }
+
+        .sprint-goal {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+
+        .sprint-goal h4 {
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .task {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .task-header h4 {
+            flex: 1;
+            font-size: 1.05rem;
+        }
+
+        .subtasks {
+            margin-left: 32px;
+            list-style: none;
+        }
+
+        .subtasks li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .subtasks li:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            margin-top: 2px;
+        }
+
+        .checkbox:hover {
+            border-color: var(--primary);
+        }
+
+        .checkbox.checked {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .checkbox.checked::after {
+            content: "✓";
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .subtask-text {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .subtask-text.done {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .dod {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .dod h4 {
+            color: var(--success);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .dod ul {
+            margin-left: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .dod li {
+            margin-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: var(--primary-light);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code {
+            background: transparent;
+            padding: 0;
+            color: #e2e8f0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .info-box {
+            background: rgba(6, 182, 212, 0.08);
+            border-left: 4px solid var(--info);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+
+        .warning-box {
+            background: rgba(245, 158, 11, 0.08);
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .highlight {
+            background: rgba(245, 158, 11, 0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 2rem; }
+            .sprint-header { flex-direction: column; align-items: flex-start; }
+            .controls { flex-direction: column; }
+            .search-box { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>⛏️ OreFlow</h1>
+        <p class="subtitle">
+            Kompleksowy plugin Minecraft Spigot/Paper 1.21.x z systemem dropów ze stone,
+            wsparciem Fortune, craftowalnymi stoniarkami i nowoczesnym GUI.
+        </p>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+        <div class="stat-card">
+            <h3>Postęp całkowity</h3>
+            <div class="stat-value" id="total-progress">0%</div>
+            <div class="progress-bar"><div class="progress-fill" id="total-bar" style="width: 0%"></div></div>
+        </div>
+        <div class="stat-card">
+            <h3>Aktywny Sprint</h3>
+            <div class="stat-value" style="font-size: 1.8rem;">Sprint 4</div>
+            <p style="color: var(--warning); margin-top: 8px;">Advanced Drop Filters</p>
+        </div>
+        <div class="stat-card">
+            <h3>Ukończone Subtaski</h3>
+            <div class="stat-value" id="completed-count">0/0</div>
+            <p style="color: var(--text-muted); margin-top: 8px;">Zaznaczono jako gotowe</p>
+        </div>
+        <div class="stat-card">
+            <h3>Docelowa wersja</h3>
+            <div class="stat-value" style="font-size: 2rem;">v1.0</div>
+            <p style="color: var(--success); margin-top: 8px;">Spigot / Paper 1.21.x</p>
+        </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Wyszukaj task, subtask lub słowo kluczowe...">
+        <button class="btn btn-secondary" onclick="toggleAllSprints(true)">Rozwiń wszystkie</button>
+        <button class="btn btn-secondary" onclick="toggleAllSprints(false)">Zwiń wszystkie</button>
+        <button class="btn btn-danger" onclick="resetProgress()">Resetuj postęp</button>
+    </div>
+
+    <!-- DOKUMENTACJA -->
+    <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2>📚 Dokumentacja Projektu</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content">
+            <div class="grid-2">
+                <div>
+                    <h3>Opis pluginu</h3>
+                    <p>
+                        <strong>OreFlow</strong> to nowoczesny plugin Minecraft rozszerzający mechanikę kopania stone.
+                        Łączy w sobie konfigurowalne dropy, wsparcie enchantu Fortune, craftowalne stoniarki,
+                        intuicyjne GUI oraz system EXP - wszystko oparte na Paper API 1.21.x z użyciem Adventure API.
+                    </p>
+                    <div class="info-box">
+                        <strong>Tagline:</strong> "The ultimate all-in-one stone mining enhancement plugin for Spigot/Paper 1.21.x with Fortune support, craftable generators and beautiful GUI."
+                    </div>
+                </div>
+                <div>
+                    <h3>Stack technologiczny</h3>
+                    <table>
+                        <tr><th>Komponent</th><th>Wersja</th><th>Zastosowanie</th></tr>
+                        <tr><td>Java</td><td>17+</td><td>Język programowania</td></tr>
+                        <tr><td>Gradle</td><td>via Kotlin DSL</td><td>System budowania</td></tr>
+                        <tr><td>Paper API</td><td>1.21.x</td><td>Główne API serwera</td></tr>
+                        <tr><td>Adventure API</td><td>wbudowane w Paper</td><td>Komunikaty i Action Bar</td></tr>
+                        <tr><td>bStats</td><td>3.0+</td><td>Statystyki użycia</td></tr>
+                        <tr><td>MockBukkit</td><td>3.x</td><td>Testy jednostkowe</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <h3>Architektura systemu</h3>
+            <p>Plugin oparty na wzorcu <strong>Manager-Listener</strong> z czterema warstwami:</p>
+            <table>
+                <tr><th>Warstwa</th><th>Klasy</th><th>Odpowiedzialność</th></tr>
+                <tr><td>Core</td><td><code>OreFlow</code>, <code>OreFlowLoader</code></td><td>Inicjalizacja pluginu, rejestracja komponentów</td></tr>
+                <tr><td>Managers</td><td><code>ConfigManager</code>, <code>DropManager</code>, <code>FortuneCalculator</code>, <code>GuiManager</code>, <code>ActionBarManager</code>, <code>StoneGenManager</code>, <code>ExpManager</code>, <code>MessageManager</code></td><td>Logika biznesowa poszczególnych systemów</td></tr>
+                <tr><td>Listeners</td><td><code>BlockBreakListener</code>, <code>InventoryListener</code>, <code>BlockPlaceListener</code></td><td>Obsługa zdarzeń Bukkit</td></tr>
+                <tr><td>Data</td><td><code>config.yml</code>, <code>drops.yml</code>, <code>generators.yml</code>, <code>lang.yml</code></td><td>Konfiguracja i przechowywanie danych</td></tr>
+            </table>
+
+            <h3>Komendy i uprawnienia</h3>
+            <table>
+                <tr><th>Komenda</th><th>Opis</th><th>Uprawnienie</th><th>Domyślnie</th></tr>
+                <tr><td><code>/oreflow</code></td><td>Otwiera GUI zarządzania dropami</td><td><code>oreflow.gui</code></td><td>Gracz</td></tr>
+                <tr><td><code>/oreflow reload</code></td><td>Przeładowuje konfigurację</td><td><code>oreflow.reload</code></td><td>Operator</td></tr>
+                <tr><td><code>/oreflow toggle &lt;drop&gt;</code></td><td>Włącza/wyłącza drop dla siebie</td><td><code>oreflow.toggle</code></td><td>Gracz</td></tr>
+                <tr><td><code>/oreflow toggle &lt;drop&gt; &lt;gracz&gt;</code></td><td>Włącza/wyłącza drop dla innego gracza</td><td><code>oreflow.toggle.others</code></td><td>Moderator</td></tr>
+                <tr><td><code>/oreflow cobble</code></td><td>Przełącza drop cobblestone</td><td><code>oreflow.cobble</code></td><td>Gracz</td></tr>
+                <tr><td><code>/oreflow info</code></td><td>Informacje o wersji i autorze</td><td><code>oreflow.info</code></td><td>Wszyscy</td></tr>
+                <tr><td><code>/oreflow help</code></td><td>Strona pomocy</td><td><code>oreflow.help</code></td><td>Wszyscy</td></tr>
+                <tr><td><code>/oreflow admin</code></td><td>Panel administratora</td><td><code>oreflow.admin</code></td><td>Operator</td></tr>
+                <tr><td><code>/oreflow stats</code></td><td>Statystyki kopania</td><td><code>oreflow.stats</code></td><td>Gracz</td></tr>
+            </table>
+
+            <h3>Pliki konfiguracyjne</h3>
+            <table>
+                <tr><th>Plik</th><th>Zawartość</th></tr>
+                <tr><td><code>config.yml</code></td><td>Główne ustawienia pluginu (język, światy, exp, Fortune)</td></tr>
+                <tr><td><code>drops.yml</code></td><td>Definicje dropów ze stone</td></tr>
+                <tr><td><code>generators.yml</code></td><td>Receptury i parametry stoniarek</td></tr>
+                <tr><td><code>lang.yml</code></td><td>Komunikaty i lokalizacja</td></tr>
+            </table>
+
+            <div class="warning-box">
+                <strong>Status implementacji:</strong> Obecnie w repozytorium znajduje się szkielet pluginu z główną klasą <code>OreFlow</code>
+                oraz <code>OreFlowLoader</code>. System konfiguracji, dropów, GUI i stoniarek wymaga implementacji zgodnie z poniższą roadmapą.
+            </div>
+        </div>
+    </div>
+
+    <!-- ROADMAP -->
+    <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2>🗺️ Roadmap - Sprinty</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content active" id="roadmap-content">
+
+            <!-- SPRINT 1 -->
+            <div class="sprint" data-status="in-progress">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 1</h3>
+                        <span class="badge badge-phase">Faza 1 - Core Engine</span>
+                        <span class="badge badge-done">Gotowe</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 1 | Project Setup & Core Engine Foundation</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Przygotowanie szkieletu projektu, konfiguracja zależności Paper API 1.21.x, stworzenie głównej klasy pluginu oraz systemu zarządzania plikami YAML. Plugin powinien się kompilować i uruchamiać na serwerze testowym.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🏗️ Inicjalizacja projektu i konfiguracja buildu</h4>
+                            <span class="badge badge-done">Gotowe</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Utworzenie repozytorium Git i struktury katalogów</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Konfiguracja Gradle z Kotlin DSL</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Dodanie zależności Paper API 1.21.1-R0.1-SNAPSHOT</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Ustawienie Java 21 jako toolchain</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Dodanie pluginu run-paper do testowego uruchamiania serwera</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Dodanie zależności do testów jednostkowych (MockBukkit)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Skonfigurowanie plugin.yml z metadanymi i uprawnieniami</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>⚙️ Główna klasa pluginu i bootstrap</h4>
+                            <span class="badge badge-done">Gotowe</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Utworzenie klasy <code>OreFlow</code> rozszerzającej <code>JavaPlugin</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Utworzenie klasy <code>OreFlowLoader</code> implementującej <code>PluginLoader</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Implementacja metody <code>onEnable()</code> z logowaniem startu</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Implementacja metody <code>onDisable()</code> z bezpiecznym zamykaniem</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Przygotowanie singletona / API dostępu do instancji pluginu</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>📁 System zarządzania plikami YAML</h4>
+                            <span class="badge badge-done">Gotowe</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Utworzenie klasy <code>ConfigManager</code> do obsługi wielu plików</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Generowanie domyślnych <code>config.yml</code>, <code>drops.yml</code>, <code>generators.yml</code>, <code>lang.yml</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Mechanizm przeładowywania konfiguracji bez restartu serwera</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Walidacja poprawności plików YAML przy ładowaniu</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Projekt kompiluje się bez błędów poleceniem <code>./gradlew build</code></li>
+                            <li>Plugin uruchamia się na lokalnym serwerze Paper 1.21.1</li>
+                            <li>Wszystkie cztery pliki YAML są generowane automatycznie</li>
+                            <li>Kod jest sformatowany zgodnie z konwencją projektu</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 2 -->
+            <div class="sprint" data-status="done">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 2</h3>
+                        <span class="badge badge-phase">Faza 1 - Core Engine</span>
+                        <span class="badge badge-done">Gotowe</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 2 | Block Break Listener & Drop Manager</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Zaimplementowanie przepływu kopania bloków podziemnych (stone, andesite, diorite, granite, deepslate, tuff i inne): nasłuchiwanie zdarzenia <code>BlockBreakEvent</code>, walidacja gracza i narzędzia, oraz losowanie dropów na podstawie konfiguracji z <code>drops.yml</code>. Lista kopanych bloków jest konfigurowalna w <code>config.yml</code>.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🔨 BlockBreakListener</h4>
+                            <span class="badge badge-done">Gotowe</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Rejestracja listenera w <code>onEnable()</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Walidacja: tryb kreatywny, uprawnienia, lista kopanych bloków, czarna lista światów</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Sprawdzenie uprawnienia <code>oreflow.mine</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Obsługa enchantu Silk Touch (blokada domyślnych dropów)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Wyłączanie domyślnego dropu cobblestone przez <code>setDropItems(false)</code></span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🎲 DropManager</h4>
+                            <span class="badge badge-done">Gotowe</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Odczyt definicji dropów z <code>drops.yml</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Losowanie dropów na podstawie szans procentowych</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Obsługa zakresu ilości <code>min-amount</code> / <code>max-amount</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Dodawanie dropów do ekwipunku gracza lub na ziemię</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Respektowanie limitu <code>max-drops-per-block</code></span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Kopanie stone i innych bloków podziemnych generuje skonfigurowane przedmioty zgodnie z szansami</li>
+                            <li>Lista kopanych bloków jest konfigurowalna w <code>config.yml</code></li>
+                            <li>Silk Touch blokuje dropy z pluginu</li>
+                            <li>Cobblestone nie wypada, gdy <code>disable-cobble-drop: true</code></li>
+                            <li>Plugin uruchamia się bez błędów na Paper 1.21.1</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 3 -->
+            <div class="sprint" data-status="done">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 3</h3>
+                        <span class="badge badge-phase">Faza 1 - Core Engine</span>
+                        <span class="badge badge-done">Gotowe</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 3 | Fortune Calculator & Permissions</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Dodanie oficjalnej formuły Fortune z Minecraft, rejestracji uprawnień Bukkit oraz podstawowych komend konsolowych. Plugin ma działać z poziomu gracza i konsoli.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>💎 FortuneCalculator</h4>
+                            <span class="badge badge-done">Gotowe</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Odczyt poziomu Fortune z narzędzia gracza</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Implementacja oficjalnej formuły Minecraft (I: 1.33x, II: 1.75x, III: 2.2x)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Mnożenie ilości dropu przez wylosowany mnożnik</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Obsługa poziomów Fortune powyżej III (opcjonalnie)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Respektowanie flagi <code>fortune-multiplier</code> per drop</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🔐 System uprawnień i komend</h4>
+                            <span class="badge badge-done">Gotowe</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Rejestracja głównej komendy <code>/oreflow</code> z aliasami <code>/of</code>, <code>/drop</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Implementacja komendy <code>/oreflow reload</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Implementacja komendy <code>/oreflow info</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Otwieranie GUI przez <code>/oreflow</code> (bez argumentow)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Rejestracja uprawnień w <code>plugin.yml</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Komunikaty przy braku uprawnień z <code>lang.yml</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Wiadomość Action Bar dla trybu kreatywnego + komenda <code>/oreflow creativemsg</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Komenda debug <code>/oreflow debug [bloki]</code> do testowania dropow</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Fortune I/II/III działa zgodnie z oficjalną tabelą Minecraft</li>
+                            <li>Komendy reagują poprawnie na brak uprawnień</li>
+                            <li>Reload przeładowuje konfigurację bez błędów</li>
+                            <li>Testy jednostkowe dla FortuneCalculator przechodzą</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 4 -->
+            <div class="sprint" data-status="todo">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 4</h3>
+                        <span class="badge badge-phase">Faza 2 - Drop System</span>
+                        <span class="badge badge-todo">Do zrobienia</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 4 | Advanced Drop Filters</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Rozszerzenie systemu dropów o filtry poziomu Y, wymagane narzędzia oraz przełącznik cobblestone.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🌍 Filtry i warunki dropów</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Walidacja zakresu Y (<code>min-y</code>, <code>max-y</code>)</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Sprawdzenie wymaganego narzędzia (<code>required-tool</code>)</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Komenda <code>/oreflow cobble</code> do przełączania cobblestone</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Globalny przełącznik cobblestone w <code>config.yml</code></span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Dropy respektują poziom Y i wymagane narzędzie</li>
+                            <li>Cobblestone można włączać/wyłączać globalnie i per-gracz</li>
+                            <li>Zbalansowane domyślne szanse dropów</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 5 -->
+            <div class="sprint" data-status="todo">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 5</h3>
+                        <span class="badge badge-phase">Faza 2 - Drop System</span>
+                        <span class="badge badge-todo">Do zrobienia</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 5 | Per-Player Settings & Drop Polish</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Stworzenie systemu indywidualnych ustawień graczy (włączanie/wyłączanie dropów), drop-to-inventory oraz dopracowanie balansu i stabilności systemu dropów.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>👤 Per-Player Drop Settings</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Model danych preferencji gracza</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Zapis/odczyt ustawień do pliku YAML lub SQLite</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Komenda <code>/oreflow toggle &lt;drop&gt;</code></span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Komenda <code>/oreflow toggle &lt;drop&gt; &lt;gracz&gt;</code></span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Respektowanie ustawień gracza podczas losowania dropów</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🧪 Testy i balans</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Testy skrajnych wartości szans (0%, 100%)</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Testy z dużą liczbą dropów jednocześnie</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Weryfikacja wydajności losowania</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Dostrojenie domyślnych wartości dropów</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Gracz może wyłączyć dowolny drop dla siebie</li>
+                            <li>Ustawienia zachowują się po rejoinie i restarcie</li>
+                            <li>Drop-to-inventory działa zgodnie z konfiguracją</li>
+                            <li>System dropów jest stabilny i przetestowany</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 6 -->
+            <div class="sprint" data-status="todo">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 6</h3>
+                        <span class="badge badge-phase">Faza 3 - GUI i UX</span>
+                        <span class="badge badge-todo">Do zrobienia</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 6 | GUI Framework & Inventory System</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Zbudowanie nowoczesnego interfejsu GUI do zarządzania dropami z pełną customizacją przez <code>config.yml</code>, w tym tytuły, rozmiary, dekoracje i kolory statusów.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🖼️ GuiManager</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Tworzenie inventory przez <code>Bukkit.createInventory()</code></span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Wczytywanie rozmiaru i tytułu z <code>config.yml</code></span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Wypełnianie slotów przedmiotami reprezentującymi dropy</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Dekoracyjne wypełnienie pustych slotów</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Stronicowanie dla dużej liczby dropów</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🖱️ InventoryListener</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Blokowanie wyjmowania przedmiotów z GUI</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Lewy przycisk - podgląd szczegółów dropu</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Prawy przycisk - włącz/wyłącz drop</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Obsługa przycisków nawigacyjnych</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Panel administratora (<code>/oreflow admin</code>)</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>GUI otwiera się po <code>/drop</code> i wyświetla wszystkie dropy</li>
+                            <li>Kliknięcia prawym przyciskiem przełączają status dropu</li>
+                            <li>GUI jest w pełni konfigurowalne z poziomu YAML</li>
+                            <li>Panel admina pozwala globalnie zarządzać dropami</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 7 -->
+            <div class="sprint" data-status="todo">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 7</h3>
+                        <span class="badge badge-phase">Faza 3 - GUI i UX</span>
+                        <span class="badge badge-todo">Do zrobienia</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 7 | Action Bar, Messages & i18n</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Dodanie komunikatów Action Bar przy użyciu Adventure API, systemu wielojęzycznego oraz MessageManager do obsługi wszystkich tekstów w grze.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>📢 ActionBarManager</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Integracja Adventure API</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Komunikat o wylosowanym dropie ({material}, {amount})</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Komunikat o zdobytym EXP</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Konfigurowalny czas wyświetlania</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Możliwość wyłączenia poszczególnych komunikatów</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🌐 MessageManager & lang.yml</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Ładowanie pliku <code>lang.yml</code></span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Obsługa zmiennych w nawiasach klamrowych</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Wsparcie kolorów <code>&</code> i komponentów Adventure</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Tłumaczenia: PL, EN, DE</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Standaryzacja wszystkich komunikatów w kodzie</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Wszystkie komunikaty pochodzą z <code>lang.yml</code></li>
+                            <li>Action Bar wyświetla się poprawnie po wykopaniu</li>
+                            <li>Zmienne w komunikatach są poprawnie podstawiane</li>
+                            <li>Plugin działa w języku zdefiniowanym w configu</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 8 -->
+            <div class="sprint" data-status="todo">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 8</h3>
+                        <span class="badge badge-phase">Faza 4 - Stone Generators</span>
+                        <span class="badge badge-todo">Do zrobienia</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 8 | Stone Generator Manager & Recipes</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Stworzenie systemu craftowalnych stoniarek: StoneGenManager, ładowanie receptur z <code>generators.yml</code>, rejestracja craftingów oraz zapis/odczyt lokalizacji generatorów.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🏭 StoneGenManager</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Model generatora (lokalizacja, typ, właściciel)</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Ładowanie generatorów z <code>generators.yml</code></span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Zapis aktywnych generatorów do pliku</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Rejestracja receptur craftingu (<code>ShapedRecipe</code>)</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Tworzenie przedmiotu stoniarki z nazwą i lore</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>📦 Konfiguracja generatorów</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Definicja domyślnej stoniarki w <code>generators.yml</code></span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Parametry generacji: interval, material, efekty</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Opcja require-player-nearby z konfigurowalnym radiusem</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Wsparcie dla wielu typów generatorów (stone, andesite, itp.)</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Stoniarka jest craftowalna w stole warsztatowym</li>
+                            <li>Po postawieniu generator zapisywany jest do pliku</li>
+                            <li>Konfiguracja generatorów wczytuje się bez błędów</li>
+                            <li>Przedmiot stoniarki ma poprawną nazwę i lore</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 9 -->
+            <div class="sprint" data-status="todo">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 9</h3>
+                        <span class="badge badge-phase">Faza 4 - Stone Generators</span>
+                        <span class="badge badge-todo">Do zrobienia</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 9 | Generator Placement & Scheduler</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Implementacja cyklicznego generowania kamienia nad stoniarką, obsługa stawiania i niszczenia bloków, efekty dźwiękowe i cząsteczkowe oraz odrastanie kamienia po wykopaniu.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🧱 BlockPlaceListener & cykl generacji</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Wykrywanie postawienia stoniarki</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Rejestracja generatora w StoneGenManager</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Cykl generowania kamienia przez Bukkit Scheduler</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Generowanie kamienia NA bloku stoniarki (nie zamiast niego)</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Odrastanie kamienia po jego wykopaniu</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🔒 Bezpieczeństwo i efekty</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">System właściciela generatora</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Ochrona przed niszczeniem przez innych graczy</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Opcja pickup-on-break</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Efekty dźwiękowe przy generacji</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Efekty cząsteczkowe przy generacji</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Integracja z WorldGuard / Residence (opcjonalnie)</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Stoniarka generuje kamień w skonfigurowanym interwale</li>
+                            <li>Kamień odrasta po wykopaniu</li>
+                            <li>Tylko właściciel/admin może zniszczyć stoniarkę</li>
+                            <li>Efekty dźwiękowe i wizualne działają poprawnie</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 10 -->
+            <div class="sprint" data-status="todo">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 10</h3>
+                        <span class="badge badge-phase">Faza 5 - Polish i Release</span>
+                        <span class="badge badge-todo">Do zrobienia</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 10 | Testing, Docs & Release</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Dopracowanie pluginu, testy wydajnościowe i kompatybilnościowe, naprawa błędów, przygotowanie dokumentacji użytkownika oraz publikacja wersji 1.0 na SpigotMC.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🔬 Testy i optymalizacja</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Testy wydajnościowe z profilerem Spark</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Testy kompatybilności z LuckPerms, Vault, WorldGuard</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Testy skrajne: setki stoniarek, wysokie Fortune</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Optymalizacja cykli schedulerów</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Naprawa zgłoszonych bugów</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>📝 Dokumentacja i release</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Przygotowanie README.md na GitHub</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Dokumentacja użytkownika na GitHub Wiki</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Grafiki promocyjne i opis na SpigotMC</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Przygotowanie pliku JAR do publikacji</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Publikacja OreFlow v1.0</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Plan wersji 1.1 z poprawkami</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>Plugin przechodzi wszystkie testy manualne i jednostkowe</li>
+                            <li>Brak krytycznych błędów podczas testów na serwerze</li>
+                            <li>Dokumentacja jest kompletna i aktualna</li>
+                            <li>Wersja 1.0 jest opublikowana na SpigotMC / GitHub Releases</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SPRINT 11 -->
+            <div class="sprint" data-status="in-progress">
+                <div class="sprint-header" onclick="toggleSprint(this)">
+                    <div class="sprint-title">
+                        <h3>Sprint 11</h3>
+                        <span class="badge badge-phase">CobbleX System</span>
+                        <span class="badge badge-progress">W trakcie</span>
+                    </div>
+                    <div class="sprint-meta">Tydzień 11 | CobbleX Chest Reward System</div>
+                </div>
+                <div class="sprint-content">
+                    <div class="sprint-goal">
+                        <h4>🎯 Cel Sprintu</h4>
+                        <p>Dodanie systemu CobbleX — craftowalnej skrzyni-nagrody z cobblestone. Podstawowa wersja (item, crafting, PPM otwieranie, komendy) gotowa teraz. W tym sprincie rozbudowa o system 8 rzadkości, animacje particles/dźwięki, Action Bar, bulk open, GUI podglądu nagród i TabCompleter.</p>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>📦 Podstawy CobbleX (gotowe)</h4>
+                            <span class="badge badge-done">Gotowe</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Stworzenie przedmiotu CobbleX z konfigurowalnym wygladem</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Receptura craftingu: 9 stakow cobblestone → 1 CobbleX</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Identyfikacja CobbleX przez PersistentDataContainer</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Otwieranie PPM z losowaniem nagrody</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Komendy /cx craft, /cx info, /cx give, /cx reload</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Uprawnienia cobblex.use, cobblex.admin, cobblex.bypass</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Cooldown miedzy otwarciami</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🎲 Zaawansowany system nagród</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">System 8 rzadkości (Klątwa, Zwykła, Dobra, Rzadka, Epicka, Legendarna, Mityczna, Boska)</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Kolory rzadkości w GUI i Action Bar</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Dobre i złe nagrody w puli</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Wykonywanie komend jako konsola (%player)</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>✨ Efekty i UX</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Particles spiralne podczas otwierania</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Dźwięki dla każdej fazy otwierania</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Action Bar zamiast czatu</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Animacja losowania 2 sekundy</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Bulk Open (Shift + PPM)</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="task">
+                        <div class="task-header">
+                            <h4>🖼️ GUI i TabCompleter</h4>
+                            <span class="badge badge-todo">Do zrobienia</span>
+                        </div>
+                        <ul class="subtasks">
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">GUI podglądu tabeli nagród (/cx drop)</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">TabCompleter dla /cx give &lt;gracz&gt; &lt;ilość&gt;</span></li>
+                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Podpowiedzi dla wszystkich subkomend</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="dod">
+                        <h4>✅ Definition of Done (DoD)</h4>
+                        <ul>
+                            <li>CobbleX da sie wycraftowac i otworzyc PPM</li>
+                            <li>System losuje nagrode z konfigurowalnej puli</li>
+                            <li>Dzialaja animacje particles i dzwieki</li>
+                            <li>Wiadomosci pojawiaja sie na Action Bar</li>
+                            <li>GUI tabeli nagrod i TabCompleter dzialaja poprawnie</li>
+                            <li>Bulk Open otwiera wiele CobbleX naraz</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+            <h2>📊 Aktualny status implementacji</h2>
+            <span class="toggle-icon">▼</span>
+        </div>
+        <div class="section-content">
+            <table>
+                <tr><th>Moduł</th><th>Status</th><th>Uwagi</th></tr>
+                <tr><td>Project setup / Gradle</td><td><span class="badge badge-done">Gotowe</span></td><td>Paper API 1.21.1, Java 21, run-paper skonfigurowane</td></tr>
+                <tr><td>OreFlow / OreFlowLoader</td><td><span class="badge badge-done">Gotowe</span></td><td>Klasa glowna z onEnable/onDisable i formatem logow</td></tr>
+                <tr><td>ConfigManager</td><td><span class="badge badge-done">Gotowe</span></td><td>YAML config, drops, generators, lang z domyslnymi wartosciami</td></tr>
+                <tr><td>BlockBreakListener</td><td><span class="badge badge-done">Gotowe</span></td><td>Walidacja, lista kopanych blokow, Silk Touch</td></tr>
+                <tr><td>DropManager</td><td><span class="badge badge-done">Gotowe</span></td><td>Losowanie, ilosci, ekwipunek, Y-level, required-tool</td></tr>
+                <tr><td>FortuneCalculator</td><td><span class="badge badge-done">Gotowe</span></td><td>Oficjalna formula Minecraft</td></tr>
+                <tr><td>Permissions / Commands</td><td><span class="badge badge-done">Gotowe</span></td><td>Komendy /oreflow, /cx, uprawnienia, podstawowe GUI</td></tr>
+                <tr><td>Per-player settings</td><td><span class="badge badge-todo">Do zrobienia</span></td><td>YAML/SQLite, toggle</td></tr>
+                <tr><td>GUI</td><td><span class="badge badge-todo">Do zrobienia</span></td><td>Bukkit Inventory, click handlers</td></tr>
+                <tr><td>Action Bar / i18n</td><td><span class="badge badge-todo">Do zrobienia</span></td><td>Adventure API, lang.yml</td></tr>
+                <tr><td>Stone Generators</td><td><span class="badge badge-todo">Do zrobienia</span></td><td>Manager, crafting, scheduler</td></tr>
+                <tr><td>CobbleX</td><td><span class="badge badge-progress">W trakcie</span></td><td>Podstawy gotowe: item, crafting, PPM, komendy</td></tr>
+                <tr><td>Tests / Release</td><td><span class="badge badge-todo">Do zrobienia</span></td><td>Spark, Wiki, SpigotMC</td></tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <div class="container">
+        <p>OreFlow Roadmap & Dokumentacja | Wersja dokumentacji: 1.0 | Data: 21 czerwca 2026</p>
+        <p style="margin-top: 8px; font-size: 0.85rem;">Postęp zapisywany jest lokalnie w przeglądarce. Otwórz ten plik w dowolnej przeglądarce, aby śledzić status projektu.</p>
+    </div>
+</footer>
+
+<script>
+    // LocalStorage key
+    const STORAGE_KEY = 'oreflow_roadmap_progress';
+
+    // Toggle section (Documentation, Roadmap, Status)
+    function toggleSection(header) {
+        header.classList.toggle('active');
+        const content = header.nextElementSibling;
+        content.classList.toggle('active');
+    }
+
+    // Toggle sprint
+    function toggleSprint(header) {
+        header.classList.toggle('active');
+        const content = header.nextElementSibling;
+        content.classList.toggle('active');
+    }
+
+    // Toggle checkbox
+    function toggleCheckbox(el) {
+        el.classList.toggle('checked');
+        const text = el.nextElementSibling;
+        text.classList.toggle('done');
+        saveProgress();
+        updateStats();
+    }
+
+    // Toggle all sprints
+    function toggleAllSprints(expand) {
+        document.querySelectorAll('.sprint').forEach(sprint => {
+            const header = sprint.querySelector('.sprint-header');
+            const content = sprint.querySelector('.sprint-content');
+            if (expand) {
+                header.classList.add('active');
+                content.classList.add('active');
+            } else {
+                header.classList.remove('active');
+                content.classList.remove('active');
+            }
+        });
+    }
+
+    // Save progress to localStorage
+    function saveProgress() {
+        const states = [];
+        document.querySelectorAll('.checkbox').forEach(cb => {
+            states.push(cb.classList.contains('checked'));
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(states));
+    }
+
+    // Load progress from localStorage
+    function loadProgress() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        try {
+            const states = JSON.parse(saved);
+            const checkboxes = document.querySelectorAll('.checkbox');
+            checkboxes.forEach((cb, index) => {
+                if (states[index]) {
+                    cb.classList.add('checked');
+                    cb.nextElementSibling.classList.add('done');
+                }
+            });
+        } catch (e) {
+            console.error('Błąd wczytywania postępu:', e);
+        }
+    }
+
+    // Reset progress
+    function resetProgress() {
+        if (confirm('Czy na pewno chcesz zresetować cały postęp?')) {
+            document.querySelectorAll('.checkbox').forEach(cb => {
+                cb.classList.remove('checked');
+                cb.nextElementSibling.classList.remove('done');
+            });
+            localStorage.removeItem(STORAGE_KEY);
+            updateStats();
+        }
+    }
+
+    // Update statistics
+    function updateStats() {
+        const checkboxes = document.querySelectorAll('.checkbox');
+        const checked = document.querySelectorAll('.checkbox.checked');
+        const total = checkboxes.length;
+        const done = checked.length;
+        const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        document.getElementById('total-progress').textContent = percent + '%';
+        document.getElementById('total-bar').style.width = percent + '%';
+        document.getElementById('completed-count').textContent = done + '/' + total;
+    }
+
+    // Search filter
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('.sprint').forEach(sprint => {
+            const text = sprint.textContent.toLowerCase();
+            if (text.includes(term)) {
+                sprint.classList.remove('hidden');
+            } else {
+                sprint.classList.add('hidden');
+            }
+        });
+    });
+
+    // Init
+    document.addEventListener('DOMContentLoaded', function() {
+        loadProgress();
+        updateStats();
+        // Open first sprint by default
+        const firstSprint = document.querySelector('.sprint-header');
+        if (firstSprint) firstSprint.click();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+# ============================================================
+# OreFlow - Main Configuration
+# Dokumentacja: https://github.com/Ljinmex/OreFlow/wiki
+# ============================================================
+
+# Glowne ustawienia pluginu
+settings:
+
+  # Jezyk domyslny (pl, en, de)
+  language: "pl"
+
+  # Czy plugin ma dzialac w podanych swiatach (whitelist)
+  # czy we wszystkich poza podanymi (blacklist)
+  world-mode: "blacklist"
+
+  # Lista swiatow
+  worlds:
+    - "world_nether"
+    - "world_the_end"
+
+  # Maksymalna liczba dropow z jednego bloku z listy mineable-blocks (0 = bez limitu)
+  max-drops-per-block: 3
+
+  # Czy drop ma trafiac bezposrednio do ekwipunku (true)
+  # czy spadac na ziemie (false)
+  drop-to-inventory: true
+
+  # Czy wylaczyc domyslne dropy dla wszystkich blokow z listy mineable-blocks
+  # Dotyczy zarowno stone (cobblestone) jak i rud (np. diamentow, zelaza)
+  disable-default-drops: true
+  # Legacy alias - zostaw dla kompatybilnosci, nowa opcja nadpisuje stara
+  disable-cobble-drop: true
+
+  # Bazowa ilosc EXP za zniszczenie bloku z listy mineable-blocks
+  base-exp: 1
+
+  # Globalny mnoznik EXP (mnozy wszystkie zrodla EXP)
+  exp-multiplier: 1.0
+
+  # Tryb przyznawania EXP: "direct-give" lub "orb-spawn"
+  exp-mode: "direct-give"
+
+  # Bloki, po zniszczeniu ktorych aktywuje sie system dropow
+  # Lista materialow zgodnych z enum Material Bukkit
+  mineable-blocks:
+    # Bloki kamienne (cobblestone i jego odmiany)
+    - "STONE"
+    - "COBBLESTONE"
+    - "MOSSY_COBBLESTONE"
+    - "STONE_BRICKS"
+    - "CRACKED_STONE_BRICKS"
+    - "MOSSY_STONE_BRICKS"
+    - "CHISELED_STONE_BRICKS"
+    - "SMOOTH_STONE"
+    - "ANDESITE"
+    - "POLISHED_ANDESITE"
+    - "DIORITE"
+    - "POLISHED_DIORITE"
+    - "GRANITE"
+    - "POLISHED_GRANITE"
+    - "CALCITE"
+    - "TUFF"
+    - "DEEPSLATE"
+    - "COBBLED_DEEPSLATE"
+    - "POLISHED_DEEPSLATE"
+    - "DEEPSLATE_BRICKS"
+    - "CRACKED_DEEPSLATE_BRICKS"
+    - "DEEPSLATE_TILES"
+    - "CRACKED_DEEPSLATE_TILES"
+    # Rudy (ore blocks) - plugin wylacza ich domyslne dropy
+    - "COAL_ORE"
+    - "DEEPSLATE_COAL_ORE"
+    - "IRON_ORE"
+    - "DEEPSLATE_IRON_ORE"
+    - "COPPER_ORE"
+    - "DEEPSLATE_COPPER_ORE"
+    - "GOLD_ORE"
+    - "DEEPSLATE_GOLD_ORE"
+    - "REDSTONE_ORE"
+    - "DEEPSLATE_REDSTONE_ORE"
+    - "LAPIS_ORE"
+    - "DEEPSLATE_LAPIS_ORE"
+    - "DIAMOND_ORE"
+    - "DEEPSLATE_DIAMOND_ORE"
+    - "EMERALD_ORE"
+    - "DEEPSLATE_EMERALD_ORE"
+    - "NETHER_GOLD_ORE"
+    - "NETHER_QUARTZ_ORE"
+    - "ANCIENT_DEBRIS"
+
+# Ustawienia systemu Fortune
+fortune:
+
+  # Czy Fortune ma wplywac na dropy
+  enabled: true
+
+  # Czy uwzgledniac poziomy Fortune powyzej III (np. z pluginow)
+  allow-higher-fortune: false
+
+# ============================================================
+# CobbleX - System skrzynek-nagrod
+# Podstawowa wersja - rozbudowa w Sprint 11
+# ============================================================
+cobblex:
+
+  # Czy CobbleX jest wlaczony
+  enabled: true
+
+  # Przedmiot CobbleX
+  item:
+    material: "ENDER_CHEST"
+    name: "&8&lCobbleX"
+    lore:
+      - "&7Skrzynia stworzona z 9 stakow cobblestone"
+      - "&7Kliknij PPM, aby otworzyc i wylosowac nagrode"
+      - ""
+      - "&eKoszt craftingu: &f9 stakow cobblestone"
+    enchant-glow: true
+
+  # Crafting w stole rzemieslniczym (3x3)
+  # Kazde pole = stos cobblestone
+  crafting:
+    enabled: true
+    cost-per-slot: 64
+
+  # Cooldown miedzy otwarciami (w sekundach)
+  cooldown: 2
+
+  # Pula nagród (podstawowa wersja)
+  # command: komenda wykonywana jako konsola, %player = nazwa gracza
+  # message: wiadomosc na Action Bar
+  drops:
+    diamenty:
+      command: "give %player DIAMOND 3"
+      message: "&aWylosowano: &f3x Diament"
+      chance: 8
+    zloto:
+      command: "give %player GOLD_INGOT 8"
+      message: "&aWylosowano: &f8x Zloto"
+      chance: 15
+    zelazo:
+      command: "give %player IRON_INGOT 16"
+      message: "&aWylosowano: &f16x Zelazo"
+      chance: 20
+    emerald:
+      command: "give %player EMERALD 4"
+      message: "&aWylosowano: &f4x Emerald"
+      chance: 10
+    curse_nausea:
+      command: "effect %player NAUSEA 10"
+      message: "&cKlątwa! Nausea na 10s"
+      chance: 12
+    curse_blindness:
+      command: "effect %player BLINDNESS 5"
+      message: "&cKlątwa! Blindness na 5s"
+      chance: 10
+    empty:
+      command: ""
+      message: "&7Pusto..."
+      chance: 15
+    cobble_refund:
+      command: "give %player COBBLESTONE 64"
+      message: "&7Zwrot: 64x Cobblestone"
+      chance: 10

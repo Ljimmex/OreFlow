@@ -1,0 +1,60 @@
+# ============================================================
+# OreFlow - Stone Generator Configuration
+# ============================================================
+
+generators:
+  # Podstawowa stoniarka (End Stone + nazwa)
+  basic:
+    # Czy generator aktywny
+    enabled: true
+
+    # Receptura craftingu (3x3 grid)
+    # Spacje = puste sloty
+    crafting:
+      shape:
+        - "III"
+        - "IEI"
+        - "III"
+      ingredients:
+        I: "IRON_INGOT"
+        E: "ENDER_PEARL"
+
+    # Blok otrzymany po wycraftowaniu
+    item:
+      material: "END_STONE"
+      name: "&8&lStoniarka"
+      lore:
+        - "&7Postaw, aby generowac kamien"
+        - "&7Kamien odrosnie po wykopaniu"
+        - ""
+        - "&eInterwal: &f3s"
+      # Efekt swiecenia (opcjonalny)
+      enchant-glow: true
+
+    # Parametry generacji
+    generation:
+      # Typ bloku generowanego nad stoniarka
+      material: "STONE"
+
+      # Czas miedzy generacjami (w sekundach)
+      interval: 3
+
+      # Czy w poblizu musi byc gracz, aby generowac
+      require-player-nearby: true
+
+      # Promien w blokach, w ktorym musi byc gracz
+      radius: 32
+
+      # Efekty przy generacji
+      effects:
+        sound: "BLOCK_STONE_PLACE"
+        particle: "CLOUD"
+        particle-count: 5
+
+    # Bezpieczenstwo
+    security:
+      # Czy tylko wlasciciel/admin moze zniszyczyc stoniarke
+      owner-only-break: true
+
+      # Czy zniszczenie zwraca przedmiot stoniarki
+      pickup-on-break: true

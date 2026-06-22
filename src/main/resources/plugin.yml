@@ -1,0 +1,98 @@
+name: OreFlow
+description: ${description}
+prefix: Ore
+version: '${version}'
+
+main: pl.Ljimex.oreFlow.OreFlow
+api-version: '1.21'
+load: STARTUP
+
+authors: [ Ljimex ]
+website: https://github.com/Ljinmex/OreFlow
+
+commands:
+  oreflow:
+    description: Glowna komenda pluginu OreFlow
+    usage: /oreflow [reload|info|help]
+    aliases: [of, drop]
+  cx:
+    description: Komenda CobbleX
+    usage: /cx [craft|drop|info|give|reload]
+    aliases: [cobblex]
+
+permissions:
+  oreflow.*:
+    description: Pelne uprawnienia administracyjne
+    default: op
+    children:
+      oreflow.reload: true
+      oreflow.admin: true
+      oreflow.gui: true
+      oreflow.mine: true
+      oreflow.toggle: true
+      oreflow.toggle.others: true
+      oreflow.cobble: true
+      oreflow.info: true
+      oreflow.help: true
+      oreflow.stats: true
+      oreflow.generator.place: true
+      oreflow.generator.break.others: true
+      oreflow.generator.unlimited: true
+      cobblex.admin: true
+      cobblex.use: true
+      cobblex.bypass: true
+  oreflow.reload:
+    description: Przeladowywanie konfiguracji
+    default: op
+  oreflow.admin:
+    description: Dostep do panelu administratora
+    default: op
+  oreflow.gui:
+    description: Dostep do GUI dropow
+    default: true
+  oreflow.mine:
+    description: Mozliwosc otrzymywania dropow przy kopaniu
+    default: true
+  oreflow.toggle:
+    description: Wlaczanie/wylaczanie dropow w GUI
+    default: true
+  oreflow.toggle.others:
+    description: Zarzadzanie dropami innych graczy
+    default: op
+  oreflow.cobble:
+    description: Kontrola dropu cobblestone
+    default: true
+  oreflow.info:
+    description: Wyswietlanie informacji o pluginie
+    default: true
+  oreflow.help:
+    description: Wyswietlanie pomocy
+    default: true
+  oreflow.stats:
+    description: Wyswietlanie statystyk kopania
+    default: true
+  oreflow.generator.place:
+    description: Mozliwosc stawiania stoniarek
+    default: true
+  oreflow.generator.break.others:
+    description: Niszczenie cudzych stoniarek
+    default: op
+  oreflow.generator.unlimited:
+    description: Brak limitu stoniarek
+    default: false
+  cobblex.*:
+    description: Pelne uprawnienia do CobbleX
+    default: op
+    children:
+      cobblex.admin: true
+      cobblex.use: true
+      cobblex.bypass: true
+  cobblex.admin:
+    description: Admin CobbleX (give, reload)
+    default: op
+  cobblex.use:
+    description: Uzywanie CobbleX i komend craft/drop/info
+    default: true
+  cobblex.bypass:
+    description: Pomijanie cooldownu CobbleX
+    default: false

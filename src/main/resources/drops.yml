@@ -1,0 +1,109 @@
+# ============================================================
+# OreFlow - Drop Configuration
+# Dodaj wlasne dropy tworzac nowe sekcje!
+# ============================================================
+
+# Przyklad: Diament
+diamond:
+
+  # Material zgodny z enum Material Bukkit
+  material: "DIAMOND"
+
+  # Szansa w procentach (0.0 - 100.0)
+  chance: 0.5
+
+  # Minimalna i maksymalna ilosc (przed Fortune)
+  min-amount: 1
+  max-amount: 1
+
+  # Czy Fortune wplywa na ten drop
+  fortune-multiplier: true
+
+  # Wymagane narzedzie (puste = dowolne)
+  required-tool: "IRON_PICKAXE"
+
+  # Zakres poziomow Y (puste = wszystkie)
+  min-y: 1
+  max-y: 16
+
+  # Ilosc EXP za ten drop
+  exp: 10
+
+  # Czy drop domyslnie wlaczony
+  enabled: true
+
+# Szmaragd
+emerald:
+  material: "EMERALD"
+  chance: 0.3
+  min-amount: 1
+  max-amount: 1
+  fortune-multiplier: true
+  required-tool: "IRON_PICKAXE"
+  min-y: 1
+  max-y: 32
+  exp: 8
+  enabled: true
+
+# Wegiel
+coal:
+  material: "COAL"
+  chance: 5.0
+  min-amount: 1
+  max-amount: 3
+  fortune-multiplier: true
+  required-tool: "WOODEN_PICKAXE"
+  exp: 2
+  enabled: true
+
+# Zelazo
+iron_ingot:
+  material: "IRON_INGOT"
+  chance: 2.5
+  min-amount: 1
+  max-amount: 2
+  fortune-multiplier: true
+  required-tool: "STONE_PICKAXE"
+  min-y: 1
+  max-y: 64
+  exp: 4
+  enabled: true
+
+# Redstone
+redstone:
+  material: "REDSTONE"
+  chance: 3.0
+  min-amount: 2
+  max-amount: 6
+  fortune-multiplier: true
+  required-tool: "IRON_PICKAXE"
+  min-y: 1
+  max-y: 16
+  exp: 3
+  enabled: true
+
+# Lapis
+lapis:
+  material: "LAPIS_LAZULI"
+  chance: 2.0
+  min-amount: 2
+  max-amount: 5
+  fortune-multiplier: true
+  required-tool: "STONE_PICKAXE"
+  min-y: 1
+  max-y: 32
+  exp: 3
+  enabled: true
+
+# Obsidian (rzadki drop bez Fortune)
+obsidian:
+  material: "OBSIDIAN"
+  chance: 0.1
+  min-amount: 1
+  max-amount: 1
+  fortune-multiplier: false
+  required-tool: "DIAMOND_PICKAXE"
+  min-y: 1
+  max-y: 16
+  exp: 15
+  enabled: true
