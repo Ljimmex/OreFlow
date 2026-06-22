@@ -3,6 +3,8 @@ package pl.Ljimex.oreFlow.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import pl.Ljimex.oreFlow.OreFlow;
 
@@ -17,24 +19,44 @@ public class ActionBarUtil {
 
     /**
      * Wysyla wiadomosc na Action Bar przy uzyciu MiniMessage formatu.
-     * Wspiera gradienty, kolory hex, bold, italic itp.
-     *
-     * Przyklady:
-     * - "<#FF5555>Czerwony tekst"
-     * - "<gradient:#00FF88:#55FFFF>Tekst gradientowy</gradient>"
-     * - "<bold><#FFAA00>Pogrubiony</#FFAA00></bold>"
+     * Domyslnie wyswietla sie przez standardowy czas (1 sekunde).
      */
     public void send(Player player, String message) {
+        send(player, message, 20);
+    }
+
+    /**
+     * Wysyla wiadomosc na Action Bar na okreslona liczbe tickow.
+     * Wysyla co 20 tickow, aby utrzymac wiadomosc widoczna przez zadany czas.
+     */
+    public void send(Player player, String message, int durationTicks) {
         if (message == null || message.isEmpty()) {
             return;
         }
+
+        Component component;
         try {
-            Component component = miniMessage.deserialize(message);
-            player.sendActionBar(component);
+            component = miniMessage.deserialize(message);
         } catch (Exception e) {
-            // Fallback na zwykly tekst jesli MiniMessage nie moze sparsowac
-            player.sendActionBar(Component.text(org.bukkit.ChatColor.translateAlternateColorCodes('&', message)));
+            component = Component.text(org.bukkit.ChatColor.translateAlternateColorCodes('&', message));
         }
+
+        final Component finalComponent = component;
+        final int repeats = Math.max(1, (int) Math.ceil(durationTicks / 20.0));
+
+        new BukkitRunnable() {
+            private int count = 0;
+
+            @Override
+            public void run() {
+                if (!player.isOnline() || count >= repeats) {
+                    cancel();
+                    return;
+                }
+                player.sendActionBar(finalComponent);
+                count++;
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
     /**

@@ -13,7 +13,7 @@ website: https://github.com/Ljinmex/OreFlow
 commands:
   oreflow:
     description: Glowna komenda pluginu OreFlow
-    usage: /oreflow [reload|info|help]
+    usage: /oreflow [reload|info|cobble|toggle|language|admin|help]
     aliases: [of, drop]
   cx:
     description: Komenda CobbleX

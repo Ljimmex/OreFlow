@@ -1,0 +1,79 @@
+# ============================================================
+# OreFlow - Sprache: Deutsch
+# Variablen: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
+# ============================================================
+
+commands:
+  no-permission: "&cDu hast keine Berechtigung! (&e{permission}&c)"
+  player-only: "&cNur Spieler konnen diesen Befehl verwenden!"
+  reload-success: "&a&lERFOLG! &aOreFlow-Konfiguration in &e{time}ms&a neu geladen."
+  reload-error: "&c&lFEHLER! &cKonfiguration konnte nicht neu geladen werden. Siehe Konsole."
+  invalid-drop: "&cDrop &e{drop} &cexistiert nicht in der Konfiguration!"
+  drop-toggled-on: "&a&lAKTIVIERT! &aDrop &e{drop} &awurde aktiviert."
+  drop-toggled-off: "&c&lDEAKTIVIERT! &cDrop &e{drop} &cwurde deaktiviert."
+  drop-toggled-on-other: "&aDrop &e{drop} &awurde fur &e{target}&a aktiviert."
+  drop-toggled-off-other: "&cDrop &e{drop} &cwurde fur &e{target}&c deaktiviert."
+  drop-toggled-on-by: "&aDrop &e{drop} &awurde fur dich von &e{player}&a aktiviert."
+  drop-toggled-off-by: "&cDrop &e{drop} &cwurde fur dich von &e{player}&c deaktiviert."
+  cobble-enabled: "&aCobblestone-Drop von Stein wurde &2AKTIVIERT&a."
+  cobble-disabled: "&cCobblestone-Drop von Stein wurde &4DEAKTIVIERT&c."
+  drop-destination-inventory: "&aDrops landen im &2Inventar&a."
+  drop-destination-ground: "&cDrops fallen &4auf den Boden&c."
+  exp-enabled: "&aMining-EXP wurde &2AKTIVIERT&a."
+  exp-disabled: "&cMining-EXP wurde &4DEAKTIVIERT&c."
+  player-not-found: "&cSpieler nicht gefunden: &e{player}"
+  creativemsg-enabled: "&aCreative-Modus-Nachricht ist &2AKTIVIERT&a."
+  creativemsg-disabled: "&cCreative-Modus-Nachricht ist &4DEAKTIVIERT&c."
+  language-changed: "&aSprache geandert zu &e{language}&a."
+  language-invalid: "&cUngultige Sprache. Verfugbar: &e{languages}"
+  debug-header: "&6&lOreFlow Debug"
+  debug-blocks: "&7Simulation des Abbauens von &e{blocks} &7Steinblocken..."
+  debug-total: "&aGesamte Gegenstande: &e{total}"
+  debug-empty: "&cKeine Drops - prufe Y-Level, Werkzeug und Chancen in drops.yml"
+  debug-distribution: "&aVerteilung:"
+  debug-entry: "&7- &e{material}&7: &f{amount}"
+
+status:
+  enabled: "&aAktiviert"
+  disabled: "&cDeaktiviert"
+  inventory: "&aInventar"
+  ground: "&cBoden"
+
+actionbar:
+  prefix: "<#5555FF><bold>OreFlow</bold></#5555FF>"
+  drop-success:
+    enabled: true
+    message: "{prefix} <dark_gray>» <white>✦ <white>+{amount} {material}"
+    duration: 40
+  drop-success-multi:
+    enabled: true
+    message: "{prefix} <dark_gray>» {drops}"
+    duration: 40
+  creative:
+    enabled: true
+    message: "{prefix} <dark_gray>» <red>Kreativmodus <dark_gray>– <gray>Keine Drops"
+    duration: 40
+  ore-blocked:
+    enabled: true
+    message: "{prefix} <dark_gray>» <red>Erze droppen auf diesem Server nicht"
+    duration: 40
+  generator-placed:
+    enabled: true
+    message: "&aGenerator platziert!"
+    duration: 60
+  generator-ready:
+    enabled: true
+    message: "&eGenerator bereit!"
+    duration: 40
+
+gui:
+  title: "&8&lStone-Drops verwalten"
+  title-admin: "&8&lAdmin-Panel - Drops"
+  buttons:
+    next-page: "&aNachste Seite &7>>"
+    prev-page: "&7<< &aVorherige Seite"
+    close: "&cSchliessen"
+
+gui-messages:
+  drop-message-enabled: "&aDrop-Nachricht fur &e{drop} &awurde &2AKTIVIERT&a."
+  drop-message-disabled: "&cDrop-Nachricht fur &e{drop} &cwurde &4DEAKTIVIERT&c."

@@ -36,26 +36,45 @@ public class ConfigManager {
         configFile = new File(plugin.getDataFolder(), "config.yml");
         dropsFile = new File(plugin.getDataFolder(), "drops.yml");
         generatorsFile = new File(plugin.getDataFolder(), "generators.yml");
-        langFile = new File(plugin.getDataFolder(), "lang.yml");
+        langFile = new File(new File(plugin.getDataFolder(), "lang"), "pl.yml");
 
         createDefaultFile(configFile, "config.yml");
         createDefaultFile(dropsFile, "drops.yml");
         createDefaultFile(generatorsFile, "generators.yml");
-        createDefaultFile(langFile, "lang.yml");
+        createDefaultLangFiles();
 
         reloadConfigs();
+    }
+
+    private void createDefaultLangFiles() {
+        File langDir = new File(plugin.getDataFolder(), "lang");
+        if (!langDir.exists()) {
+            langDir.mkdirs();
+        }
+        createDefaultFile(new File(langDir, "pl.yml"), "lang/pl.yml");
+        createDefaultFile(new File(langDir, "en.yml"), "lang/en.yml");
+        createDefaultFile(new File(langDir, "de.yml"), "lang/de.yml");
     }
 
     public void reloadConfigs() {
         config = YamlConfiguration.loadConfiguration(configFile);
         drops = YamlConfiguration.loadConfiguration(dropsFile);
         generators = YamlConfiguration.loadConfiguration(generatorsFile);
-        lang = YamlConfiguration.loadConfiguration(langFile);
 
         loadDefaultsFromResources(config, configFile, "config.yml");
         loadDefaultsFromResources(drops, dropsFile, "drops.yml");
         loadDefaultsFromResources(generators, generatorsFile, "generators.yml");
-        loadDefaultsFromResources(lang, langFile, "lang.yml");
+
+        // Language-specific lang file from lang/ folder
+        String language = config.getString("settings.language", "pl");
+        File localizedLangFile = new File(new File(plugin.getDataFolder(), "lang"), language + ".yml");
+        if (localizedLangFile.exists()) {
+            langFile = localizedLangFile;
+        } else {
+            langFile = new File(new File(plugin.getDataFolder(), "lang"), "pl.yml");
+        }
+        lang = YamlConfiguration.loadConfiguration(langFile);
+        loadDefaultsFromResources(lang, langFile, "lang/" + language + ".yml");
     }
 
     public void saveConfigs() {

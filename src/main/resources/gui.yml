@@ -1,0 +1,161 @@
+# ============================================================
+# OreFlow - GUI Configuration
+# ============================================================
+#
+# This file allows FULL customization of the /drop GUI.
+# You can change: title, size, glass decorations, drop slots,
+# button positions, item names, lores, and colors.
+#
+# --- HOW TO USE PLACEHOLDERS ---
+# Placeholders are wrapped in { } and are replaced automatically.
+# Available placeholders for DROP items:
+#
+#   {drop}              - lowercase drop key (e.g. "diamond")
+#   {capitalized_drop}  - capitalized drop key (e.g. "Diamond")
+#   {material}          - Bukkit material name (e.g. "DIAMOND")
+#   {color}             - item color hex used in Action Bar/GUI
+#   {status}            - enabled/disabled status with color
+#   {chance}            - base drop chance (%)
+#   {min}               - minimum base amount
+#   {max}               - maximum base amount
+#   {fortune_enabled}   - "Yes" or "No" colored
+#   {fortune1_chance}   - Fortune I bonus chance
+#   {fortune1_min}      - Fortune I minimum bonus
+#   {fortune1_max}      - Fortune I maximum bonus
+#   {fortune2_chance}, {fortune2_min}, {fortune2_max}  - Fortune II
+#   {fortune3_chance}, {fortune3_min}, {fortune3_max}  - Fortune III
+#   {tool}              - required tool or "Any"
+#   {y_level}           - Y-level range or "Any"
+#   {exp}               - EXP reward
+#   {line}              - separator line (▬▬▬...)
+#   {toggle_action}     - "enable" or "disable"
+#
+# Available placeholders for BUTTONS:
+#
+#   {status}  - button state (enabled/disabled or destination)
+#
+# --- HOW TO CONFIGURE SLOTS ---
+# Slots are numbered 0 to (rows*9 - 1).
+# Row 1 = 0-8, Row 2 = 9-17, Row 3 = 18-26, etc.
+# You can use single numbers, ranges (e.g. "0-8"), or lists (e.g. "0,1,2").
+#
+# --- HOW TO CONFIGURE BUTTONS ---
+# Each button has a fixed "type" used by the plugin:
+#   cobble, drop_destination, exp, close, previous_page, next_page
+# The slot MUST match the slot defined in this config.
+# Page buttons are shown only when there is a previous/next page.
+#
+# --- COLORS ---
+# Use MiniMessage format:
+#   <red>, <green>, <yellow>, <aqua>, <gold>, <gray>, <dark_gray>, <bold>, <italic>
+#   Hex colors: <#55FFFF>, <gradient:#FFAA00:#FF5555>
+#
+# ============================================================
+
+gui:
+  # GUI title (MiniMessage)
+  title: "<gradient:#FFAA00:#FF5555><bold>Menu Dropow</bold></gradient>"
+
+  # Number of rows (1-6). Total slots = rows * 9
+  rows: 5
+
+  # Decorations / glass panes
+  decorations:
+    - slots: "0-8"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "18-26"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "27-35"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "36-44"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+
+  # Drop items section
+  drops:
+    # Starting slot for drop items
+    start-slot: 9
+    # Maximum drops shown (usually 9 per row)
+    max-slots: 9
+
+    # Drop item display
+    item:
+      name: "<{color}>{capitalized_drop}</{color}> <dark_gray>•</dark_gray> {status}"
+      lore:
+        - "<gray>Drop Settings</gray>"
+        - " <dark_gray>▸</dark_gray> <gray>Material:</gray> <yellow>{material}</yellow>"
+        - " <dark_gray>▸</dark_gray> <gray>Chance:</gray> <yellow>{chance}%</yellow>"
+        - " <dark_gray>▸</dark_gray> <gray>Amount:</gray> <yellow>{min}-{max}</yellow>"
+        - " <dark_gray>▸</dark_gray> <gray>Fortune:</gray> {fortune_enabled}"
+        - "{line}"
+        - "<gray>Fortune Levels</gray>"
+        - " <dark_gray>▸</dark_gray> <yellow>F1:</yellow> <aqua>{fortune1_chance}%</aqua> <dark_gray>➜</dark_gray> <green>+{fortune1_min}-{fortune1_max}</green>"
+        - " <dark_gray>▸</dark_gray> <yellow>F2:</yellow> <aqua>{fortune2_chance}%</aqua> <dark_gray>➜</dark_gray> <green>+{fortune2_min}-{fortune2_max}</green>"
+        - " <dark_gray>▸</dark_gray> <yellow>F3:</yellow> <aqua>{fortune3_chance}%</aqua> <dark_gray>➜</dark_gray> <green>+{fortune3_min}-{fortune3_max}</green>"
+        - "{line}"
+        - "<gray>Requirements</gray>"
+        - " <dark_gray>▸</dark_gray> <gray>Tool:</gray> <yellow>{tool}</yellow>"
+        - " <dark_gray>▸</dark_gray> <gray>Y-Level:</gray> <yellow>{y_level}</yellow>"
+        - "{line}"
+        - "<gray>Rewards</gray>"
+        - " <dark_gray>▸</dark_gray> <gray>EXP:</gray> <yellow>{exp}</yellow>"
+        - "{line}"
+        - "<dark_gray>LPM - włącz/wyłącz komunikat</dark_gray>"
+        - "<dark_gray>PPM - {toggle_action}</dark_gray>"
+
+  # Functional buttons
+  buttons:
+    cobble:
+      type: "cobble"
+      slot: 29
+      material: "COBBLESTONE"
+      name: "<yellow>Drop Cobblestone</yellow> <dark_gray>•</dark_gray> {status}"
+      lore:
+        - "<gray>Click to toggle cobblestone drop</gray>"
+        - "<gray>from stone blocks.</gray>"
+
+    drop_destination:
+      type: "drop_destination"
+      slot: 31
+      material: "HOPPER"
+      name: "<yellow>Drop Destination</yellow> <dark_gray>•</dark_gray> {status}"
+      lore:
+        - "<gray>Click to toggle where drops go.</gray>"
+
+    exp:
+      type: "exp"
+      slot: 33
+      material: "EXPERIENCE_BOTTLE"
+      name: "<yellow>EXP Reward</yellow> <dark_gray>•</dark_gray> {status}"
+      lore:
+        - "<gray>Click to toggle mining EXP.</gray>"
+
+    previous_page:
+      type: "previous_page"
+      slot: 36
+      material: "PAPER"
+      name: "<yellow>← Previous Page</yellow>"
+      lore:
+        - "<gray>Click to go to previous page</gray>"
+
+    next_page:
+      type: "next_page"
+      slot: 44
+      material: "PAPER"
+      name: "<yellow>Next Page →</yellow>"
+      lore:
+        - "<gray>Click to go to next page</gray>"
+
+    close:
+      type: "close"
+      slot: 40
+      material: "BARRIER"
+      name: "<red>Close</red>"
+      lore: []

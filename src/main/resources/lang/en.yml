@@ -1,0 +1,79 @@
+# ============================================================
+# OreFlow - Language: English
+# Variables: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
+# ============================================================
+
+commands:
+  no-permission: "&cYou don't have permission! (&e{permission}&c)"
+  player-only: "&cOnly players can use this command!"
+  reload-success: "&a&lSUCCESS! &aReloaded OreFlow config in &e{time}ms&a."
+  reload-error: "&c&lERROR! &cFailed to reload config. Check console."
+  invalid-drop: "&cDrop &e{drop} &cdoes not exist in config!"
+  drop-toggled-on: "&a&lENABLED! &aDrop &e{drop} &ahas been enabled."
+  drop-toggled-off: "&c&lDISABLED! &cDrop &e{drop} &chas been disabled."
+  drop-toggled-on-other: "&aDrop &e{drop} &ahas been enabled for &e{target}&a."
+  drop-toggled-off-other: "&cDrop &e{drop} &chas been disabled for &e{target}&c."
+  drop-toggled-on-by: "&aDrop &e{drop} &ahas been enabled for you by &e{player}&a."
+  drop-toggled-off-by: "&cDrop &e{drop} &chas been disabled for you by &e{player}&c."
+  cobble-enabled: "&aCobblestone drop from stone has been &2ENABLED&a."
+  cobble-disabled: "&cCobblestone drop from stone has been &4DISABLED&c."
+  drop-destination-inventory: "&aDrops will go to your &2inventory&a."
+  drop-destination-ground: "&cDrops will fall &4on the ground&c."
+  exp-enabled: "&aMining EXP has been &2ENABLED&a."
+  exp-disabled: "&cMining EXP has been &4DISABLED&c."
+  player-not-found: "&cPlayer not found: &e{player}"
+  creativemsg-enabled: "&aCreative mode message is &2ENABLED&a."
+  creativemsg-disabled: "&cCreative mode message is &4DISABLED&c."
+  language-changed: "&aLanguage changed to &e{language}&a."
+  language-invalid: "&cInvalid language. Available: &e{languages}"
+  debug-header: "&6&lOreFlow Debug"
+  debug-blocks: "&7Simulating mining &e{blocks} &7stone blocks..."
+  debug-total: "&aTotal items rolled: &e{total}"
+  debug-empty: "&cNo drops - check Y level, tool and chances in drops.yml"
+  debug-distribution: "&aDistribution:"
+  debug-entry: "&7- &e{material}&7: &f{amount}"
+
+status:
+  enabled: "&aEnabled"
+  disabled: "&cDisabled"
+  inventory: "&aInventory"
+  ground: "&cGround"
+
+actionbar:
+  prefix: "<#5555FF><bold>OreFlow</bold></#5555FF>"
+  drop-success:
+    enabled: true
+    message: "{prefix} <dark_gray>» <white>✦ <white>+{amount} {material}"
+    duration: 40
+  drop-success-multi:
+    enabled: true
+    message: "{prefix} <dark_gray>» {drops}"
+    duration: 40
+  creative:
+    enabled: true
+    message: "{prefix} <dark_gray>» <red>Creative Mode <dark_gray>– <gray>No drops"
+    duration: 40
+  ore-blocked:
+    enabled: true
+    message: "{prefix} <dark_gray>» <red>Ores do not drop on this server"
+    duration: 40
+  generator-placed:
+    enabled: true
+    message: "&aGenerator placed!"
+    duration: 60
+  generator-ready:
+    enabled: true
+    message: "&eGenerator ready!"
+    duration: 40
+
+gui:
+  title: "&8&lManage stone drops"
+  title-admin: "&8&lAdmin Panel - Drops"
+  buttons:
+    next-page: "&aNext page &7>>"
+    prev-page: "&7<< &aPrevious page"
+    close: "&cClose"
+
+gui-messages:
+  drop-message-enabled: "&aDrop message for &e{drop} &ahas been &2ENABLED&a."
+  drop-message-disabled: "&cDrop message for &e{drop} &chas been &4DISABLED&c."

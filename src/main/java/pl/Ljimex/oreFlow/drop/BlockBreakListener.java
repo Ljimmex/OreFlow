@@ -12,7 +12,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import pl.Ljimex.oreFlow.OreFlow;
+import pl.Ljimex.oreFlow.config.MessageManager;
+import pl.Ljimex.oreFlow.config.PlayerSettingsManager;
 import pl.Ljimex.oreFlow.util.ActionBarUtil;
+import pl.Ljimex.oreFlow.util.ItemColorUtil;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -20,11 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BlockBreakListener implements Listener {
 
     private final OreFlow plugin;
     private final DropManager dropManager;
+    private final PlayerSettingsManager playerSettings;
+    private final MessageManager messageManager;
     private final ActionBarUtil actionBarUtil;
     private final Set<UUID> disabledCreativeMessage;
     private final Map<UUID, Long> oreMessageCooldown = new HashMap<>();
@@ -56,6 +62,8 @@ public class BlockBreakListener implements Listener {
     public BlockBreakListener(OreFlow plugin, DropManager dropManager) {
         this.plugin = plugin;
         this.dropManager = dropManager;
+        this.playerSettings = plugin.getPlayerSettingsManager();
+        this.messageManager = plugin.getMessageManager();
         this.actionBarUtil = new ActionBarUtil(plugin);
         this.disabledCreativeMessage = plugin.getDisabledCreativeMessagePlayers();
     }
@@ -73,8 +81,7 @@ public class BlockBreakListener implements Listener {
         // Tryb kreatywny - brak dropow + opcjonalna wiadomosc Action Bar
         if (player.getGameMode() == GameMode.CREATIVE) {
             if (player.hasPermission("oreflow.mine") && !disabledCreativeMessage.contains(player.getUniqueId())) {
-                actionBarUtil.send(player,
-                        "<#FF5555>☠ <gradient:#FF5555:#FFAA00>Dropy OreFlow wyłączone w trybie kreatywnym</gradient>");
+                sendCreativeMessage(player);
             }
             return;
         }
@@ -90,59 +97,99 @@ public class BlockBreakListener implements Listener {
             return;
         }
 
-        // Wyłączenie domyslnych dropow dla wszystkich blokow z listy (stone + rudy)
-        boolean disableDefaultDrops = plugin.getConfigManager().getConfig()
-                .getBoolean("settings.disable-default-drops",
-                        plugin.getConfigManager().getConfig().getBoolean("settings.disable-cobble-drop", true));
+        // Wyłączenie domyslnych dropow
+        boolean isOre = isOre(block.getType());
+        boolean disableDefaultDrops;
+
+        if (isOre) {
+            // Rudy: zawsze wylaczamy domyslne dropy - zadne rudy nie maja dropic vanilla
+            disableDefaultDrops = true;
+        } else {
+            // Stone: domyslne dropy (cobblestone) zaleza od ustawien gracza
+            disableDefaultDrops = !playerSettings.isCobbleEnabled(player.getUniqueId());
+        }
+
         if (disableDefaultDrops) {
             event.setDropItems(false);
             event.setExpToDrop(0);
 
             // Informacja o zablokowanych domyslnych dropach z rud
-            if (isOre(block.getType())) {
-                sendOreBlockedMessage(player);
+            if (isOre) {
+                sendOreBlockedMessage(player, block.getType());
             }
         }
 
-        // Przetworzenie dropow
-        List<ItemStack> drops = dropManager.processDrops(player, block.getLocation(), tool);
-        if (!drops.isEmpty()) {
-            dropManager.deliverDrops(player, block.getLocation(), drops);
-            sendDropMessage(player, drops);
-        } else {
-            // Brak szczescia - mozna pokazac symboliczna wiadomosc (opcjonalnie)
-            // actionBarUtil.send(player, "<#AAAAAA>✧ Pusto... tym razem");
+        // Przetworzenie dropow - tylko dla blokow kamiennych, nie dla rud
+        if (!isOre) {
+            List<DropResult> drops = dropManager.processDrops(player, block.getLocation(), tool);
+            if (!drops.isEmpty()) {
+                List<ItemStack> items = drops.stream().map(DropResult::item).toList();
+                dropManager.deliverDrops(player, block.getLocation(), items);
+                sendDropMessage(player, drops);
+            }
         }
 
         // Bazowy EXP za zniszczenie bloku
-        int baseExp = plugin.getConfigManager().getConfig().getInt("settings.base-exp", 0);
-        if (baseExp > 0) {
-            double multiplier = plugin.getConfigManager().getConfig()
-                    .getDouble("settings.exp-multiplier", 1.0);
-            int finalExp = (int) Math.round(baseExp * multiplier);
+        if (playerSettings.isExpEnabled(player.getUniqueId())) {
+            int baseExp = plugin.getConfigManager().getConfig().getInt("settings.base-exp", 0);
+            if (baseExp > 0) {
+                double multiplier = plugin.getConfigManager().getConfig()
+                        .getDouble("settings.exp-multiplier", 1.0);
+                int finalExp = (int) Math.round(baseExp * multiplier);
 
-            String expMode = plugin.getConfigManager().getConfig()
-                    .getString("settings.exp-mode", "direct-give");
-            if ("orb-spawn".equalsIgnoreCase(expMode)) {
-                event.setExpToDrop(event.getExpToDrop() + finalExp);
-            } else {
-                player.giveExp(finalExp);
+                String expMode = plugin.getConfigManager().getConfig()
+                        .getString("settings.exp-mode", "direct-give");
+                if ("orb-spawn".equalsIgnoreCase(expMode)) {
+                    event.setExpToDrop(event.getExpToDrop() + finalExp);
+                } else {
+                    player.giveExp(finalExp);
+                }
             }
         }
     }
 
-    private void sendDropMessage(Player player, List<ItemStack> drops) {
-        if (drops.size() == 1) {
-            ItemStack drop = drops.get(0);
-            String name = formatMaterialName(drop.getType().name());
-            actionBarUtil.send(player,
-                    "<#00FF88>✔ <gradient:#00FF88:#55FFFF>Wylosowano: "
-                            + drop.getAmount() + "x " + name + "</gradient>");
+    private void sendCreativeMessage(Player player) {
+        if (!messageManager.isActionBarEnabled("creative")) {
+            return;
+        }
+        actionBarUtil.send(player, messageManager.getActionBarMessage("creative",
+                "prefix", messageManager.getRaw("actionbar.prefix", new HashMap<>())),
+                messageManager.getActionBarDuration("creative"));
+    }
+
+    private void sendDropMessage(Player player, List<DropResult> drops) {
+        List<DropResult> visible = drops.stream()
+                .filter(drop -> playerSettings.isDropMessageEnabled(player.getUniqueId(), drop.dropKey()))
+                .toList();
+
+        if (visible.isEmpty()) {
+            return;
+        }
+
+        String prefix = messageManager.getRaw("actionbar.prefix", new HashMap<>());
+
+        if (visible.size() == 1) {
+            if (!messageManager.isActionBarEnabled("drop-success")) {
+                return;
+            }
+            DropResult drop = visible.get(0);
+            String coloredName = formatColoredMaterialName(drop.item().getType());
+            actionBarUtil.send(player, messageManager.getActionBarMessage("drop-success",
+                    "prefix", prefix,
+                    "amount", String.valueOf(drop.item().getAmount()),
+                    "material", coloredName),
+                    messageManager.getActionBarDuration("drop-success"));
         } else {
-            int totalAmount = drops.stream().mapToInt(ItemStack::getAmount).sum();
-            actionBarUtil.send(player,
-                    "<#00FF88>✔ <gradient:#00FF88:#55FFFF>Wylosowano "
-                            + drops.size() + " dropow (" + totalAmount + " przedmiotow)</gradient>");
+            if (!messageManager.isActionBarEnabled("drop-success-multi")) {
+                return;
+            }
+            String dropsText = visible.stream()
+                    .map(drop -> "<white>+" + drop.item().getAmount() + " " + formatColoredMaterialName(drop.item().getType()))
+                    .collect(Collectors.joining("<dark_gray>, "));
+            actionBarUtil.send(player, messageManager.getActionBarMessage("drop-success-multi",
+                    "prefix", prefix,
+                    "drops", dropsText),
+                    messageManager.getActionBarDuration("drop-success-multi"));
         }
     }
 
@@ -156,6 +203,15 @@ public class BlockBreakListener implements Listener {
             result.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
         }
         return result.toString();
+    }
+
+    private String formatColoredMaterialName(Material material) {
+        String color = getItemColor(material);
+        return "<" + color + ">" + formatMaterialName(material.name()) + "</" + color + ">";
+    }
+
+    private String getItemColor(Material material) {
+        return ItemColorUtil.getColor(material);
     }
 
     private boolean isMineableBlock(Material material) {
@@ -186,7 +242,7 @@ public class BlockBreakListener implements Listener {
         return ORE_BLOCKS.contains(material);
     }
 
-    private void sendOreBlockedMessage(Player player) {
+    private void sendOreBlockedMessage(Player player, Material ore) {
         UUID uuid = player.getUniqueId();
         long now = System.currentTimeMillis();
         Long last = oreMessageCooldown.get(uuid);
@@ -195,7 +251,12 @@ public class BlockBreakListener implements Listener {
         }
         oreMessageCooldown.put(uuid, now);
 
-        actionBarUtil.send(player,
-                "<#FFAA00>⚠ <gradient:#FFAA00:#FF5555>Domyślne dropy z rudy zostały zablokowane</gradient>");
+        if (!messageManager.isActionBarEnabled("ore-blocked")) {
+            return;
+        }
+        String prefix = messageManager.getRaw("actionbar.prefix", new HashMap<>());
+        actionBarUtil.send(player, messageManager.getActionBarMessage("ore-blocked",
+                "prefix", prefix),
+                messageManager.getActionBarDuration("ore-blocked"));
     }
 }

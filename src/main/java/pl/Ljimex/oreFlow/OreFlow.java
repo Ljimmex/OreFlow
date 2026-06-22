@@ -6,9 +6,13 @@ import pl.Ljimex.oreFlow.cobblex.CobbleXListener;
 import pl.Ljimex.oreFlow.cobblex.CobbleXManager;
 import pl.Ljimex.oreFlow.command.OreFlowCommand;
 import pl.Ljimex.oreFlow.config.ConfigManager;
+import pl.Ljimex.oreFlow.config.GuiConfigManager;
+import pl.Ljimex.oreFlow.config.MessageManager;
+import pl.Ljimex.oreFlow.config.PlayerSettingsManager;
 import pl.Ljimex.oreFlow.drop.BlockBreakListener;
 import pl.Ljimex.oreFlow.drop.DropManager;
 import pl.Ljimex.oreFlow.gui.GuiListener;
+import pl.Ljimex.oreFlow.gui.GuiManager;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +23,12 @@ public final class OreFlow extends JavaPlugin {
 
     private static OreFlow instance;
     private ConfigManager configManager;
+    private GuiConfigManager guiConfigManager;
+    private MessageManager messageManager;
     private DropManager dropManager;
+    private GuiManager guiManager;
+    private GuiListener guiListener;
+    private PlayerSettingsManager playerSettingsManager;
     private final Set<UUID> disabledCreativeMessagePlayers = new HashSet<>();
 
     @Override
@@ -33,7 +42,17 @@ public final class OreFlow extends JavaPlugin {
             this.configManager = new ConfigManager(this);
             this.configManager.loadConfigs();
 
+            this.guiConfigManager = new GuiConfigManager(this);
+            this.guiConfigManager.load();
+
+            this.messageManager = new MessageManager(this);
+
+            this.playerSettingsManager = new PlayerSettingsManager(this);
+            this.playerSettingsManager.load();
+
             this.dropManager = new DropManager(this);
+            this.guiManager = new GuiManager(this);
+            this.guiListener = new GuiListener(this);
 
             CobbleXManager cobbleXManager = new CobbleXManager(this);
             cobbleXManager.registerRecipe();
@@ -43,7 +62,7 @@ public final class OreFlow extends JavaPlugin {
             getServer().getPluginManager().registerEvents(
                     new CobbleXListener(this, cobbleXManager), this);
             getServer().getPluginManager().registerEvents(
-                    new GuiListener(this), this);
+                    guiListener, this);
 
             getCommand("oreflow").setExecutor(new OreFlowCommand(this));
             getCommand("cx").setExecutor(new CobbleXCommand(this, cobbleXManager));
@@ -75,6 +94,9 @@ public final class OreFlow extends JavaPlugin {
             if (configManager != null) {
                 configManager.saveConfigs();
             }
+            if (playerSettingsManager != null) {
+                playerSettingsManager.save();
+            }
             logInfo("Plugin disabled successfully");
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error during disabling OreFlow!", e);
@@ -94,6 +116,26 @@ public final class OreFlow extends JavaPlugin {
 
     public DropManager getDropManager() {
         return dropManager;
+    }
+
+    public GuiConfigManager getGuiConfigManager() {
+        return guiConfigManager;
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
+    }
+
+    public GuiManager getGuiManager() {
+        return guiManager;
+    }
+
+    public GuiListener getGuiListener() {
+        return guiListener;
+    }
+
+    public PlayerSettingsManager getPlayerSettingsManager() {
+        return playerSettingsManager;
     }
 
     public Set<UUID> getDisabledCreativeMessagePlayers() {

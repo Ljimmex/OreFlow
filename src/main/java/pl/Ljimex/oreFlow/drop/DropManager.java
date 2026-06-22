@@ -29,10 +29,10 @@ public class DropManager {
      * @param player    gracz, ktory zniszczyl blok
      * @param location  lokalizacja zniszczonego bloku
      * @param tool      narzedzie uzyte do kopania
-     * @return lista przedmiotow, ktore wypadly
+     * @return lista wynikow dropu (klucz + przedmiot)
      */
-    public List<ItemStack> processDrops(Player player, Location location, ItemStack tool) {
-        List<ItemStack> result = new ArrayList<>();
+    public List<DropResult> processDrops(Player player, Location location, ItemStack tool) {
+        List<DropResult> result = new ArrayList<>();
 
         if (!hasPermission(player, location.getWorld())) {
             return result;
@@ -54,6 +54,11 @@ public class DropManager {
                 continue;
             }
 
+            // Sprawdzenie per-gracz wylaczenia dropu
+            if (!plugin.getPlayerSettingsManager().isDropEnabled(player.getUniqueId(), dropKey)) {
+                continue;
+            }
+
             if (!isDropApplicable(drop, player, location, tool)) {
                 continue;
             }
@@ -65,7 +70,7 @@ public class DropManager {
 
             ItemStack item = createDropItem(drop, fortuneLevel);
             if (item != null && item.getAmount() > 0) {
-                result.add(item);
+                result.add(new DropResult(dropKey, item));
                 dropsProcessed++;
 
                 int exp = drop.getInt("exp", 0);
@@ -86,8 +91,7 @@ public class DropManager {
             return;
         }
 
-        boolean dropToInventory = plugin.getConfigManager().getConfig()
-                .getBoolean("settings.drop-to-inventory", true);
+        boolean dropToInventory = plugin.getPlayerSettingsManager().isDropToInventory(player.getUniqueId());
 
         if (dropToInventory) {
             PlayerInventory inventory = player.getInventory();
@@ -185,6 +189,13 @@ public class DropManager {
         };
     }
 
+    private boolean isFortuneEnabled(ConfigurationSection drop) {
+        if (drop.contains("fortune.enabled")) {
+            return drop.getBoolean("fortune.enabled", true);
+        }
+        return drop.getBoolean("fortune-multiplier", true);
+    }
+
     private ItemStack createDropItem(ConfigurationSection drop, int fortuneLevel) {
         String materialName = drop.getString("material", "STONE");
         Material material = Material.matchMaterial(materialName);
@@ -197,10 +208,26 @@ public class DropManager {
         int maxAmount = drop.getInt("max-amount", 1);
         int amount = ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1);
 
-        boolean applyFortune = drop.getBoolean("fortune-multiplier", true);
-        if (applyFortune && amount > 0) {
-            int multiplier = fortuneCalculator.calculateFortuneMultiplier(fortuneLevel);
-            amount = amount * multiplier;
+        // Fortune - nowa konfigurowalna wersja
+        if (isFortuneEnabled(drop) && amount > 0 && fortuneLevel > 0) {
+            ConfigurationSection fortuneLevelSection = drop.getConfigurationSection("fortune.levels." + fortuneLevel);
+            if (fortuneLevelSection != null) {
+                double chance = fortuneLevelSection.getDouble("chance", 0.0);
+                int bonusMin = fortuneLevelSection.getInt("bonus-min", 0);
+                int bonusMax = fortuneLevelSection.getInt("bonus-max", 0);
+
+                if (ThreadLocalRandom.current().nextDouble(100.0) <= chance && bonusMax > 0) {
+                    int bonus = bonusMin;
+                    if (bonusMax > bonusMin) {
+                        bonus = ThreadLocalRandom.current().nextInt(bonusMin, bonusMax + 1);
+                    }
+                    amount += bonus;
+                }
+            } else {
+                // Fallback do starej formuly jesli brak konfiguracji fortune levels
+                int multiplier = fortuneCalculator.calculateFortuneMultiplier(fortuneLevel);
+                amount = amount * multiplier;
+            }
         }
 
         if (amount <= 0) {
@@ -217,6 +244,10 @@ public class DropManager {
     }
 
     private void giveExp(Player player, Location location, int exp) {
+        if (!plugin.getPlayerSettingsManager().isExpEnabled(player.getUniqueId())) {
+            return;
+        }
+
         String expMode = plugin.getConfigManager().getConfig()
                 .getString("settings.exp-mode", "direct-give");
         double multiplier = plugin.getConfigManager().getConfig()

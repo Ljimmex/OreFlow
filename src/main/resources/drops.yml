@@ -9,36 +9,33 @@
 #   DIAMOND_PICKAXE (tier 4)
 #   NETHERITE_PICKAXE (tier 5)
 # Lepszy kilof automatycznie spelnia wymaganie nizszego tieru.
+#
+# fortune:
+#   enabled: czy Fortune wplywa na ten drop
+#   levels:
+#     1/2/3:
+#       chance: szansa na dodatkowe przedmioty z danym Fortune
+#       bonus-min: minimalna dodatkowa ilosc
+#       bonus-max: maksymalna dodatkowa ilosc
 # ============================================================
 
-# Przyklad: Diament
+# Diament
 diamond:
-
-  # Material zgodny z enum Material Bukkit
   material: "DIAMOND"
-
-  # Szansa w procentach (0.0 - 100.0)
   chance: 2.0
-
-  # Minimalna i maksymalna ilosc (przed Fortune)
   min-amount: 1
   max-amount: 1
-
-  # Czy Fortune wplywa na ten drop
-  fortune-multiplier: true
-
-  # Wymagane narzedzie (puste = dowolne)
   required-tool: "IRON_PICKAXE"
-
-  # Zakres poziomow Y (puste = wszystkie)
   min-y: -64
-  max-y: 320
-
-  # Ilosc EXP za ten drop
+  max-y: 16
   exp: 10
-
-  # Czy drop domyslnie wlaczony
   enabled: true
+  fortune:
+    enabled: true
+    levels:
+      '1': { chance: 33.0, bonus-min: 1, bonus-max: 1 }
+      '2': { chance: 50.0, bonus-min: 1, bonus-max: 2 }
+      '3': { chance: 75.0, bonus-min: 2, bonus-max: 3 }
 
 # Szmaragd
 emerald:
@@ -46,12 +43,17 @@ emerald:
   chance: 1.0
   min-amount: 1
   max-amount: 1
-  fortune-multiplier: true
   required-tool: "IRON_PICKAXE"
-  min-y: -64
+  min-y: -16
   max-y: 320
   exp: 8
   enabled: true
+  fortune:
+    enabled: true
+    levels:
+      '1': { chance: 33.0, bonus-min: 1, bonus-max: 1 }
+      '2': { chance: 50.0, bonus-min: 1, bonus-max: 2 }
+      '3': { chance: 75.0, bonus-min: 2, bonus-max: 3 }
 
 # Wegiel
 coal:
@@ -59,12 +61,17 @@ coal:
   chance: 15.0
   min-amount: 1
   max-amount: 3
-  fortune-multiplier: true
   required-tool: "WOODEN_PICKAXE"
-  min-y: -64
+  min-y: 0
   max-y: 320
   exp: 2
   enabled: true
+  fortune:
+    enabled: true
+    levels:
+      '1': { chance: 40.0, bonus-min: 1, bonus-max: 1 }
+      '2': { chance: 60.0, bonus-min: 1, bonus-max: 2 }
+      '3': { chance: 80.0, bonus-min: 2, bonus-max: 3 }
 
 # Zelazo
 iron_ingot:
@@ -72,12 +79,17 @@ iron_ingot:
   chance: 10.0
   min-amount: 1
   max-amount: 2
-  fortune-multiplier: true
   required-tool: "STONE_PICKAXE"
   min-y: -64
   max-y: 320
   exp: 4
   enabled: true
+  fortune:
+    enabled: true
+    levels:
+      '1': { chance: 33.0, bonus-min: 1, bonus-max: 1 }
+      '2': { chance: 50.0, bonus-min: 1, bonus-max: 2 }
+      '3': { chance: 75.0, bonus-min: 2, bonus-max: 3 }
 
 # Miedz
 copper_ingot:
@@ -85,12 +97,17 @@ copper_ingot:
   chance: 8.0
   min-amount: 1
   max-amount: 3
-  fortune-multiplier: true
   required-tool: "STONE_PICKAXE"
-  min-y: -64
-  max-y: 320
+  min-y: -16
+  max-y: 112
   exp: 3
   enabled: true
+  fortune:
+    enabled: true
+    levels:
+      '1': { chance: 40.0, bonus-min: 1, bonus-max: 1 }
+      '2': { chance: 60.0, bonus-min: 1, bonus-max: 2 }
+      '3': { chance: 80.0, bonus-min: 2, bonus-max: 3 }
 
 # Redstone
 redstone:
@@ -98,12 +115,17 @@ redstone:
   chance: 6.0
   min-amount: 2
   max-amount: 6
-  fortune-multiplier: true
   required-tool: "IRON_PICKAXE"
   min-y: -64
-  max-y: 320
+  max-y: 16
   exp: 3
   enabled: true
+  fortune:
+    enabled: true
+    levels:
+      '1': { chance: 50.0, bonus-min: 1, bonus-max: 2 }
+      '2': { chance: 70.0, bonus-min: 2, bonus-max: 3 }
+      '3': { chance: 90.0, bonus-min: 3, bonus-max: 4 }
 
 # Lapis
 lapis:
@@ -111,12 +133,17 @@ lapis:
   chance: 8.0
   min-amount: 2
   max-amount: 5
-  fortune-multiplier: true
   required-tool: "STONE_PICKAXE"
   min-y: -64
-  max-y: 320
+  max-y: 64
   exp: 3
   enabled: true
+  fortune:
+    enabled: true
+    levels:
+      '1': { chance: 40.0, bonus-min: 1, bonus-max: 2 }
+      '2': { chance: 60.0, bonus-min: 2, bonus-max: 3 }
+      '3': { chance: 80.0, bonus-min: 3, bonus-max: 5 }
 
 # Obsidian (rzadki drop bez Fortune)
 obsidian:
@@ -124,9 +151,14 @@ obsidian:
   chance: 0.5
   min-amount: 1
   max-amount: 1
-  fortune-multiplier: false
   required-tool: "DIAMOND_PICKAXE"
   min-y: -64
   max-y: 320
   exp: 15
   enabled: true
+  fortune:
+    enabled: false
+    levels:
+      '1': { chance: 0.0, bonus-min: 0, bonus-max: 0 }
+      '2': { chance: 0.0, bonus-min: 0, bonus-max: 0 }
+      '3': { chance: 0.0, bonus-min: 0, bonus-max: 0 }

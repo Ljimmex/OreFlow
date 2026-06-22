@@ -21,15 +21,21 @@ settings:
   # Maksymalna liczba dropow z jednego bloku z listy mineable-blocks (0 = bez limitu)
   max-drops-per-block: 3
 
-  # Czy drop ma trafiac bezposrednio do ekwipunku (true)
-  # czy spadac na ziemie (false)
+  # Domyslne ustawienie: czy drop ma trafiac bezposrednio do ekwipunku (true)
+  # czy spadac na ziemie (false). Gracz moze zmienic w GUI.
   drop-to-inventory: true
 
-  # Czy wylaczyc domyslne dropy dla wszystkich blokow z listy mineable-blocks
-  # Dotyczy zarowno stone (cobblestone) jak i rud (np. diamentow, zelaza)
+  # Domyslne ustawienie: czy przyznawac EXP za kopanie
+  # Gracz moze zmienic w GUI.
+  exp-enabled: true
+
+  # Legacy aliasy - pozostawione dla kompatybilnosci, nie uzywane
   disable-default-drops: true
-  # Legacy alias - zostaw dla kompatybilnosci, nowa opcja nadpisuje stara
   disable-cobble-drop: true
+
+  # Domyslne ustawienie: czy drop cobblestone ze stone jest wlaczony
+  # dla nowych graczy. Kazdy gracz moze zmienic to w GUI lub komenda /oreflow cobble.
+  cobblestone-enabled: false
 
   # Bazowa ilosc EXP za zniszczenie bloku z listy mineable-blocks
   base-exp: 1

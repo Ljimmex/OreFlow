@@ -1,0 +1,79 @@
+# ============================================================
+# OreFlow - Jezyk: Polski
+# Zmienne: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
+# ============================================================
+
+commands:
+  no-permission: "&cNie masz uprawnien do tej komendy! (&e{permission}&c)"
+  player-only: "&cTej komendy moze uzyc tylko gracz!"
+  reload-success: "&a&lSUKCES! &aPrzeladowano konfiguracje OreFlow w &e{time}ms&a."
+  reload-error: "&c&lBLAD! &cNie udalo sie przeladowac konfiguracji. Sprawdz konsole."
+  invalid-drop: "&cDrop &e{drop} &cnie istnieje w konfiguracji!"
+  drop-toggled-on: "&a&lWLACZONO! &aDrop &e{drop} &azostal wlaczony."
+  drop-toggled-off: "&c&lWYLACZONO! &cDrop &e{drop} &czostal wylaczony."
+  drop-toggled-on-other: "&aDrop &e{drop} &azostal wlaczony dla gracza &e{target}&a."
+  drop-toggled-off-other: "&cDrop &e{drop} &czostal wylaczony dla gracza &e{target}&c."
+  drop-toggled-on-by: "&aDrop &e{drop} &azostal dla ciebie wlaczony przez &e{player}&a."
+  drop-toggled-off-by: "&cDrop &e{drop} &czostal dla ciebie wylaczony przez &e{player}&c."
+  cobble-enabled: "&aDrop cobblestone ze stone zostal &2WLACZONY&a."
+  cobble-disabled: "&cDrop cobblestone ze stone zostal &4WYLACZONY&c."
+  drop-destination-inventory: "&aDropy beda trafialy do &2ekwipunku&a."
+  drop-destination-ground: "&cDropy beda spadaly &4na ziemie&c."
+  exp-enabled: "&aEXP za kopanie zostal &2WLACZONY&a."
+  exp-disabled: "&cEXP za kopanie zostal &4WYLACZONY&c."
+  player-not-found: "&cNie znaleziono gracza: &e{player}"
+  creativemsg-enabled: "&aWiadomosc creative Mode jest &2WLACZONA&a."
+  creativemsg-disabled: "&cWiadomosc creative Mode jest &4WYLACZONA&c."
+  language-changed: "&aJezyk zostal zmieniony na &e{language}&a."
+  language-invalid: "&cNieprawidlowy jezyk. Dostepne: &e{languages}"
+  debug-header: "&6&lDebug OreFlow"
+  debug-blocks: "&7Symulacja kopania &e{blocks} &7blokow stone..."
+  debug-total: "&aLacznie wylosowano przedmiotow: &e{total}"
+  debug-empty: "&cBrak dropow - sprawdz poziom Y, narzedzie i szanse w drops.yml"
+  debug-distribution: "&aRozklad:"
+  debug-entry: "&7- &e{material}&7: &f{amount}"
+
+status:
+  enabled: "&aWlaczony"
+  disabled: "&cWylaczony"
+  inventory: "&aEkwipunek"
+  ground: "&cZiemia"
+
+actionbar:
+  prefix: "<#5555FF><bold>OreFlow</bold></#5555FF>"
+  drop-success:
+    enabled: true
+    message: "{prefix} <dark_gray>» <white>✦ <white>+{amount} {material}"
+    duration: 40
+  drop-success-multi:
+    enabled: true
+    message: "{prefix} <dark_gray>» {drops}"
+    duration: 40
+  creative:
+    enabled: true
+    message: "{prefix} <dark_gray>» <red>Tryb Creative <dark_gray>– <gray>Brak dropu"
+    duration: 40
+  ore-blocked:
+    enabled: true
+    message: "{prefix} <dark_gray>» <red>Rudy nie dropia na tym serwerze"
+    duration: 40
+  generator-placed:
+    enabled: true
+    message: "&aStoniarka postawiona!"
+    duration: 60
+  generator-ready:
+    enabled: true
+    message: "&eStoniarka gotowa!"
+    duration: 40
+
+gui:
+  title: "&8&lZarzadzaj dropami ze stone"
+  title-admin: "&8&lPanel Admina - Dropy"
+  buttons:
+    next-page: "&aNastepna strona &7>>"
+    prev-page: "&7<< &aPoprzednia strona"
+    close: "&cZamknij"
+
+gui-messages:
+  drop-message-enabled: "&aKomunikat o dropie &e{drop} &azostal &2WLACZONY&a."
+  drop-message-disabled: "&cKomunikat o dropie &e{drop} &czostal &4WYLACZONY&c."
