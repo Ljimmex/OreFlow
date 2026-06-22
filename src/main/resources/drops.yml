@@ -1,6 +1,14 @@
 # ============================================================
 # OreFlow - Drop Configuration
 # Dodaj wlasne dropy tworzac nowe sekcje!
+#
+# required-tool: wymagany MINIMALNY tier kilofa:
+#   WOODEN_PICKAXE / GOLDEN_PICKAXE (tier 1)
+#   STONE_PICKAXE (tier 2)
+#   IRON_PICKAXE (tier 3)
+#   DIAMOND_PICKAXE (tier 4)
+#   NETHERITE_PICKAXE (tier 5)
+# Lepszy kilof automatycznie spelnia wymaganie nizszego tieru.
 # ============================================================
 
 # Przyklad: Diament
@@ -10,7 +18,7 @@ diamond:
   material: "DIAMOND"
 
   # Szansa w procentach (0.0 - 100.0)
-  chance: 0.5
+  chance: 2.0
 
   # Minimalna i maksymalna ilosc (przed Fortune)
   min-amount: 1
@@ -23,8 +31,8 @@ diamond:
   required-tool: "IRON_PICKAXE"
 
   # Zakres poziomow Y (puste = wszystkie)
-  min-y: 1
-  max-y: 16
+  min-y: -64
+  max-y: 320
 
   # Ilosc EXP za ten drop
   exp: 10
@@ -35,75 +43,90 @@ diamond:
 # Szmaragd
 emerald:
   material: "EMERALD"
-  chance: 0.3
+  chance: 1.0
   min-amount: 1
   max-amount: 1
   fortune-multiplier: true
   required-tool: "IRON_PICKAXE"
-  min-y: 1
-  max-y: 32
+  min-y: -64
+  max-y: 320
   exp: 8
   enabled: true
 
 # Wegiel
 coal:
   material: "COAL"
-  chance: 5.0
+  chance: 15.0
   min-amount: 1
   max-amount: 3
   fortune-multiplier: true
   required-tool: "WOODEN_PICKAXE"
+  min-y: -64
+  max-y: 320
   exp: 2
   enabled: true
 
 # Zelazo
 iron_ingot:
   material: "IRON_INGOT"
-  chance: 2.5
+  chance: 10.0
   min-amount: 1
   max-amount: 2
   fortune-multiplier: true
   required-tool: "STONE_PICKAXE"
-  min-y: 1
-  max-y: 64
+  min-y: -64
+  max-y: 320
   exp: 4
+  enabled: true
+
+# Miedz
+copper_ingot:
+  material: "COPPER_INGOT"
+  chance: 8.0
+  min-amount: 1
+  max-amount: 3
+  fortune-multiplier: true
+  required-tool: "STONE_PICKAXE"
+  min-y: -64
+  max-y: 320
+  exp: 3
   enabled: true
 
 # Redstone
 redstone:
   material: "REDSTONE"
-  chance: 3.0
+  chance: 6.0
   min-amount: 2
   max-amount: 6
   fortune-multiplier: true
   required-tool: "IRON_PICKAXE"
-  min-y: 1
-  max-y: 16
+  min-y: -64
+  max-y: 320
   exp: 3
   enabled: true
 
 # Lapis
 lapis:
   material: "LAPIS_LAZULI"
-  chance: 2.0
+  chance: 8.0
   min-amount: 2
   max-amount: 5
   fortune-multiplier: true
   required-tool: "STONE_PICKAXE"
-  min-y: 1
-  max-y: 32
+  min-y: -64
+  max-y: 320
   exp: 3
   enabled: true
 
 # Obsidian (rzadki drop bez Fortune)
 obsidian:
   material: "OBSIDIAN"
-  chance: 0.1
+  chance: 0.5
   min-amount: 1
   max-amount: 1
   fortune-multiplier: false
   required-tool: "DIAMOND_PICKAXE"
-  min-y: 1
-  max-y: 16
+  min-y: -64
+  max-y: 320
   exp: 15
   enabled: true

@@ -14,7 +14,10 @@ import org.bukkit.inventory.ItemStack;
 import pl.Ljimex.oreFlow.OreFlow;
 import pl.Ljimex.oreFlow.util.ActionBarUtil;
 
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,6 +27,31 @@ public class BlockBreakListener implements Listener {
     private final DropManager dropManager;
     private final ActionBarUtil actionBarUtil;
     private final Set<UUID> disabledCreativeMessage;
+    private final Map<UUID, Long> oreMessageCooldown = new HashMap<>();
+    private static final long ORE_MESSAGE_COOLDOWN_MS = 3000;
+
+    // Rudy obslugiwane przez plugin - zahardkodowane, nie edytowalne w configu
+    private static final Set<Material> ORE_BLOCKS = EnumSet.of(
+            Material.COAL_ORE,
+            Material.DEEPSLATE_COAL_ORE,
+            Material.IRON_ORE,
+            Material.DEEPSLATE_IRON_ORE,
+            Material.COPPER_ORE,
+            Material.DEEPSLATE_COPPER_ORE,
+            Material.GOLD_ORE,
+            Material.DEEPSLATE_GOLD_ORE,
+            Material.REDSTONE_ORE,
+            Material.DEEPSLATE_REDSTONE_ORE,
+            Material.LAPIS_ORE,
+            Material.DEEPSLATE_LAPIS_ORE,
+            Material.DIAMOND_ORE,
+            Material.DEEPSLATE_DIAMOND_ORE,
+            Material.EMERALD_ORE,
+            Material.DEEPSLATE_EMERALD_ORE,
+            Material.NETHER_GOLD_ORE,
+            Material.NETHER_QUARTZ_ORE,
+            Material.ANCIENT_DEBRIS
+    );
 
     public BlockBreakListener(OreFlow plugin, DropManager dropManager) {
         this.plugin = plugin;
@@ -69,6 +97,11 @@ public class BlockBreakListener implements Listener {
         if (disableDefaultDrops) {
             event.setDropItems(false);
             event.setExpToDrop(0);
+
+            // Informacja o zablokowanych domyslnych dropach z rud
+            if (isOre(block.getType())) {
+                sendOreBlockedMessage(player);
+            }
         }
 
         // Przetworzenie dropow
@@ -126,6 +159,12 @@ public class BlockBreakListener implements Listener {
     }
 
     private boolean isMineableBlock(Material material) {
+        // Rudy sa zahardkodowane w kodzie - zawsze obslugiwane przez plugin
+        if (isOre(material)) {
+            return true;
+        }
+
+        // Inne bloki (np. stone) sa konfigurowalne w config.yml
         List<String> mineableBlocks = plugin.getConfigManager().getConfig()
                 .getStringList("settings.mineable-blocks");
 
@@ -141,5 +180,22 @@ public class BlockBreakListener implements Listener {
             return false;
         }
         return tool.getItemMeta().hasEnchant(Enchantment.SILK_TOUCH);
+    }
+
+    private boolean isOre(Material material) {
+        return ORE_BLOCKS.contains(material);
+    }
+
+    private void sendOreBlockedMessage(Player player) {
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        Long last = oreMessageCooldown.get(uuid);
+        if (last != null && (now - last) < ORE_MESSAGE_COOLDOWN_MS) {
+            return;
+        }
+        oreMessageCooldown.put(uuid, now);
+
+        actionBarUtil.send(player,
+                "<#FFAA00>⚠ <gradient:#FFAA00:#FF5555>Domyślne dropy z rudy zostały zablokowane</gradient>");
     }
 }

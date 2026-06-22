@@ -40,53 +40,17 @@ settings:
   # Tryb przyznawania EXP: "direct-give" lub "orb-spawn"
   exp-mode: "direct-give"
 
-  # Bloki, po zniszczeniu ktorych aktywuje sie system dropow
-  # Lista materialow zgodnych z enum Material Bukkit
+  # Bloki kamienne konfigurowalne przez admina.
+  # Rudy (COAL_ORE, DIAMOND_ORE itp.) sa zahardkodowane w kodzie
+  # i zawsze obslugiwane przez plugin - nie trzeba ich tu wpisywac.
   mineable-blocks:
-    # Bloki kamienne (cobblestone i jego odmiany)
     - "STONE"
-    - "COBBLESTONE"
-    - "MOSSY_COBBLESTONE"
-    - "STONE_BRICKS"
-    - "CRACKED_STONE_BRICKS"
-    - "MOSSY_STONE_BRICKS"
-    - "CHISELED_STONE_BRICKS"
-    - "SMOOTH_STONE"
     - "ANDESITE"
-    - "POLISHED_ANDESITE"
     - "DIORITE"
-    - "POLISHED_DIORITE"
     - "GRANITE"
-    - "POLISHED_GRANITE"
     - "CALCITE"
     - "TUFF"
     - "DEEPSLATE"
-    - "COBBLED_DEEPSLATE"
-    - "POLISHED_DEEPSLATE"
-    - "DEEPSLATE_BRICKS"
-    - "CRACKED_DEEPSLATE_BRICKS"
-    - "DEEPSLATE_TILES"
-    - "CRACKED_DEEPSLATE_TILES"
-    # Rudy (ore blocks) - plugin wylacza ich domyslne dropy
-    - "COAL_ORE"
-    - "DEEPSLATE_COAL_ORE"
-    - "IRON_ORE"
-    - "DEEPSLATE_IRON_ORE"
-    - "COPPER_ORE"
-    - "DEEPSLATE_COPPER_ORE"
-    - "GOLD_ORE"
-    - "DEEPSLATE_GOLD_ORE"
-    - "REDSTONE_ORE"
-    - "DEEPSLATE_REDSTONE_ORE"
-    - "LAPIS_ORE"
-    - "DEEPSLATE_LAPIS_ORE"
-    - "DIAMOND_ORE"
-    - "DEEPSLATE_DIAMOND_ORE"
-    - "EMERALD_ORE"
-    - "DEEPSLATE_EMERALD_ORE"
-    - "NETHER_GOLD_ORE"
-    - "NETHER_QUARTZ_ORE"
-    - "ANCIENT_DEBRIS"
 
 # Ustawienia systemu Fortune
 fortune:

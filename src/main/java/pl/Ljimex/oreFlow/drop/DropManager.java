@@ -140,12 +140,49 @@ public class DropManager {
         // Sprawdzenie wymaganego narzedzia
         String requiredTool = drop.getString("required-tool", "");
         if (!requiredTool.isEmpty()) {
-            if (tool == null || !tool.getType().name().equalsIgnoreCase(requiredTool)) {
+            if (tool == null) {
                 return false;
+            }
+
+            Material requiredMaterial = Material.matchMaterial(requiredTool);
+            if (requiredMaterial == null) {
+                return false;
+            }
+
+            int requiredTier = getToolTier(requiredMaterial);
+            if (requiredTier > 0) {
+                // Dla narzedzi z tierami (kilofy) sprawdzamy czy gracz ma co najmniej taki tier
+                int actualTier = getToolTier(tool.getType());
+                if (actualTier < requiredTier) {
+                    return false;
+                }
+            } else {
+                // Dla innych narzedzi dokladne dopasowanie
+                if (tool.getType() != requiredMaterial) {
+                    return false;
+                }
             }
         }
 
         return true;
+    }
+
+    /**
+     * Zwraca tier narzedzia (tylko dla kilofow).
+     * Wyzszy numer = lepszy kilof.
+     */
+    private int getToolTier(Material material) {
+        if (material == null) {
+            return 0;
+        }
+        return switch (material) {
+            case WOODEN_PICKAXE, GOLDEN_PICKAXE -> 1;
+            case STONE_PICKAXE -> 2;
+            case IRON_PICKAXE -> 3;
+            case DIAMOND_PICKAXE -> 4;
+            case NETHERITE_PICKAXE -> 5;
+            default -> 0;
+        };
     }
 
     private ItemStack createDropItem(ConfigurationSection drop, int fortuneLevel) {
