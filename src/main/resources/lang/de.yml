@@ -1,8 +1,9 @@
 # ============================================================
-# OreFlow - Sprache: Deutsch
-# Variablen: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
+# OreFlow - Language Configuration (Deutsch)
+# Variables: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
 # ============================================================
 
+# Commands
 commands:
   no-permission: "&cDu hast keine Berechtigung! (&e{permission}&c)"
   player-only: "&cNur Spieler konnen diesen Befehl verwenden!"
@@ -32,6 +33,12 @@ commands:
   debug-empty: "&cKeine Drops - prufe Y-Level, Werkzeug und Chancen in drops.yml"
   debug-distribution: "&aVerteilung:"
   debug-entry: "&7- &e{material}&7: &f{amount}"
+  cobblex-insufficient: "&cNicht genug Cobblestone! Du brauchst &e{required}&c, du hast &e{have}&c."
+  cobblex-crafted: "&a1x CobbleX hergestellt &7(Kosten: {required} Cobble)."
+  cobblex-crafted-ground: "&a1x CobbleX hergestellt. &7Inventar voll - auf den Boden geworfen."
+  generator-insufficient-items: "&cNicht genug &e{material}&c! Du brauchst &e{required}&c, du hast &e{have}&c."
+  generator-crafted: "&a&eSteingenerator &ahergestellt!"
+  generator-crafted-ground: "&a&eSteingenerator &ahergestellt! &7Inventar voll - auf den Boden geworfen."
 
 status:
   enabled: "&aAktiviert"
@@ -39,6 +46,7 @@ status:
   inventory: "&aInventar"
   ground: "&cBoden"
 
+# Action Bar
 actionbar:
   prefix: "<#5555FF><bold>OreFlow</bold></#5555FF>"
   drop-success:
@@ -66,14 +74,21 @@ actionbar:
     message: "&eGenerator bereit!"
     duration: 40
 
+# GUI titles
+# Note: most titles are configured in gui.yml
+# These keys are used for chat messages and fallback titles
 gui:
   title: "&8&lStone-Drops verwalten"
   title-admin: "&8&lAdmin-Panel - Drops"
+  title-main-menu: "&6&lOreFlow"
+  title-stone-generator: "&b&lSteingenerator"
+
   buttons:
     next-page: "&aNachste Seite &7>>"
     prev-page: "&7<< &aVorherige Seite"
     close: "&cSchliessen"
 
+# GUI chat messages
 gui-messages:
   drop-message-enabled: "&aDrop-Nachricht fur &e{drop} &awurde &2AKTIVIERT&a."
   drop-message-disabled: "&cDrop-Nachricht fur &e{drop} &cwurde &4DEAKTIVIERT&c."

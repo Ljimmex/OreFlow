@@ -1,54 +1,54 @@
 # ============================================================
 # OreFlow - Main Configuration
-# Dokumentacja: https://github.com/Ljinmex/OreFlow/wiki
+# Documentation: https://github.com/Ljinmex/OreFlow/wiki
 # ============================================================
 
-# Glowne ustawienia pluginu
+# Main plugin settings
 settings:
 
-  # Jezyk domyslny (pl, en, de)
+  # Default language (pl, en, de)
   language: "pl"
 
-  # Czy plugin ma dzialac w podanych swiatach (whitelist)
-  # czy we wszystkich poza podanymi (blacklist)
+  # Whether the plugin should only work in the listed worlds (whitelist)
+  # or in all worlds except the listed ones (blacklist)
   world-mode: "blacklist"
 
-  # Lista swiatow
+  # World list
   worlds:
     - "world_nether"
     - "world_the_end"
 
-  # Maksymalna liczba dropow z jednego bloku z listy mineable-blocks (0 = bez limitu)
+  # Maximum number of drops from one mineable block (0 = unlimited)
   max-drops-per-block: 3
 
-  # Domyslne ustawienie: czy drop ma trafiac bezposrednio do ekwipunku (true)
-  # czy spadac na ziemie (false). Gracz moze zmienic w GUI.
+  # Default setting: should drops go directly to the inventory (true)
+  # or fall on the ground (false). Players can change this in the GUI.
   drop-to-inventory: true
 
-  # Domyslne ustawienie: czy przyznawac EXP za kopanie
-  # Gracz moze zmienic w GUI.
+  # Default setting: should mining EXP be granted
+  # Players can change this in the GUI.
   exp-enabled: true
 
-  # Legacy aliasy - pozostawione dla kompatybilnosci, nie uzywane
+  # Legacy aliases - left for compatibility, not used
   disable-default-drops: true
   disable-cobble-drop: true
 
-  # Domyslne ustawienie: czy drop cobblestone ze stone jest wlaczony
-  # dla nowych graczy. Kazdy gracz moze zmienic to w GUI lub komenda /oreflow cobble.
+  # Default setting: is cobblestone drop from stone enabled
+  # for new players. Each player can change this in the GUI or via /oreflow cobble.
   cobblestone-enabled: false
 
-  # Bazowa ilosc EXP za zniszczenie bloku z listy mineable-blocks
+  # Base amount of EXP for breaking a block from the mineable-blocks list
   base-exp: 1
 
-  # Globalny mnoznik EXP (mnozy wszystkie zrodla EXP)
+  # Global EXP multiplier (multiplies all EXP sources)
   exp-multiplier: 1.0
 
-  # Tryb przyznawania EXP: "direct-give" lub "orb-spawn"
+  # EXP grant mode: "direct-give" or "orb-spawn"
   exp-mode: "direct-give"
 
-  # Bloki kamienne konfigurowalne przez admina.
-  # Rudy (COAL_ORE, DIAMOND_ORE itp.) sa zahardkodowane w kodzie
-  # i zawsze obslugiwane przez plugin - nie trzeba ich tu wpisywac.
+  # Stone blocks configurable by the admin.
+  # Ores (COAL_ORE, DIAMOND_ORE, etc.) are hardcoded in the plugin
+  # and are always handled by the plugin - no need to add them here.
   mineable-blocks:
     - "STONE"
     - "ANDESITE"
@@ -58,77 +58,77 @@ settings:
     - "TUFF"
     - "DEEPSLATE"
 
-# Ustawienia systemu Fortune
+# Fortune system settings
 fortune:
 
-  # Czy Fortune ma wplywac na dropy
+  # Whether Fortune should affect drops
   enabled: true
 
-  # Czy uwzgledniac poziomy Fortune powyzej III (np. z pluginow)
+  # Whether to consider Fortune levels above III (e.g. from other plugins)
   allow-higher-fortune: false
 
 # ============================================================
-# CobbleX - System skrzynek-nagrod
-# Podstawowa wersja - rozbudowa w Sprint 11
+# CobbleX - Reward box system
+# Basic version - expansion in Sprint 11
 # ============================================================
 cobblex:
 
-  # Czy CobbleX jest wlaczony
+  # Whether CobbleX is enabled
   enabled: true
 
-  # Przedmiot CobbleX
+  # CobbleX item
   item:
     material: "ENDER_CHEST"
     name: "&8&lCobbleX"
     lore:
-      - "&7Skrzynia stworzona z 9 stakow cobblestone"
-      - "&7Kliknij PPM, aby otworzyc i wylosowac nagrode"
+      - "&7A chest made from 9 stacks of cobblestone"
+      - "&7Right-click to open and roll a reward"
       - ""
-      - "&eKoszt craftingu: &f9 stakow cobblestone"
+      - "&eCrafting cost: &f9 stacks of cobblestone"
     enchant-glow: true
 
-  # Crafting w stole rzemieslniczym (3x3)
-  # Kazde pole = stos cobblestone
+  # Crafting in the crafting table (3x3)
+  # Each slot = one stack of cobblestone
   crafting:
     enabled: true
     cost-per-slot: 64
 
-  # Cooldown miedzy otwarciami (w sekundach)
+  # Cooldown between openings (in seconds)
   cooldown: 2
 
-  # Pula nagród (podstawowa wersja)
-  # command: komenda wykonywana jako konsola, %player = nazwa gracza
-  # message: wiadomosc na Action Bar
+  # Reward pool (basic version)
+  # command: command executed as console, %player = player name
+  # message: Action Bar message
   drops:
-    diamenty:
+    diamonds:
       command: "give %player DIAMOND 3"
-      message: "&aWylosowano: &f3x Diament"
+      message: "&aRolled: &f3x Diamond"
       chance: 8
-    zloto:
+    gold:
       command: "give %player GOLD_INGOT 8"
-      message: "&aWylosowano: &f8x Zloto"
+      message: "&aRolled: &f8x Gold"
       chance: 15
-    zelazo:
+    iron:
       command: "give %player IRON_INGOT 16"
-      message: "&aWylosowano: &f16x Zelazo"
+      message: "&aRolled: &f16x Iron"
       chance: 20
     emerald:
       command: "give %player EMERALD 4"
-      message: "&aWylosowano: &f4x Emerald"
+      message: "&aRolled: &f4x Emerald"
       chance: 10
     curse_nausea:
       command: "effect %player NAUSEA 10"
-      message: "&cKlątwa! Nausea na 10s"
+      message: "&cCurse! Nausea for 10s"
       chance: 12
     curse_blindness:
       command: "effect %player BLINDNESS 5"
-      message: "&cKlątwa! Blindness na 5s"
+      message: "&cCurse! Blindness for 5s"
       chance: 10
     empty:
       command: ""
-      message: "&7Pusto..."
+      message: "&7Empty..."
       chance: 15
     cobble_refund:
       command: "give %player COBBLESTONE 64"
-      message: "&7Zwrot: 64x Cobblestone"
+      message: "&7Refund: 64x Cobblestone"
       chance: 10

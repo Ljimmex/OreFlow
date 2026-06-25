@@ -1,10 +1,16 @@
 package pl.Ljimex.oreFlow;
 
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import pl.Ljimex.oreFlow.cobblex.CobbleXCommand;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import pl.Ljimex.oreFlow.cobblex.CobbleXCommandRegistration;
 import pl.Ljimex.oreFlow.cobblex.CobbleXListener;
 import pl.Ljimex.oreFlow.cobblex.CobbleXManager;
-import pl.Ljimex.oreFlow.command.OreFlowCommand;
+import pl.Ljimex.oreFlow.command.OreFlowCommandRegistration;
+import pl.Ljimex.oreFlow.generator.StoneGeneratorListener;
+import pl.Ljimex.oreFlow.generator.StoneGeneratorManager;
 import pl.Ljimex.oreFlow.config.ConfigManager;
 import pl.Ljimex.oreFlow.config.GuiConfigManager;
 import pl.Ljimex.oreFlow.config.MessageManager;
@@ -28,6 +34,8 @@ public final class OreFlow extends JavaPlugin {
     private DropManager dropManager;
     private GuiManager guiManager;
     private GuiListener guiListener;
+    private CobbleXManager cobbleXManager;
+    private StoneGeneratorManager stoneGeneratorManager;
     private PlayerSettingsManager playerSettingsManager;
     private final Set<UUID> disabledCreativeMessagePlayers = new HashSet<>();
 
@@ -54,8 +62,11 @@ public final class OreFlow extends JavaPlugin {
             this.guiManager = new GuiManager(this);
             this.guiListener = new GuiListener(this);
 
-            CobbleXManager cobbleXManager = new CobbleXManager(this);
-            cobbleXManager.registerRecipe();
+            this.cobbleXManager = new CobbleXManager(this);
+            this.cobbleXManager.registerRecipe();
+
+            this.stoneGeneratorManager = new StoneGeneratorManager(this);
+            this.stoneGeneratorManager.load();
 
             getServer().getPluginManager().registerEvents(
                     new BlockBreakListener(this, dropManager), this);
@@ -63,9 +74,15 @@ public final class OreFlow extends JavaPlugin {
                     new CobbleXListener(this, cobbleXManager), this);
             getServer().getPluginManager().registerEvents(
                     guiListener, this);
+            getServer().getPluginManager().registerEvents(
+                    new StoneGeneratorListener(this, stoneGeneratorManager), this);
 
-            getCommand("oreflow").setExecutor(new OreFlowCommand(this));
-            getCommand("cx").setExecutor(new CobbleXCommand(this, cobbleXManager));
+            LifecycleEventManager<Plugin> lifecycleManager = this.getLifecycleManager();
+            lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+                Commands commands = event.registrar();
+                OreFlowCommandRegistration.register(commands, this);
+                CobbleXCommandRegistration.register(commands, this);
+            });
 
             long elapsed = System.currentTimeMillis() - startTime;
             logInfo("Plugin enabled successfully in " + elapsed + "ms");
@@ -96,6 +113,9 @@ public final class OreFlow extends JavaPlugin {
             }
             if (playerSettingsManager != null) {
                 playerSettingsManager.save();
+            }
+            if (stoneGeneratorManager != null) {
+                stoneGeneratorManager.unload();
             }
             logInfo("Plugin disabled successfully");
         } catch (Exception e) {
@@ -132,6 +152,14 @@ public final class OreFlow extends JavaPlugin {
 
     public GuiListener getGuiListener() {
         return guiListener;
+    }
+
+    public StoneGeneratorManager getStoneGeneratorManager() {
+        return stoneGeneratorManager;
+    }
+
+    public CobbleXManager getCobbleXManager() {
+        return cobbleXManager;
     }
 
     public PlayerSettingsManager getPlayerSettingsManager() {

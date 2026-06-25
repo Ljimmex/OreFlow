@@ -3,7 +3,7 @@
 [![Paper](https://img.shields.io/badge/Paper-1.21.x-blue.svg)](https://papermc.io/)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://adoptium.net/)
 [![Gradle](https://img.shields.io/badge/Gradle-9.6-02303A.svg)](https://gradle.org/)
-[![Version](https://img.shields.io/badge/Version-0.5.0-green.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-0.7.0-green.svg)](CHANGELOG.md)
 
 > Advanced, customizable drop system for Paper 1.21.x servers.
 
@@ -16,6 +16,9 @@ OreFlow replaces vanilla drops from stone-like blocks with a fully configurable 
 - **Custom Drop System** — define drops from stone, andesite, diorite, granite, calcite, tuff, deepslate, and more.
 - **Per-Player Settings** — players can toggle drops, cobblestone, drop destination (inventory/ground), and mining EXP.
 - **Modern GUI** — fully customizable via `gui.yml`: title, rows, decorations, button slots, and placeholders.
+- **Main Menu** — `/oreflow` opens a hub with access to Drop GUI, Stone Generator, and CobbleX.
+- **Native Paper Commands** — commands built on Brigadier via `LifecycleEvents.COMMANDS` with client-side tab-complete and argument validation.
+- **Stone Generator Crafting GUI** — craft generators visually with ingredients from your inventory.
 - **Pagination** — automatically paginates when you have more drops than configured slots.
 - **Action Bar Messages** — clean Adventure/MiniMessage-based drop notifications.
 - **Multilingual Support** — language files in `lang/` (PL, EN, DE included) with live switching via `/oreflow language`.
@@ -25,6 +28,7 @@ OreFlow replaces vanilla drops from stone-like blocks with a fully configurable 
 - **Y-Level Restrictions** — limit drops to specific world heights.
 - **Silk Touch Support** — plugin drops are blocked when using Silk Touch.
 - **Ore Blocking** — vanilla ore drops are disabled; only configured custom drops apply.
+- **Stone Generator** — craftable stone generator that regenerates mineable stone on top of it.
 - **CobbleX System** — craftable CobbleX exchange item (separate `/cx` command).
 
 ---
@@ -49,9 +53,9 @@ OreFlow replaces vanilla drops from stone-like blocks with a fully configurable 
 
 ## Quick Start
 
-1. Open the drop menu: `/oreflow`
-2. Right-click a drop to enable/disable it.
-3. Left-click a drop to enable/disable its Action Bar message.
+1. Open the main menu: `/oreflow`
+2. Choose **Menu Dropów**, **Stone Generator**, or **CobbleX**.
+3. In the drop GUI: right-click a drop to enable/disable it, left-click to toggle its message.
 4. Use navigation paper buttons to browse pages.
 5. Admins can open the global admin panel: `/oreflow admin`
 
@@ -61,7 +65,7 @@ OreFlow replaces vanilla drops from stone-like blocks with a fully configurable 
 
 | Command | Description | Permission |
 |---------|-------------|------------|
-| `/oreflow` | Open the drop GUI | `oreflow.gui` |
+| `/oreflow` | Open the main menu GUI | `oreflow.gui` |
 | `/oreflow reload` | Reload all configs | `oreflow.reload` |
 | `/oreflow info` | Show plugin info | `oreflow.info` |
 | `/oreflow help` | Show help message | `oreflow.help` |
@@ -70,11 +74,26 @@ OreFlow replaces vanilla drops from stone-like blocks with a fully configurable 
 | `/oreflow language <pl/en/de>` | Change server language | `oreflow.admin` |
 | `/oreflow admin` | Open admin drop panel | `oreflow.admin` |
 | `/oreflow creativemsg` | Toggle creative mode message | `oreflow.admin` |
-| `/oreflow debug [blocks]` | Simulate mining drops | `oreflow.admin` |
+| `/oreflow debug [blocks] [fortune]` | Simulate mining drops (optional Fortune level) | `oreflow.admin` |
+
+### Stone Generator Crafting
+
+Default recipe (3x3 crafting table):
+
+```
+[R][I][R]
+[I][S][I]
+[R][P][R]
+```
+
+- **R** — Redstone
+- **I** — Iron Ingot
+- **S** — Stone
+- **P** — Piston
 
 ### Aliases
-- `/of`
-- `/drop`
+- `/of` — opens the main menu (alias for `/oreflow`)
+- `/drop` — opens the drop GUI directly
 
 ---
 
@@ -90,6 +109,7 @@ OreFlow replaces vanilla drops from stone-like blocks with a fully configurable 
 | `oreflow.toggle.others` | op | Toggle drops for other players |
 | `oreflow.reload` | op | Reload configs |
 | `oreflow.admin` | op | Admin commands and GUI |
+| `oreflow.generator.place` | true | Place/break stone generators |
 | `oreflow.info` | true | Plugin info command |
 | `oreflow.help` | true | Help command |
 

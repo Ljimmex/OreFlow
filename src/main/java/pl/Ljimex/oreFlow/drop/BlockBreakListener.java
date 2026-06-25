@@ -78,9 +78,12 @@ public class BlockBreakListener implements Listener {
             return;
         }
 
-        // Tryb kreatywny - brak dropow + opcjonalna wiadomosc Action Bar
+        // Tryb kreatywny - brak dropow + opcjonalna wiadomosc Action Bar (tylko przy uzyciu kilofa)
         if (player.getGameMode() == GameMode.CREATIVE) {
-            if (player.hasPermission("oreflow.mine") && !disabledCreativeMessage.contains(player.getUniqueId())) {
+            ItemStack tool = player.getInventory().getItemInMainHand();
+            if (tool.getType().name().endsWith("_PICKAXE")
+                    && player.hasPermission("oreflow.mine")
+                    && !disabledCreativeMessage.contains(player.getUniqueId())) {
                 sendCreativeMessage(player);
             }
             return;

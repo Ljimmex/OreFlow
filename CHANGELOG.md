@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] - 2026-06-25
+
+### Added
+- Native Paper Brigadier commands via `LifecycleEvents.COMMANDS` for `/oreflow` and `/cx`.
+- Client-side tab-complete and argument validation for all commands.
+- Optional `[fortune]` argument for `/oreflow debug [blocks] [fortune]`.
+- Back and Exit buttons in the Stone Generator crafting GUI.
+- Hidden `Unbreaking X` enchant on the Stone Generator item for visual glow.
+- Emerald Ore with hidden enchant glow for the CobbleX button in the main menu.
+
+### Changed
+- `/oreflow` command now uses native Brigadier tree structure (no more `CommandExecutor` + `String[] args`).
+- `/drop` is now a separate registered command that opens the drop GUI directly.
+- Stone Generator crafting GUI layout reworked: result moved one slot right with arrow indicator.
+- Stone Generator can now be crafted by clicking the result item in its GUI.
+- Stone Generator lore cleaned up — removed duplicate name and improved formatting.
+- Action Bar message for placing a generator now matches other action bars (`{prefix} » Stoniarka postawiona!`).
+- Creative mode message now only appears when breaking blocks with a pickaxe.
+- Main Menu GUI panels are now fully filled in all rows.
+- Plugin load phase changed from `STARTUP` to `POSTWORLD` to fix recipe registration timing.
+
+### Fixed
+- Stone Generator crafting recipe now works reliably in the crafting table.
+
+---
+
+## [0.6.0] - 2026-06-21
+
+### Added
+- Main Menu GUI opened by `/oreflow` with buttons for Drop GUI, Stone Generator, and CobbleX.
+- Stone Generator crafting GUI with live recipe preview and one-click crafting.
+- Craftable Stone Generator with configurable recipe, effects, and regeneration interval.
+- Stone Generator data persistence in `generators-data.yml`.
+- `StoneGeneratorManager` and `StoneGeneratorListener`.
+
+### Changed
+- `/oreflow` now opens the main menu instead of the drop GUI directly.
+- Default generator recipe updated to:
+  - `R I R / I S I / R P R` (Redstone, Iron Ingot, Stone, Piston).
+- `generators.yml` simplified to a single Stone Generator type.
+- Bumped plugin version to `0.6.0`.
+
+### Removed
+- Generator owner system.
+- Support for multiple generator types (andesite, diorite, etc.).
+
+---
+
 ## [0.5.0] - 2026-06-21
 
 ### Added
@@ -25,7 +73,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Action Bar messages now loaded from `lang/<code>.yml` instead of being hardcoded.
 - All plugin messages standardized through `MessageManager`.
 - `drops.yml` updated with realistic Y-level ranges for all drops.
-- Bumped plugin version to `0.5.0`.
 
 ### Removed
 - Single `lang.yml` file replaced by `lang/` folder.

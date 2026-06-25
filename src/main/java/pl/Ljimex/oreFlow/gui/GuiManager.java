@@ -5,12 +5,14 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataType;
 
 import pl.Ljimex.oreFlow.OreFlow;
@@ -147,6 +149,135 @@ public class GuiManager {
         addButton(inventory, player, "close");
 
         return inventory;
+    }
+
+    public Inventory createMainMenu(Player player) {
+        int size = guiConfig.getMainMenuSize();
+        Inventory inventory = Bukkit.createInventory(null, size, guiConfig.getMainMenuTitleComponent());
+
+        for (DecorationConfig decoration : guiConfig.getMainMenuDecorations()) {
+            if (decoration.slot < 0 || decoration.slot >= size) continue;
+            ItemStack item = createSimpleItem(decoration.material, decoration.name, decoration.lore);
+            if (item != null) {
+                inventory.setItem(decoration.slot, item);
+            }
+        }
+
+        addMainMenuButton(inventory, "open_drops");
+        addMainMenuButton(inventory, "open_stone_generator");
+        addMainMenuButton(inventory, "open_cobblex");
+        addMainMenuButton(inventory, "close");
+
+        return inventory;
+    }
+
+    public Inventory createStoneGeneratorGui(Player player) {
+        int size = guiConfig.getStoneGeneratorSize();
+        Inventory inventory = Bukkit.createInventory(null, size, guiConfig.getStoneGeneratorTitleComponent());
+
+        for (DecorationConfig decoration : guiConfig.getStoneGeneratorDecorations()) {
+            if (decoration.slot < 0 || decoration.slot >= size) continue;
+            ItemStack item = createSimpleItem(decoration.material, decoration.name, decoration.lore);
+            if (item != null) {
+                inventory.setItem(decoration.slot, item);
+            }
+        }
+
+        // Display recipe
+        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
+                .getConfigurationSection("generators");
+        ConfigurationSection generatorSection = null;
+        if (generatorsSection != null) {
+            for (String key : generatorsSection.getKeys(false)) {
+                ConfigurationSection section = generatorsSection.getConfigurationSection(key);
+                if (section != null && section.getBoolean("enabled", true)) {
+                    generatorSection = section;
+                    break;
+                }
+            }
+        }
+
+        if (generatorSection != null) {
+            ConfigurationSection craftingSection = generatorSection.getConfigurationSection("crafting");
+            if (craftingSection != null) {
+                List<String> shape = craftingSection.getStringList("shape");
+                ConfigurationSection ingredientsSection = craftingSection.getConfigurationSection("ingredients");
+                List<Integer> recipeSlots = guiConfig.getStoneGeneratorRecipeSlots();
+
+                int index = 0;
+                for (String row : shape) {
+                    for (char c : row.toCharArray()) {
+                        if (index >= recipeSlots.size()) break;
+                        Material material = Material.AIR;
+                        if (ingredientsSection != null && c != ' ') {
+                            Material matched = Material.matchMaterial(ingredientsSection.getString(String.valueOf(c), "STONE"));
+                            if (matched != null) {
+                                material = matched;
+                            }
+                        }
+                        if (material != Material.AIR) {
+                            inventory.setItem(recipeSlots.get(index), new ItemStack(material));
+                        }
+                        index++;
+                    }
+                }
+            }
+
+            // Result
+            ItemStack result = plugin.getStoneGeneratorManager().createGeneratorItem(generatorSection);
+            inventory.setItem(guiConfig.getStoneGeneratorResultSlot(), result);
+        }
+
+        // Navigation buttons
+        addStoneGeneratorButton(inventory, "back");
+        addStoneGeneratorButton(inventory, "exit");
+
+        return inventory;
+    }
+
+    private void addStoneGeneratorButton(Inventory inventory, String type) {
+        ButtonConfig button = guiConfig.getStoneGeneratorButton(type);
+        if (button == null) {
+            return;
+        }
+
+        int size = inventory.getSize();
+        if (button.slot < 0 || button.slot >= size) {
+            return;
+        }
+
+        ItemStack item = createSimpleItem(button.material, button.name, button.lore);
+        if (item != null) {
+            inventory.setItem(button.slot, item);
+        }
+    }
+
+    private void addMainMenuButton(Inventory inventory, String type) {
+        ButtonConfig button = guiConfig.getMainMenuButton(type);
+        if (button == null) {
+            return;
+        }
+
+        int size = inventory.getSize();
+        if (button.slot < 0 || button.slot >= size) {
+            return;
+        }
+
+        ItemStack item = createSimpleItem(button.material, button.name, button.lore);
+        if (item == null) {
+            return;
+        }
+
+        if ("open_cobblex".equalsIgnoreCase(type)) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.addEnchant(Enchantment.LUCK_OF_THE_SEA, 1, true);
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                item.setItemMeta(meta);
+            }
+        }
+
+        inventory.setItem(button.slot, item);
     }
 
     private void addButton(Inventory inventory, Player player, String type) {

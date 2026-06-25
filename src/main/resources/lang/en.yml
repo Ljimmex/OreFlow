@@ -1,8 +1,9 @@
 # ============================================================
-# OreFlow - Language: English
+# OreFlow - Language Configuration (English)
 # Variables: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
 # ============================================================
 
+# Commands
 commands:
   no-permission: "&cYou don't have permission! (&e{permission}&c)"
   player-only: "&cOnly players can use this command!"
@@ -32,6 +33,12 @@ commands:
   debug-empty: "&cNo drops - check Y level, tool and chances in drops.yml"
   debug-distribution: "&aDistribution:"
   debug-entry: "&7- &e{material}&7: &f{amount}"
+  cobblex-insufficient: "&cNot enough cobblestone! You need &e{required}&c, you have &e{have}&c."
+  cobblex-crafted: "&aCrafted 1x CobbleX &7(cost: {required} cobble)."
+  cobblex-crafted-ground: "&aCrafted 1x CobbleX. &7Inventory full - dropped on the ground."
+  generator-insufficient-items: "&cNot enough &e{material}&c! You need &e{required}&c, you have &e{have}&c."
+  generator-crafted: "&aCrafted &eStone Generator&a!"
+  generator-crafted-ground: "&aCrafted &eStone Generator&a! &7Inventory full - dropped on the ground."
 
 status:
   enabled: "&aEnabled"
@@ -39,6 +46,7 @@ status:
   inventory: "&aInventory"
   ground: "&cGround"
 
+# Action Bar
 actionbar:
   prefix: "<#5555FF><bold>OreFlow</bold></#5555FF>"
   drop-success:
@@ -66,14 +74,21 @@ actionbar:
     message: "&eGenerator ready!"
     duration: 40
 
+# GUI titles
+# Note: most titles are configured in gui.yml
+# These keys are used for chat messages and fallback titles
 gui:
   title: "&8&lManage stone drops"
   title-admin: "&8&lAdmin Panel - Drops"
+  title-main-menu: "&6&lOreFlow"
+  title-stone-generator: "&b&lStone Generator"
+
   buttons:
     next-page: "&aNext page &7>>"
     prev-page: "&7<< &aPrevious page"
     close: "&cClose"
 
+# GUI chat messages
 gui-messages:
   drop-message-enabled: "&aDrop message for &e{drop} &ahas been &2ENABLED&a."
   drop-message-disabled: "&cDrop message for &e{drop} &chas been &4DISABLED&c."

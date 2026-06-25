@@ -491,8 +491,8 @@
         </div>
         <div class="stat-card">
             <h3>Aktywny Sprint</h3>
-            <div class="stat-value" style="font-size: 1.8rem;">Sprint 8</div>
-            <p style="color: var(--warning); margin-top: 8px;">Stone Generator Manager & Recipes</p>
+            <div class="stat-value" style="font-size: 1.8rem;">Sprint 10</div>
+            <p style="color: var(--warning); margin-top: 8px;">Testing, Docs & Release</p>
         </div>
         <div class="stat-card">
             <h3>Ukończone Subtaski</h3>
@@ -991,12 +991,12 @@
             </div>
 
             <!-- SPRINT 8 -->
-            <div class="sprint" data-status="todo">
+            <div class="sprint" data-status="done">
                 <div class="sprint-header" onclick="toggleSprint(this)">
                     <div class="sprint-title">
                         <h3>Sprint 8</h3>
                         <span class="badge badge-phase">Faza 4 - Stone Generators</span>
-                        <span class="badge badge-todo">Do zrobienia</span>
+                        <span class="badge badge-done">Gotowe</span>
                     </div>
                     <div class="sprint-meta">Tydzień 8 | Stone Generator Manager & Recipes</div>
                 </div>
@@ -1009,27 +1009,27 @@
                     <div class="task">
                         <div class="task-header">
                             <h4>🏭 StoneGenManager</h4>
-                            <span class="badge badge-todo">Do zrobienia</span>
+                            <span class="badge badge-done">Gotowe</span>
                         </div>
                         <ul class="subtasks">
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Model generatora (lokalizacja, typ, właściciel)</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Ładowanie generatorów z <code>generators.yml</code></span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Zapis aktywnych generatorów do pliku</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Rejestracja receptur craftingu (<code>ShapedRecipe</code>)</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Tworzenie przedmiotu stoniarki z nazwą i lore</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Model generatora (lokalizacja)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Ładowanie generatorów z <code>generators.yml</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Zapis aktywnych generatorów do pliku</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Rejestracja receptur craftingu (<code>ShapedRecipe</code>)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Tworzenie przedmiotu stoniarki z nazwą i lore</span></li>
                         </ul>
                     </div>
 
                     <div class="task">
                         <div class="task-header">
                             <h4>📦 Konfiguracja generatorów</h4>
-                            <span class="badge badge-todo">Do zrobienia</span>
+                            <span class="badge badge-done">Gotowe</span>
                         </div>
                         <ul class="subtasks">
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Definicja domyślnej stoniarki w <code>generators.yml</code></span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Parametry generacji: interval, material, efekty</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Opcja require-player-nearby z konfigurowalnym radiusem</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Wsparcie dla wielu typów generatorów (stone, andesite, itp.)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Definicja domyślnej stoniarki w <code>generators.yml</code></span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Parametry generacji: interval, material, efekty</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Opcja require-player-nearby z konfigurowalnym radiusem</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Jeden typ generatora - Stone Generator</span></li>
                         </ul>
                     </div>
 
@@ -1046,12 +1046,12 @@
             </div>
 
             <!-- SPRINT 9 -->
-            <div class="sprint" data-status="todo">
+            <div class="sprint" data-status="done">
                 <div class="sprint-header" onclick="toggleSprint(this)">
                     <div class="sprint-title">
                         <h3>Sprint 9</h3>
                         <span class="badge badge-phase">Faza 4 - Stone Generators</span>
-                        <span class="badge badge-todo">Do zrobienia</span>
+                        <span class="badge badge-done">Gotowe</span>
                     </div>
                     <div class="sprint-meta">Tydzień 9 | Generator Placement & Scheduler</div>
                 </div>
@@ -1064,29 +1064,26 @@
                     <div class="task">
                         <div class="task-header">
                             <h4>🧱 BlockPlaceListener & cykl generacji</h4>
-                            <span class="badge badge-todo">Do zrobienia</span>
+                            <span class="badge badge-done">Gotowe</span>
                         </div>
                         <ul class="subtasks">
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Wykrywanie postawienia stoniarki</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Rejestracja generatora w StoneGenManager</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Cykl generowania kamienia przez Bukkit Scheduler</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Generowanie kamienia NA bloku stoniarki (nie zamiast niego)</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Odrastanie kamienia po jego wykopaniu</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Wykrywanie postawienia stoniarki</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Rejestracja generatora w StoneGenManager</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Cykl generowania kamienia przez Bukkit Scheduler</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Generowanie kamienia NA bloku stoniarki (nie zamiast niego)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Odrastanie kamienia po jego wykopaniu</span></li>
                         </ul>
                     </div>
 
                     <div class="task">
                         <div class="task-header">
                             <h4>🔒 Bezpieczeństwo i efekty</h4>
-                            <span class="badge badge-todo">Do zrobienia</span>
+                            <span class="badge badge-done">Gotowe</span>
                         </div>
                         <ul class="subtasks">
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">System właściciela generatora</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Ochrona przed niszczeniem przez innych graczy</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Opcja pickup-on-break</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Efekty dźwiękowe przy generacji</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Efekty cząsteczkowe przy generacji</span></li>
-                            <li><div class="checkbox" onclick="toggleCheckbox(this)"></div><span class="subtask-text">Integracja z WorldGuard / Residence (opcjonalnie)</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Opcja pickup-on-break</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Efekty dźwiękowe przy generacji</span></li>
+                            <li><div class="checkbox checked" onclick="toggleCheckbox(this)"></div><span class="subtask-text done">Efekty cząsteczkowe przy generacji</span></li>
                         </ul>
                     </div>
 
@@ -1095,7 +1092,7 @@
                         <ul>
                             <li>Stoniarka generuje kamień w skonfigurowanym interwale</li>
                             <li>Kamień odrasta po wykopaniu</li>
-                            <li>Tylko właściciel/admin może zniszczyć stoniarkę</li>
+                            <li>Zniszczenie stoniarki zwraca jej przedmiot (opcjonalnie)</li>
                             <li>Efekty dźwiękowe i wizualne działają poprawnie</li>
                         </ul>
                     </div>

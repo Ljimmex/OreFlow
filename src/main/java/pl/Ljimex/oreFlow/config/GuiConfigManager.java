@@ -136,7 +136,85 @@ public class GuiConfigManager {
     }
 
     public ButtonConfig getButton(String type) {
-        ConfigurationSection buttons = guiConfig.getConfigurationSection("gui.buttons");
+        return getButtonFromSection("gui.buttons", type);
+    }
+
+    // Main Menu
+    public String getMainMenuTitle() {
+        return guiConfig.getString("main-menu.title", "<gold><bold>OreFlow</bold></gold>");
+    }
+
+    public Component getMainMenuTitleComponent() {
+        return MiniMessage.miniMessage().deserialize(getMainMenuTitle());
+    }
+
+    public int getMainMenuRows() {
+        return Math.max(1, Math.min(6, guiConfig.getInt("main-menu.rows", 3)));
+    }
+
+    public int getMainMenuSize() {
+        return getMainMenuRows() * 9;
+    }
+
+    public List<DecorationConfig> getMainMenuDecorations() {
+        return getDecorationsFromSection("main-menu.decorations");
+    }
+
+    public ButtonConfig getMainMenuButton(String type) {
+        return getButtonFromSection("main-menu.buttons", type);
+    }
+
+    // Stone Generator GUI
+    public String getStoneGeneratorTitle() {
+        return guiConfig.getString("stone-generator.title", "<aqua><bold>Stone Generator</bold></aqua>");
+    }
+
+    public Component getStoneGeneratorTitleComponent() {
+        return MiniMessage.miniMessage().deserialize(getStoneGeneratorTitle());
+    }
+
+    public int getStoneGeneratorRows() {
+        return Math.max(1, Math.min(6, guiConfig.getInt("stone-generator.rows", 5)));
+    }
+
+    public int getStoneGeneratorSize() {
+        return getStoneGeneratorRows() * 9;
+    }
+
+    public List<DecorationConfig> getStoneGeneratorDecorations() {
+        return getDecorationsFromSection("stone-generator.decorations");
+    }
+
+    public ButtonConfig getStoneGeneratorCraftButton() {
+        return getButtonFromSection("stone-generator.craft-button", "craft_generator");
+    }
+
+    public ButtonConfig getStoneGeneratorButton(String type) {
+        return getButtonFromSection("stone-generator.buttons", type);
+    }
+
+    public List<Integer> getStoneGeneratorRecipeSlots() {
+        List<Integer> result = new ArrayList<>();
+        List<?> slots = guiConfig.getList("stone-generator.recipe-slots");
+        if (slots == null) {
+            // Default recipe slots
+            return List.of(10, 11, 12, 19, 20, 21, 28, 29, 30);
+        }
+        for (Object obj : slots) {
+            if (obj instanceof Number number) {
+                result.add(number.intValue());
+            }
+        }
+        return result;
+    }
+
+    public int getStoneGeneratorResultSlot() {
+        return guiConfig.getInt("stone-generator.result-slot", 24);
+    }
+
+    // Helpers
+    private ButtonConfig getButtonFromSection(String sectionPath, String type) {
+        ConfigurationSection buttons = guiConfig.getConfigurationSection(sectionPath);
         if (buttons == null) {
             return null;
         }
@@ -157,6 +235,41 @@ public class GuiConfigManager {
             }
         }
         return null;
+    }
+
+    private List<DecorationConfig> getDecorationsFromSection(String sectionPath) {
+        List<DecorationConfig> result = new ArrayList<>();
+        List<?> decorations = guiConfig.getList(sectionPath);
+        if (decorations == null) {
+            return result;
+        }
+
+        for (Object obj : decorations) {
+            if (!(obj instanceof ConfigurationSection section) && !(obj instanceof java.util.LinkedHashMap)) {
+                continue;
+            }
+
+            ConfigurationSection section;
+            if (obj instanceof ConfigurationSection) {
+                section = (ConfigurationSection) obj;
+            } else {
+                section = guiConfig.createSection("temp");
+                for (java.util.Map.Entry<?, ?> entry : ((java.util.LinkedHashMap<?, ?>) obj).entrySet()) {
+                    section.set(String.valueOf(entry.getKey()), entry.getValue());
+                }
+            }
+
+            String slots = section.getString("slots", "");
+            String material = section.getString("material", "BLACK_STAINED_GLASS_PANE");
+            String name = section.getString("name", " ");
+            List<String> lore = section.getStringList("lore");
+
+            for (int slot : parseSlots(slots)) {
+                result.add(new DecorationConfig(slot, material, name, lore));
+            }
+        }
+
+        return result;
     }
 
     public List<Integer> parseSlots(String slots) {

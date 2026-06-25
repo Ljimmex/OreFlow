@@ -2,7 +2,7 @@
 # OreFlow - GUI Configuration
 # ============================================================
 #
-# This file allows FULL customization of the /drop GUI.
+# This file allows FULL customization of all plugin GUIs.
 # You can change: title, size, glass decorations, drop slots,
 # button positions, item names, lores, and colors.
 #
@@ -40,8 +40,13 @@
 # You can use single numbers, ranges (e.g. "0-8"), or lists (e.g. "0,1,2").
 #
 # --- HOW TO CONFIGURE BUTTONS ---
-# Each button has a fixed "type" used by the plugin:
+# Each button has a fixed "type" used by the plugin.
+# Main menu button types:
+#   open_drops, open_stone_generator, open_cobblex, close
+# Drop GUI button types:
 #   cobble, drop_destination, exp, close, previous_page, next_page
+# Stone Generator GUI button type:
+#   craft_generator
 # The slot MUST match the slot defined in this config.
 # Page buttons are shown only when there is a previous/next page.
 #
@@ -52,9 +57,60 @@
 #
 # ============================================================
 
+# Main menu - opens on /oreflow
+main-menu:
+  title: "<gradient:#FFAA00:#FF5555><bold>OreFlow</bold></gradient>"
+  rows: 3
+
+  decorations:
+    - slots: "0-8"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "9-17"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "18-26"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+
+  buttons:
+    drops:
+      type: "open_drops"
+      slot: 11
+      material: "DIAMOND_PICKAXE"
+      name: "<yellow>Drop Menu</yellow>"
+      lore:
+        - "<gray>Click to manage drops</gray>"
+
+    stone_generator:
+      type: "open_stone_generator"
+      slot: 13
+      material: "END_STONE"
+      name: "<yellow>Stone Generator</yellow>"
+      lore:
+        - "<gray>Click to craft a stone generator</gray>"
+
+    cobblex:
+      type: "open_cobblex"
+      slot: 15
+      material: "EMERALD_ORE"
+      name: "<yellow>CobbleX</yellow>"
+      lore:
+        - "<gray>Click to craft a CobbleX</gray>"
+
+    close:
+      type: "close"
+      slot: 22
+      material: "BARRIER"
+      name: "<red>Close</red>"
+      lore: []
+
+# Drop GUI - opens from the main menu
 gui:
-  # GUI title (MiniMessage)
-  title: "<gradient:#FFAA00:#FF5555><bold>Menu Dropow</bold></gradient>"
+  title: "<gradient:#FFAA00:#FF5555><bold>Drop Menu</bold></gradient>"
 
   # Number of rows (1-6). Total slots = rows * 9
   rows: 5
@@ -107,8 +163,8 @@ gui:
         - "<gray>Rewards</gray>"
         - " <dark_gray>▸</dark_gray> <gray>EXP:</gray> <yellow>{exp}</yellow>"
         - "{line}"
-        - "<dark_gray>LPM - włącz/wyłącz komunikat</dark_gray>"
-        - "<dark_gray>PPM - {toggle_action}</dark_gray>"
+        - "<dark_gray>LMB - toggle drop message</dark_gray>"
+        - "<dark_gray>RMB - {toggle_action}</dark_gray>"
 
   # Functional buttons
   buttons:
@@ -116,7 +172,7 @@ gui:
       type: "cobble"
       slot: 29
       material: "COBBLESTONE"
-      name: "<yellow>Drop Cobblestone</yellow> <dark_gray>•</dark_gray> {status}"
+      name: "<yellow>Cobblestone Drop</yellow> <dark_gray>•</dark_gray> {status}"
       lore:
         - "<gray>Click to toggle cobblestone drop</gray>"
         - "<gray>from stone blocks.</gray>"
@@ -159,3 +215,85 @@ gui:
       material: "BARRIER"
       name: "<red>Close</red>"
       lore: []
+
+# Stone Generator crafting GUI - opens from the main menu
+stone-generator:
+  title: "<gradient:#00AAFF:#55FFFF><bold>Stone Generator</bold></gradient>"
+  rows: 5
+
+  decorations:
+    - slots: "0-8"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "9"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "13-17"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "18"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "22,24"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "23"
+      material: "ARROW"
+      name: "<gray>Rezultat</gray>"
+      lore:
+        - "<gray>Ułóż składniki po lewej stronie</gray>"
+        - "<gray>i kliknij generator aby go wytworzyć</gray>"
+    - slots: "26"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "27"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "31-35"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "36-44"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+
+  # Slots where the crafting recipe is displayed (3 rows x 3 columns)
+  # Must contain exactly 9 slots.
+  recipe-slots:
+    - 10
+    - 11
+    - 12
+    - 19
+    - 20
+    - 21
+    - 28
+    - 29
+    - 30
+
+  # Slot where the generator result preview is shown
+  result-slot: 25
+
+  buttons:
+    back:
+      type: "back"
+      slot: 39
+      material: "ARROW"
+      name: "<yellow><bold>BACK</bold></yellow>"
+      lore:
+        - "<gray>Click to return to main menu</gray>"
+
+    exit:
+      type: "exit"
+      slot: 41
+      material: "BARRIER"
+      name: "<red><bold>EXIT</bold></red>"
+      lore:
+        - "<gray>Click to close</gray>"

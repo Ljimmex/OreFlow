@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -28,19 +29,13 @@ public class CobbleXManager {
         this.cobbleXKey = new NamespacedKey(plugin, "cobblex");
     }
 
+    /**
+     * CobbleX is crafted via /cx craft (9 stacks of cobblestone), which cannot be expressed
+     * as a vanilla shaped recipe because a recipe slot can only hold one item.
+     * Therefore no Bukkit recipe is registered here.
+     */
     public void registerRecipe() {
-        if (!plugin.getConfigManager().getConfig().getBoolean("cobblex.enabled", true)) {
-            return;
-        }
-        if (!plugin.getConfigManager().getConfig().getBoolean("cobblex.crafting.enabled", true)) {
-            return;
-        }
-
-        ItemStack cobbleX = createCobbleX(1);
-        ShapedRecipe recipe = new ShapedRecipe(new NamespacedKey(plugin, "cobblex_recipe"), cobbleX);
-        recipe.shape("CCC", "CCC", "CCC");
-        recipe.setIngredient('C', Material.COBBLESTONE);
-        Bukkit.addRecipe(recipe);
+        // Intentionally empty — crafting is handled by CobbleXCommand.handleCraft().
     }
 
     public ItemStack createCobbleX(int amount) {

@@ -1,25 +1,25 @@
 # ============================================================
 # OreFlow - Drop Configuration
-# Dodaj wlasne dropy tworzac nowe sekcje!
+# Add your own drops by creating new sections!
 #
-# required-tool: wymagany MINIMALNY tier kilofa:
+# required-tool: minimum required pickaxe tier:
 #   WOODEN_PICKAXE / GOLDEN_PICKAXE (tier 1)
 #   STONE_PICKAXE (tier 2)
 #   IRON_PICKAXE (tier 3)
 #   DIAMOND_PICKAXE (tier 4)
 #   NETHERITE_PICKAXE (tier 5)
-# Lepszy kilof automatycznie spelnia wymaganie nizszego tieru.
+# A better pickaxe automatically satisfies lower tier requirements.
 #
 # fortune:
-#   enabled: czy Fortune wplywa na ten drop
+#   enabled: whether Fortune affects this drop
 #   levels:
 #     1/2/3:
-#       chance: szansa na dodatkowe przedmioty z danym Fortune
-#       bonus-min: minimalna dodatkowa ilosc
-#       bonus-max: maksymalna dodatkowa ilosc
+#       chance: chance for additional items with that Fortune level
+#       bonus-min: minimum additional amount
+#       bonus-max: maximum additional amount
 # ============================================================
 
-# Diament
+# Diamond
 diamond:
   material: "DIAMOND"
   chance: 2.0
@@ -37,7 +37,7 @@ diamond:
       '2': { chance: 50.0, bonus-min: 1, bonus-max: 2 }
       '3': { chance: 75.0, bonus-min: 2, bonus-max: 3 }
 
-# Szmaragd
+# Emerald
 emerald:
   material: "EMERALD"
   chance: 1.0
@@ -55,7 +55,7 @@ emerald:
       '2': { chance: 50.0, bonus-min: 1, bonus-max: 2 }
       '3': { chance: 75.0, bonus-min: 2, bonus-max: 3 }
 
-# Wegiel
+# Coal
 coal:
   material: "COAL"
   chance: 15.0
@@ -73,7 +73,7 @@ coal:
       '2': { chance: 60.0, bonus-min: 1, bonus-max: 2 }
       '3': { chance: 80.0, bonus-min: 2, bonus-max: 3 }
 
-# Zelazo
+# Iron
 iron_ingot:
   material: "IRON_INGOT"
   chance: 10.0
@@ -91,7 +91,7 @@ iron_ingot:
       '2': { chance: 50.0, bonus-min: 1, bonus-max: 2 }
       '3': { chance: 75.0, bonus-min: 2, bonus-max: 3 }
 
-# Miedz
+# Copper
 copper_ingot:
   material: "COPPER_INGOT"
   chance: 8.0
@@ -145,7 +145,7 @@ lapis:
       '2': { chance: 60.0, bonus-min: 2, bonus-max: 3 }
       '3': { chance: 80.0, bonus-min: 3, bonus-max: 5 }
 
-# Obsidian (rzadki drop bez Fortune)
+# Obsidian (rare drop without Fortune)
 obsidian:
   material: "OBSIDIAN"
   chance: 0.5

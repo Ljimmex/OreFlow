@@ -1,8 +1,9 @@
 # ============================================================
-# OreFlow - Jezyk: Polski
-# Zmienne: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
+# OreFlow - Language Configuration (Polski)
+# Variables: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
 # ============================================================
 
+# Commands
 commands:
   no-permission: "&cNie masz uprawnien do tej komendy! (&e{permission}&c)"
   player-only: "&cTej komendy moze uzyc tylko gracz!"
@@ -32,6 +33,12 @@ commands:
   debug-empty: "&cBrak dropow - sprawdz poziom Y, narzedzie i szanse w drops.yml"
   debug-distribution: "&aRozklad:"
   debug-entry: "&7- &e{material}&7: &f{amount}"
+  cobblex-insufficient: "&cBrakuje cobble! Potrzebujesz &e{required} &csztuk, masz &e{have}&c."
+  cobblex-crafted: "&aWytworzono 1x CobbleX &7(koszt: {required} cobble)."
+  cobblex-crafted-ground: "&aWytworzono 1x CobbleX. &7Ekwipunek pelny - wyrzucono na ziemie."
+  generator-insufficient-items: "&cBrakuje &e{material}&c! Potrzebujesz &e{required}&c, masz &e{have}&c."
+  generator-crafted: "&aWytworzono &eStoniarke&a!"
+  generator-crafted-ground: "&aWytworzono &eStoniarke&a! &7Ekwipunek pelny - wyrzucono na ziemie."
 
 status:
   enabled: "&aWlaczony"
@@ -39,6 +46,7 @@ status:
   inventory: "&aEkwipunek"
   ground: "&cZiemia"
 
+# Action Bar
 actionbar:
   prefix: "<#5555FF><bold>OreFlow</bold></#5555FF>"
   drop-success:
@@ -59,21 +67,28 @@ actionbar:
     duration: 40
   generator-placed:
     enabled: true
-    message: "&aStoniarka postawiona!"
+    message: "{prefix} <dark_gray>» <green>Stoniarka postawiona!"
     duration: 60
   generator-ready:
     enabled: true
     message: "&eStoniarka gotowa!"
     duration: 40
 
+# GUI titles
+# Note: most titles are configured in gui.yml
+# These keys are used for chat messages and fallback titles
 gui:
   title: "&8&lZarzadzaj dropami ze stone"
   title-admin: "&8&lPanel Admina - Dropy"
+  title-main-menu: "&6&lOreFlow"
+  title-stone-generator: "&b&lStone Generator"
+
   buttons:
     next-page: "&aNastepna strona &7>>"
     prev-page: "&7<< &aPoprzednia strona"
     close: "&cZamknij"
 
+# GUI chat messages
 gui-messages:
   drop-message-enabled: "&aKomunikat o dropie &e{drop} &azostal &2WLACZONY&a."
   drop-message-disabled: "&cKomunikat o dropie &e{drop} &czostal &4WYLACZONY&c."

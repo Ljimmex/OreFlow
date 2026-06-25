@@ -2,20 +2,27 @@ package pl.Ljimex.oreFlow.gui;
 
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import pl.Ljimex.oreFlow.OreFlow;
 import pl.Ljimex.oreFlow.config.GuiConfigManager.ButtonConfig;
+import pl.Ljimex.oreFlow.generator.StoneGeneratorManager;
 
 public class GuiListener implements Listener {
 
@@ -39,15 +46,57 @@ public class GuiListener implements Listener {
         }
 
         String title = plainSerializer.serialize(event.getView().title());
-        String dropTitle = plainSerializer.serialize(plugin.getGuiConfigManager().getGuiTitleComponent());
-        String adminTitle = plainSerializer.serialize(plugin.getGuiManager().getAdminGuiTitleComponent());
 
-        if (title.equals(dropTitle)) {
+        if (title.equals(plainSerializer.serialize(plugin.getGuiConfigManager().getMainMenuTitleComponent()))) {
+            event.setCancelled(true);
+            handleMainMenuClick(player, event);
+        } else if (title.equals(plainSerializer.serialize(plugin.getGuiConfigManager().getGuiTitleComponent()))) {
             event.setCancelled(true);
             handleDropGuiClick(player, event);
-        } else if (title.equals(adminTitle)) {
+        } else if (title.equals(plainSerializer.serialize(plugin.getGuiManager().getAdminGuiTitleComponent()))) {
             event.setCancelled(true);
             handleAdminGuiClick(player, event);
+        } else if (title.equals(plainSerializer.serialize(plugin.getGuiConfigManager().getStoneGeneratorTitleComponent()))) {
+            event.setCancelled(true);
+            handleStoneGeneratorGuiClick(player, event);
+        }
+    }
+
+    private void handleMainMenuClick(Player player, InventoryClickEvent event) {
+        int slot = event.getRawSlot();
+        ItemStack clicked = event.getCurrentItem();
+        if (clicked == null || !clicked.hasItemMeta() || clicked.getItemMeta() == null) {
+            return;
+        }
+
+        ButtonConfig dropsButton = plugin.getGuiConfigManager().getMainMenuButton("open_drops");
+        if (dropsButton != null && slot == dropsButton.slot) {
+            setPlayerPage(player, 0);
+            player.openInventory(plugin.getGuiManager().createDropGui(player, 0));
+            return;
+        }
+
+        ButtonConfig generatorButton = plugin.getGuiConfigManager().getMainMenuButton("open_stone_generator");
+        if (generatorButton != null && slot == generatorButton.slot) {
+            player.openInventory(plugin.getGuiManager().createStoneGeneratorGui(player));
+            return;
+        }
+
+        ButtonConfig cobblexButton = plugin.getGuiConfigManager().getMainMenuButton("open_cobblex");
+        if (cobblexButton != null && slot == cobblexButton.slot) {
+            if (!player.hasPermission("cobblex.use")) {
+                player.sendMessage(plugin.getMessageManager().getMessage("commands.no-permission",
+                        "permission", "cobblex.use"));
+                return;
+            }
+            craftCobbleX(player);
+            player.closeInventory();
+            return;
+        }
+
+        ButtonConfig closeButton = plugin.getGuiConfigManager().getMainMenuButton("close");
+        if (closeButton != null && slot == closeButton.slot) {
+            player.closeInventory();
         }
     }
 
@@ -57,7 +106,6 @@ public class GuiListener implements Listener {
 
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || !clicked.hasItemMeta() || clicked.getItemMeta() == null) {
-            // Still allow page buttons even if item is null? No, page buttons are items.
             return;
         }
 
@@ -98,10 +146,8 @@ public class GuiListener implements Listener {
         if (destinationButton != null && slot == destinationButton.slot) {
             boolean newState = plugin.getPlayerSettingsManager().toggleDropToInventory(player.getUniqueId());
             player.sendMessage(newState
-                    ? plugin.getMessageManager().getMessage("commands.drop-destination-inventory",
-                            "status", plugin.getMessageManager().getMessage("status.inventory"))
-                    : plugin.getMessageManager().getMessage("commands.drop-destination-ground",
-                            "status", plugin.getMessageManager().getMessage("status.ground")));
+                    ? plugin.getMessageManager().getMessage("commands.drop-destination-inventory")
+                    : plugin.getMessageManager().getMessage("commands.drop-destination-ground"));
             refreshDropGui(player, currentPage);
             return;
         }
@@ -186,6 +232,175 @@ public class GuiListener implements Listener {
                     ? plugin.getMessageManager().getMessage("commands.drop-toggled-off", "drop", dropKeyValue)
                     : plugin.getMessageManager().getMessage("commands.drop-toggled-on", "drop", dropKeyValue));
             refreshAdminGui(player, currentPage);
+        }
+    }
+
+    private void handleStoneGeneratorGuiClick(Player player, InventoryClickEvent event) {
+        int slot = event.getRawSlot();
+
+        // Back button - return to main menu
+        ButtonConfig backButton = plugin.getGuiConfigManager().getStoneGeneratorButton("back");
+        if (backButton != null && slot == backButton.slot) {
+            player.openInventory(plugin.getGuiManager().createMainMenu(player));
+            return;
+        }
+
+        // Exit button - close the GUI
+        ButtonConfig exitButton = plugin.getGuiConfigManager().getStoneGeneratorButton("exit");
+        if (exitButton != null && slot == exitButton.slot) {
+            player.closeInventory();
+            return;
+        }
+
+        // Craft by clicking the result generator item
+        int resultSlot = plugin.getGuiConfigManager().getStoneGeneratorResultSlot();
+        if (slot != resultSlot) {
+            return;
+        }
+
+        if (!player.hasPermission("oreflow.generator.place")) {
+            player.sendMessage(plugin.getMessageManager().getMessage("commands.no-permission",
+                    "permission", "oreflow.generator.place"));
+            return;
+        }
+
+        craftStoneGenerator(player);
+    }
+
+    private void craftStoneGenerator(Player player) {
+        StoneGeneratorManager manager = plugin.getStoneGeneratorManager();
+        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
+                .getConfigurationSection("generators");
+        if (generatorsSection == null) {
+            return;
+        }
+
+        ConfigurationSection generatorSection = null;
+        for (String key : generatorsSection.getKeys(false)) {
+            ConfigurationSection section = generatorsSection.getConfigurationSection(key);
+            if (section != null && section.getBoolean("enabled", true)) {
+                generatorSection = section;
+                break;
+            }
+        }
+
+        if (generatorSection == null) {
+            return;
+        }
+
+        ConfigurationSection craftingSection = generatorSection.getConfigurationSection("crafting");
+        if (craftingSection == null) {
+            return;
+        }
+
+        List<String> shape = craftingSection.getStringList("shape");
+        ConfigurationSection ingredientsSection = craftingSection.getConfigurationSection("ingredients");
+        if (ingredientsSection == null) {
+            return;
+        }
+
+        // Build required ingredients map
+        Map<Material, Integer> required = new HashMap<>();
+        for (String row : shape) {
+            for (char c : row.toCharArray()) {
+                String key = String.valueOf(c);
+                if (key.isBlank()) {
+                    continue;
+                }
+                Material material = Material.matchMaterial(ingredientsSection.getString(key, "STONE"));
+                if (material != null) {
+                    required.merge(material, 1, Integer::sum);
+                }
+            }
+        }
+
+        // Check inventory
+        Map<Material, Integer> available = new HashMap<>();
+        for (ItemStack item : player.getInventory().getStorageContents()) {
+            if (item != null && item.getType() != Material.AIR) {
+                available.merge(item.getType(), item.getAmount(), Integer::sum);
+            }
+        }
+
+        for (Map.Entry<Material, Integer> entry : required.entrySet()) {
+            int have = available.getOrDefault(entry.getKey(), 0);
+            if (have < entry.getValue()) {
+                player.sendMessage(plugin.getMessageManager().getMessage("commands.generator-insufficient-items",
+                        "material", entry.getKey().name(),
+                        "required", String.valueOf(entry.getValue()),
+                        "have", String.valueOf(have)));
+                return;
+            }
+        }
+
+        // Remove ingredients
+        for (Map.Entry<Material, Integer> entry : required.entrySet()) {
+            removeItems(player, entry.getKey(), entry.getValue());
+        }
+
+        // Give generator item
+        ItemStack generator = manager.createGeneratorItem(generatorSection);
+        if (player.getInventory().firstEmpty() == -1) {
+            player.getWorld().dropItemNaturally(player.getLocation(), generator);
+            player.sendMessage(plugin.getMessageManager().getMessage("commands.generator-crafted-ground"));
+        } else {
+            player.getInventory().addItem(generator);
+            player.sendMessage(plugin.getMessageManager().getMessage("commands.generator-crafted"));
+        }
+
+        player.closeInventory();
+    }
+
+    private void craftCobbleX(Player player) {
+        var cobbleXManager = new pl.Ljimex.oreFlow.cobblex.CobbleXManager(plugin);
+        int cost = cobbleXManager.getCraftingCost();
+        int cobbleCount = countMaterial(player, Material.COBBLESTONE);
+
+        if (cobbleCount < cost) {
+            player.sendMessage(plugin.getMessageManager().getMessage("commands.cobblex-insufficient",
+                    "required", String.valueOf(cost),
+                    "have", String.valueOf(cobbleCount)));
+            return;
+        }
+
+        removeItems(player, Material.COBBLESTONE, cost);
+
+        ItemStack cobbleX = cobbleXManager.createCobbleX(1);
+        if (player.getInventory().firstEmpty() == -1) {
+            player.getWorld().dropItemNaturally(player.getLocation(), cobbleX);
+            player.sendMessage(plugin.getMessageManager().getMessage("commands.cobblex-crafted-ground"));
+        } else {
+            player.getInventory().addItem(cobbleX);
+            player.sendMessage(plugin.getMessageManager().getMessage("commands.cobblex-crafted"));
+        }
+    }
+
+    private int countMaterial(Player player, Material material) {
+        int count = 0;
+        for (ItemStack item : player.getInventory().getStorageContents()) {
+            if (item != null && item.getType() == material) {
+                count += item.getAmount();
+            }
+        }
+        return count;
+    }
+
+    private void removeItems(Player player, Material material, int amount) {
+        int remaining = amount;
+        for (ItemStack item : player.getInventory().getStorageContents()) {
+            if (item != null && item.getType() == material) {
+                int itemAmount = item.getAmount();
+                if (itemAmount <= remaining) {
+                    remaining -= itemAmount;
+                    item.setAmount(0);
+                } else {
+                    item.setAmount(itemAmount - remaining);
+                    remaining = 0;
+                }
+                if (remaining <= 0) {
+                    break;
+                }
+            }
         }
     }
 

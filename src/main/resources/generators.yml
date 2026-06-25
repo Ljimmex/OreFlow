@@ -3,58 +3,55 @@
 # ============================================================
 
 generators:
-  # Podstawowa stoniarka (End Stone + nazwa)
+  # Basic stone generator
   basic:
-    # Czy generator aktywny
+    # Whether the generator is enabled
     enabled: true
 
-    # Receptura craftingu (3x3 grid)
-    # Spacje = puste sloty
+    # Crafting recipe (3x3 grid)
+    # R = Redstone, I = Iron Ingot, S = Stone, P = Piston
     crafting:
       shape:
-        - "III"
-        - "IEI"
-        - "III"
+        - "RIR"
+        - "ISI"
+        - "RPR"
       ingredients:
+        R: "REDSTONE"
         I: "IRON_INGOT"
-        E: "ENDER_PEARL"
+        S: "STONE"
+        P: "PISTON"
 
-    # Blok otrzymany po wycraftowaniu
+    # Block received after crafting
     item:
       material: "END_STONE"
       name: "&8&lStoniarka"
       lore:
-        - "&7Postaw, aby generowac kamien"
-        - "&7Kamien odrosnie po wykopaniu"
+        - "&7Place to generate stone"
+        - "&7Stone regrows after mining"
         - ""
-        - "&eInterwal: &f3s"
-      # Efekt swiecenia (opcjonalny)
+        - "&eInterval: &f{interval}s"
+      # Optional glow effect
       enchant-glow: true
 
-    # Parametry generacji
+    # Generation parameters
     generation:
-      # Typ bloku generowanego nad stoniarka
+      # Type of block generated above the generator
       material: "STONE"
 
-      # Czas miedzy generacjami (w sekundach)
+      # Time between generation attempts (in seconds)
       interval: 3
 
-      # Czy w poblizu musi byc gracz, aby generowac
+      # Whether a player must be nearby for the generator to work
       require-player-nearby: true
 
-      # Promien w blokach, w ktorym musi byc gracz
+      # Radius in blocks within which a player must be
       radius: 32
 
-      # Efekty przy generacji
+      # Effects on generation
       effects:
         sound: "BLOCK_STONE_PLACE"
         particle: "CLOUD"
         particle-count: 5
 
-    # Bezpieczenstwo
-    security:
-      # Czy tylko wlasciciel/admin moze zniszyczyc stoniarke
-      owner-only-break: true
-
-      # Czy zniszczenie zwraca przedmiot stoniarki
-      pickup-on-break: true
+    # Whether breaking the generator returns its item
+    pickup-on-break: true
