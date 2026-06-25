@@ -1,6 +1,9 @@
 # ============================================================
 # OreFlow - GUI Configuration
 # ============================================================
+
+# Config version - DO NOT MODIFY. Used for automatic migrations.
+config-version: 2
 #
 # This file allows FULL customization of all plugin GUIs.
 # You can change: title, size, glass decorations, drop slots,
@@ -46,7 +49,13 @@
 # Drop GUI button types:
 #   cobble, drop_destination, exp, close, previous_page, next_page
 # Stone Generator GUI button type:
-#   craft_generator
+#   back, exit
+# CobbleX Menu button types:
+#   open_cobblex_craft, open_cobblex_drops, back, exit
+# CobbleX Craft GUI button types:
+#   back, exit
+# CobbleX Drop GUI button types:
+#   previous_page, next_page, back, close
 # The slot MUST match the slot defined in this config.
 # Page buttons are shown only when there is a previous/next page.
 #
@@ -99,7 +108,7 @@ main-menu:
       material: "EMERALD_ORE"
       name: "<yellow>CobbleX</yellow>"
       lore:
-        - "<gray>Click to craft a CobbleX</gray>"
+        - "<gray>Click to open CobbleX menu</gray>"
 
     close:
       type: "close"
@@ -216,10 +225,18 @@ gui:
       name: "<red>Close</red>"
       lore: []
 
+    back:
+      type: "back"
+      slot: 38
+      material: "ARROW"
+      name: "<yellow><bold>BACK</bold></yellow>"
+      lore:
+        - "<gray>Click to return to main menu</gray>"
+
 # Stone Generator crafting GUI - opens from the main menu
 stone-generator:
   title: "<gradient:#00AAFF:#55FFFF><bold>Stone Generator</bold></gradient>"
-  rows: 5
+  rows: 6
 
   decorations:
     - slots: "0-8"
@@ -243,11 +260,8 @@ stone-generator:
       name: " "
       lore: []
     - slots: "23"
-      material: "ARROW"
-      name: "<gray>Rezultat</gray>"
-      lore:
-        - "<gray>Ułóż składniki po lewej stronie</gray>"
-        - "<gray>i kliknij generator aby go wytworzyć</gray>"
+      material: "PLAYER_HEAD"
+      texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWM5YzY3YTlmMTY4NWNkMWRhNDNlODQxZmU3ZWJiMTdmNmFmNmVhMTJhN2UxZjI3MjJmNWU3ZjA4OThkYjlmMyJ9fX0="
     - slots: "26"
       material: "BLACK_STAINED_GLASS_PANE"
       name: " "
@@ -261,6 +275,10 @@ stone-generator:
       name: " "
       lore: []
     - slots: "36-44"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "45-53"
       material: "BLACK_STAINED_GLASS_PANE"
       name: " "
       lore: []
@@ -284,7 +302,7 @@ stone-generator:
   buttons:
     back:
       type: "back"
-      slot: 39
+      slot: 48
       material: "ARROW"
       name: "<yellow><bold>BACK</bold></yellow>"
       lore:
@@ -292,8 +310,203 @@ stone-generator:
 
     exit:
       type: "exit"
-      slot: 41
+      slot: 50
       material: "BARRIER"
       name: "<red><bold>EXIT</bold></red>"
       lore:
         - "<gray>Click to close</gray>"
+
+# CobbleX choice menu - opens from the main menu
+# Offers crafting recipe view and drop list view
+cobblex-menu:
+  title: "<gradient:#FFAA00:#FF5555><bold>CobbleX</bold></gradient>"
+  rows: 3
+
+  decorations:
+    - slots: "0-8"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "9-17"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "18-26"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+
+  buttons:
+    craft:
+      type: "open_cobblex_craft"
+      slot: 11
+      material: "CRAFTING_TABLE"
+      name: "<yellow>CobbleX Crafting</yellow>"
+      lore:
+        - "<gray>Click to view crafting recipe</gray>"
+
+    drops:
+      type: "open_cobblex_drops"
+      slot: 15
+      material: "ENDER_CHEST"
+      name: "<yellow>CobbleX Drops</yellow>"
+      lore:
+        - "<gray>Click to view possible rewards</gray>"
+
+    back:
+      type: "back"
+      slot: 21
+      material: "ARROW"
+      name: "<yellow><bold>BACK</bold></yellow>"
+      lore:
+        - "<gray>Click to return to main menu</gray>"
+
+    exit:
+      type: "exit"
+      slot: 23
+      material: "BARRIER"
+      name: "<red><bold>EXIT</bold></red>"
+      lore:
+        - "<gray>Click to close</gray>"
+
+# CobbleX crafting GUI - shows the 9-slot cobblestone recipe
+cobblex-craft:
+  title: "<gradient:#FFAA00:#FF5555><bold>CobbleX Crafting</bold></gradient>"
+  rows: 5
+
+  decorations:
+    - slots: "0-8"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "9"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "13-17"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "18"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "22,24"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "26"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "27"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "31-35"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "36-44"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+
+  # Slots where the 9 cobblestone items are shown (3x3 grid)
+  recipe-slots:
+    - 10
+    - 11
+    - 12
+    - 19
+    - 20
+    - 21
+    - 28
+    - 29
+    - 30
+
+  # Slot where the CobbleX result preview is shown
+  result-slot: 25
+
+  buttons:
+    back:
+      type: "back"
+      slot: 38
+      material: "ARROW"
+      name: "<yellow><bold>BACK</bold></yellow>"
+      lore:
+        - "<gray>Click to return to CobbleX menu</gray>"
+
+    exit:
+      type: "exit"
+      slot: 42
+      material: "BARRIER"
+      name: "<red><bold>EXIT</bold></red>"
+      lore:
+        - "<gray>Click to close</gray>"
+
+# CobbleX drop GUI - shows possible rewards without toggle row
+cobblex-drop:
+  title: "<gradient:#FFAA00:#FF5555><bold>CobbleX Drops</bold></gradient>"
+  rows: 5
+
+  decorations:
+    - slots: "0-8"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "18-26"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "27-35"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+    - slots: "36-44"
+      material: "BLACK_STAINED_GLASS_PANE"
+      name: " "
+      lore: []
+
+  # Reward items section
+  drops:
+    start-slot: 9
+    max-slots: 9
+
+    item:
+      name: "<{color}>{capitalized_drop}</{color}>"
+      lore:
+        - "<gray>Reward Details</gray>"
+        - " <dark_gray>▸</dark_gray> <gray>Chance:</gray> <yellow>{chance}%</yellow>"
+        - " <dark_gray>▸</dark_gray> <gray>Reward:</gray> <yellow>{message}</yellow>"
+
+  buttons:
+    previous_page:
+      type: "previous_page"
+      slot: 36
+      material: "PAPER"
+      name: "<yellow>← Previous Page</yellow>"
+      lore:
+        - "<gray>Click to go to previous page</gray>"
+
+    next_page:
+      type: "next_page"
+      slot: 44
+      material: "PAPER"
+      name: "<yellow>Next Page →</yellow>"
+      lore:
+        - "<gray>Click to go to next page</gray>"
+
+    back:
+      type: "back"
+      slot: 38
+      material: "ARROW"
+      name: "<yellow><bold>BACK</bold></yellow>"
+      lore:
+        - "<gray>Click to return to CobbleX menu</gray>"
+
+    close:
+      type: "close"
+      slot: 42
+      material: "BARRIER"
+      name: "<red>Close</red>"
+      lore: []

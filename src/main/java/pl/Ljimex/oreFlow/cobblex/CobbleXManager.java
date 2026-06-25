@@ -2,14 +2,14 @@ package pl.Ljimex.oreFlow.cobblex;
 
 import pl.Ljimex.oreFlow.OreFlow;
 
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -23,6 +23,7 @@ public class CobbleXManager {
 
     private final OreFlow plugin;
     private final NamespacedKey cobbleXKey;
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     public CobbleXManager(OreFlow plugin) {
         this.plugin = plugin;
@@ -54,16 +55,16 @@ public class CobbleXManager {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             if (itemSection != null) {
-                String name = itemSection.getString("name", "&8&lCobbleX");
-                meta.setDisplayName(colorize(name));
+                String name = itemSection.getString("name", "<dark_gray><bold>CobbleX</bold></dark_gray>");
+                meta.displayName(miniMessage.deserialize(name));
 
                 List<String> lore = itemSection.getStringList("lore");
                 if (!lore.isEmpty()) {
-                    List<String> coloredLore = new ArrayList<>();
+                    List<Component> coloredLore = new ArrayList<>();
                     for (String line : lore) {
-                        coloredLore.add(colorize(line));
+                        coloredLore.add(miniMessage.deserialize(line));
                     }
-                    meta.setLore(coloredLore);
+                    meta.lore(coloredLore);
                 }
 
                 if (itemSection.getBoolean("enchant-glow", true)) {
@@ -127,7 +128,7 @@ public class CobbleXManager {
             if (roll < current) {
                 return new CobbleXDrop(
                         drop.getString("command", ""),
-                        drop.getString("message", "&7Wylosowano nagrode")
+                        drop.getString("message", "<gray>Rolled reward</gray>")
                 );
             }
         }
@@ -137,7 +138,7 @@ public class CobbleXManager {
         ConfigurationSection lastDrop = dropsSection.getConfigurationSection(lastKey);
         return new CobbleXDrop(
                 lastDrop.getString("command", ""),
-                lastDrop.getString("message", "&7Wylosowano nagrode")
+                lastDrop.getString("message", "<gray>Rolled reward</gray>")
         );
     }
 
@@ -151,11 +152,27 @@ public class CobbleXManager {
                 .getInt("cobblex.cooldown", 2);
     }
 
-    private String colorize(String text) {
-        if (text == null || text.isEmpty()) {
-            return text;
+    public List<CobbleXReward> getRewards() {
+        List<CobbleXReward> rewards = new ArrayList<>();
+        ConfigurationSection dropsSection = plugin.getConfigManager().getConfig()
+                .getConfigurationSection("cobblex.drops");
+        if (dropsSection == null) {
+            return rewards;
         }
-        return org.bukkit.ChatColor.translateAlternateColorCodes('&', text);
+
+        for (String key : dropsSection.getKeys(false)) {
+            ConfigurationSection drop = dropsSection.getConfigurationSection(key);
+            if (drop == null) {
+                continue;
+            }
+            rewards.add(new CobbleXReward(
+                    key,
+                    drop.getString("command", ""),
+                    drop.getString("message", "<gray>Rolled reward</gray>"),
+                    drop.getDouble("chance", 0)
+            ));
+        }
+        return rewards;
     }
 
     public static class CobbleXDrop {
@@ -174,5 +191,8 @@ public class CobbleXManager {
         public String getMessage() {
             return message;
         }
+    }
+
+    public record CobbleXReward(String key, String command, String message, double chance) {
     }
 }

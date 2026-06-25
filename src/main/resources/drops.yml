@@ -2,6 +2,9 @@
 # OreFlow - Drop Configuration
 # Add your own drops by creating new sections!
 #
+# Config version - DO NOT MODIFY. Used for automatic migrations.
+config-version: 1
+#
 # required-tool: minimum required pickaxe tier:
 #   WOODEN_PICKAXE / GOLDEN_PICKAXE (tier 1)
 #   STONE_PICKAXE (tier 2)

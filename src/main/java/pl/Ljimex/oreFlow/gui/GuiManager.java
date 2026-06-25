@@ -6,24 +6,31 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 
 import pl.Ljimex.oreFlow.OreFlow;
+import pl.Ljimex.oreFlow.cobblex.CobbleXManager.CobbleXReward;
 import pl.Ljimex.oreFlow.config.GuiConfigManager;
 import pl.Ljimex.oreFlow.config.GuiConfigManager.ButtonConfig;
 import pl.Ljimex.oreFlow.config.GuiConfigManager.DecorationConfig;
 import pl.Ljimex.oreFlow.config.GuiConfigManager.DropSectionConfig;
+import pl.Ljimex.oreFlow.drop.DropConfig;
+import pl.Ljimex.oreFlow.generator.GeneratorConfig;
 import pl.Ljimex.oreFlow.util.ItemColorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class GuiManager {
 
@@ -38,8 +45,7 @@ public class GuiManager {
 
     public int getTotalPages() {
         DropSectionConfig dropSection = guiConfig.getDropSection();
-        ConfigurationSection dropsSection = plugin.getConfigManager().getDrops();
-        int dropCount = dropsSection.getKeys(false).size();
+        int dropCount = plugin.getDropConfigManager().getDropCount();
         return Math.max(1, (int) Math.ceil((double) dropCount / dropSection.maxSlots));
     }
 
@@ -50,7 +56,7 @@ public class GuiManager {
         // Decorations
         for (DecorationConfig decoration : guiConfig.getDecorations()) {
             if (decoration.slot < 0 || decoration.slot >= size) continue;
-            ItemStack item = createSimpleItem(decoration.material, decoration.name, decoration.lore);
+            ItemStack item = createDecorationItem(decoration);
             if (item != null) {
                 inventory.setItem(decoration.slot, item);
             }
@@ -58,25 +64,19 @@ public class GuiManager {
 
         // Drops
         DropSectionConfig dropSection = guiConfig.getDropSection();
-        ConfigurationSection dropsSection = plugin.getConfigManager().getDrops();
-        List<String> dropKeys = new ArrayList<>(dropsSection.getKeys(false));
+        List<pl.Ljimex.oreFlow.drop.DropConfig> drops = new ArrayList<>(plugin.getDropConfigManager().getDrops());
 
         int dropsPerPage = dropSection.maxSlots;
-        int totalPages = Math.max(1, (int) Math.ceil((double) dropKeys.size() / dropsPerPage));
+        int totalPages = Math.max(1, (int) Math.ceil((double) drops.size() / dropsPerPage));
         page = Math.max(0, Math.min(page, totalPages - 1));
 
         int startIndex = page * dropsPerPage;
         int slot = dropSection.startSlot;
 
-        for (int i = 0; i < dropsPerPage && startIndex + i < dropKeys.size(); i++) {
-            String dropKey = dropKeys.get(startIndex + i);
-            ConfigurationSection drop = dropsSection.getConfigurationSection(dropKey);
-            if (drop == null) {
-                continue;
-            }
-
-            boolean enabled = plugin.getPlayerSettingsManager().isDropEnabled(player.getUniqueId(), dropKey);
-            ItemStack item = createDropIcon(dropKey, drop, enabled, dropSection);
+        for (int i = 0; i < dropsPerPage && startIndex + i < drops.size(); i++) {
+            pl.Ljimex.oreFlow.drop.DropConfig drop = drops.get(startIndex + i);
+            boolean enabled = plugin.getPlayerSettingsManager().isDropEnabled(player.getUniqueId(), drop.getKey());
+            ItemStack item = createDropIcon(drop, enabled, dropSection);
             if (item != null) {
                 inventory.setItem(slot, item);
                 slot++;
@@ -95,7 +95,7 @@ public class GuiManager {
     }
 
     public Component getAdminGuiTitleComponent() {
-        String title = plugin.getMessageManager().getRaw("gui.title-admin", new java.util.HashMap<>());
+        String title = plugin.getMessageManager().getRawString("gui.title-admin", new java.util.HashMap<>());
         return miniMessage.deserialize(title);
     }
 
@@ -110,7 +110,7 @@ public class GuiManager {
         // Decorations
         for (DecorationConfig decoration : guiConfig.getDecorations()) {
             if (decoration.slot < 0 || decoration.slot >= size) continue;
-            ItemStack item = createSimpleItem(decoration.material, decoration.name, decoration.lore);
+            ItemStack item = createDecorationItem(decoration);
             if (item != null) {
                 inventory.setItem(decoration.slot, item);
             }
@@ -118,25 +118,19 @@ public class GuiManager {
 
         // Drops
         DropSectionConfig dropSection = guiConfig.getDropSection();
-        ConfigurationSection dropsSection = plugin.getConfigManager().getDrops();
-        List<String> dropKeys = new ArrayList<>(dropsSection.getKeys(false));
+        List<pl.Ljimex.oreFlow.drop.DropConfig> drops = new ArrayList<>(plugin.getDropConfigManager().getDrops());
 
         int dropsPerPage = dropSection.maxSlots;
-        int totalPages = Math.max(1, (int) Math.ceil((double) dropKeys.size() / dropsPerPage));
+        int totalPages = Math.max(1, (int) Math.ceil((double) drops.size() / dropsPerPage));
         page = Math.max(0, Math.min(page, totalPages - 1));
 
         int startIndex = page * dropsPerPage;
         int slot = dropSection.startSlot;
 
-        for (int i = 0; i < dropsPerPage && startIndex + i < dropKeys.size(); i++) {
-            String dropKey = dropKeys.get(startIndex + i);
-            ConfigurationSection drop = dropsSection.getConfigurationSection(dropKey);
-            if (drop == null) {
-                continue;
-            }
-
-            boolean enabled = drop.getBoolean("enabled", true);
-            ItemStack item = createAdminDropIcon(dropKey, drop, enabled, dropSection);
+        for (int i = 0; i < dropsPerPage && startIndex + i < drops.size(); i++) {
+            pl.Ljimex.oreFlow.drop.DropConfig drop = drops.get(startIndex + i);
+            boolean enabled = plugin.getConfigManager().getDrops().getBoolean(drop.getKey() + ".enabled", true);
+            ItemStack item = createAdminDropIcon(drop, enabled, dropSection);
             if (item != null) {
                 inventory.setItem(slot, item);
                 slot++;
@@ -157,7 +151,7 @@ public class GuiManager {
 
         for (DecorationConfig decoration : guiConfig.getMainMenuDecorations()) {
             if (decoration.slot < 0 || decoration.slot >= size) continue;
-            ItemStack item = createSimpleItem(decoration.material, decoration.name, decoration.lore);
+            ItemStack item = createDecorationItem(decoration);
             if (item != null) {
                 inventory.setItem(decoration.slot, item);
             }
@@ -177,54 +171,36 @@ public class GuiManager {
 
         for (DecorationConfig decoration : guiConfig.getStoneGeneratorDecorations()) {
             if (decoration.slot < 0 || decoration.slot >= size) continue;
-            ItemStack item = createSimpleItem(decoration.material, decoration.name, decoration.lore);
+            ItemStack item = createDecorationItem(decoration);
             if (item != null) {
                 inventory.setItem(decoration.slot, item);
             }
         }
 
         // Display recipe
-        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
-                .getConfigurationSection("generators");
-        ConfigurationSection generatorSection = null;
-        if (generatorsSection != null) {
-            for (String key : generatorsSection.getKeys(false)) {
-                ConfigurationSection section = generatorsSection.getConfigurationSection(key);
-                if (section != null && section.getBoolean("enabled", true)) {
-                    generatorSection = section;
-                    break;
-                }
-            }
-        }
+        GeneratorConfig generatorConfig = plugin.getGeneratorConfigManager().getFirstEnabledGenerator();
+        if (generatorConfig != null) {
+            List<String> shape = generatorConfig.getCraftingShape();
+            Map<Character, Material> ingredients = generatorConfig.getIngredients();
+            List<Integer> recipeSlots = guiConfig.getStoneGeneratorRecipeSlots();
 
-        if (generatorSection != null) {
-            ConfigurationSection craftingSection = generatorSection.getConfigurationSection("crafting");
-            if (craftingSection != null) {
-                List<String> shape = craftingSection.getStringList("shape");
-                ConfigurationSection ingredientsSection = craftingSection.getConfigurationSection("ingredients");
-                List<Integer> recipeSlots = guiConfig.getStoneGeneratorRecipeSlots();
-
-                int index = 0;
-                for (String row : shape) {
-                    for (char c : row.toCharArray()) {
-                        if (index >= recipeSlots.size()) break;
-                        Material material = Material.AIR;
-                        if (ingredientsSection != null && c != ' ') {
-                            Material matched = Material.matchMaterial(ingredientsSection.getString(String.valueOf(c), "STONE"));
-                            if (matched != null) {
-                                material = matched;
-                            }
-                        }
-                        if (material != Material.AIR) {
-                            inventory.setItem(recipeSlots.get(index), new ItemStack(material));
-                        }
-                        index++;
+            int index = 0;
+            for (String row : shape) {
+                for (char c : row.toCharArray()) {
+                    if (index >= recipeSlots.size()) break;
+                    Material material = Material.AIR;
+                    if (c != ' ') {
+                        material = ingredients.getOrDefault(c, Material.AIR);
                     }
+                    if (material != Material.AIR) {
+                        inventory.setItem(recipeSlots.get(index), new ItemStack(material));
+                    }
+                    index++;
                 }
             }
 
             // Result
-            ItemStack result = plugin.getStoneGeneratorManager().createGeneratorItem(generatorSection);
+            ItemStack result = plugin.getStoneGeneratorManager().createGeneratorItem(generatorConfig);
             inventory.setItem(guiConfig.getStoneGeneratorResultSlot(), result);
         }
 
@@ -233,6 +209,217 @@ public class GuiManager {
         addStoneGeneratorButton(inventory, "exit");
 
         return inventory;
+    }
+
+    public Inventory createCobbleXMenu(Player player) {
+        int size = guiConfig.getCobbleXMenuSize();
+        Inventory inventory = Bukkit.createInventory(null, size, guiConfig.getCobbleXMenuTitleComponent());
+
+        for (DecorationConfig decoration : guiConfig.getCobbleXMenuDecorations()) {
+            if (decoration.slot < 0 || decoration.slot >= size) continue;
+            ItemStack item = createDecorationItem(decoration);
+            if (item != null) {
+                inventory.setItem(decoration.slot, item);
+            }
+        }
+
+        addCobbleXMenuButton(inventory, "open_cobblex_craft");
+        addCobbleXMenuButton(inventory, "open_cobblex_drops");
+        addCobbleXMenuButton(inventory, "back");
+        addCobbleXMenuButton(inventory, "exit");
+
+        return inventory;
+    }
+
+    public Inventory createCobbleXCraftGui(Player player) {
+        int size = guiConfig.getCobbleXCraftSize();
+        Inventory inventory = Bukkit.createInventory(null, size, guiConfig.getCobbleXCraftTitleComponent());
+
+        for (DecorationConfig decoration : guiConfig.getCobbleXCraftDecorations()) {
+            if (decoration.slot < 0 || decoration.slot >= size) continue;
+            ItemStack item = createDecorationItem(decoration);
+            if (item != null) {
+                inventory.setItem(decoration.slot, item);
+            }
+        }
+
+        // Display recipe - 9 cobblestone
+        List<Integer> recipeSlots = guiConfig.getCobbleXCraftRecipeSlots();
+        for (int slot : recipeSlots) {
+            if (slot >= 0 && slot < size) {
+                inventory.setItem(slot, new ItemStack(Material.COBBLESTONE));
+            }
+        }
+
+        // Result
+        ItemStack result = plugin.getCobbleXManager().createCobbleX(1);
+        inventory.setItem(guiConfig.getCobbleXCraftResultSlot(), result);
+
+        // Navigation buttons
+        addCobbleXCraftButton(inventory, "back");
+        addCobbleXCraftButton(inventory, "exit");
+
+        return inventory;
+    }
+
+    public int getCobbleXDropTotalPages() {
+        DropSectionConfig dropSection = guiConfig.getCobbleXDropSection();
+        int rewardCount = plugin.getCobbleXManager().getRewards().size();
+        return Math.max(1, (int) Math.ceil((double) rewardCount / dropSection.maxSlots));
+    }
+
+    public Inventory createCobbleXDropGui(Player player, int page) {
+        int size = guiConfig.getCobbleXDropSize();
+        Inventory inventory = Bukkit.createInventory(null, size, guiConfig.getCobbleXDropTitleComponent());
+
+        for (DecorationConfig decoration : guiConfig.getCobbleXDropDecorations()) {
+            if (decoration.slot < 0 || decoration.slot >= size) continue;
+            ItemStack item = createDecorationItem(decoration);
+            if (item != null) {
+                inventory.setItem(decoration.slot, item);
+            }
+        }
+
+        DropSectionConfig dropSection = guiConfig.getCobbleXDropSection();
+        List<CobbleXReward> rewards = new ArrayList<>(plugin.getCobbleXManager().getRewards());
+
+        int dropsPerPage = dropSection.maxSlots;
+        int totalPages = Math.max(1, (int) Math.ceil((double) rewards.size() / dropsPerPage));
+        page = Math.max(0, Math.min(page, totalPages - 1));
+
+        int startIndex = page * dropsPerPage;
+        int slot = dropSection.startSlot;
+
+        for (int i = 0; i < dropsPerPage && startIndex + i < rewards.size(); i++) {
+            CobbleXReward reward = rewards.get(startIndex + i);
+            ItemStack item = createCobbleXRewardIcon(reward, dropSection);
+            if (item != null) {
+                inventory.setItem(slot, item);
+                slot++;
+            }
+        }
+
+        addCobbleXDropPageButton(inventory, page, totalPages, "previous_page");
+        addCobbleXDropPageButton(inventory, page, totalPages, "next_page");
+        addCobbleXDropButton(inventory, player, "back");
+        addCobbleXDropButton(inventory, player, "close");
+
+        return inventory;
+    }
+
+    private void addCobbleXMenuButton(Inventory inventory, String type) {
+        ButtonConfig button = guiConfig.getCobbleXMenuButton(type);
+        if (button == null) {
+            return;
+        }
+
+        int size = inventory.getSize();
+        if (button.slot < 0 || button.slot >= size) {
+            return;
+        }
+
+        ItemStack item = createSimpleItem(button.material, button.name, button.lore);
+        if (item != null) {
+            inventory.setItem(button.slot, item);
+        }
+    }
+
+    private void addCobbleXCraftButton(Inventory inventory, String type) {
+        ButtonConfig button = guiConfig.getCobbleXCraftButton(type);
+        if (button == null) {
+            return;
+        }
+
+        int size = inventory.getSize();
+        if (button.slot < 0 || button.slot >= size) {
+            return;
+        }
+
+        ItemStack item = createSimpleItem(button.material, button.name, button.lore);
+        if (item != null) {
+            inventory.setItem(button.slot, item);
+        }
+    }
+
+    private void addCobbleXDropButton(Inventory inventory, Player player, String type) {
+        ButtonConfig button = guiConfig.getCobbleXDropButton(type);
+        if (button == null) {
+            return;
+        }
+
+        int size = inventory.getSize();
+        if (button.slot < 0 || button.slot >= size) {
+            return;
+        }
+
+        ItemStack item = createSimpleItem(button.material, button.name, button.lore);
+        if (item != null) {
+            inventory.setItem(button.slot, item);
+        }
+    }
+
+    private void addCobbleXDropPageButton(Inventory inventory, int currentPage, int totalPages, String type) {
+        ButtonConfig button = guiConfig.getCobbleXDropButton(type);
+        if (button == null) {
+            return;
+        }
+
+        int size = inventory.getSize();
+        if (button.slot < 0 || button.slot >= size) {
+            return;
+        }
+
+        boolean isNext = type.equalsIgnoreCase("next_page");
+        boolean visible = isNext ? currentPage < totalPages - 1 : currentPage > 0;
+
+        if (!visible) {
+            return;
+        }
+
+        ItemStack item = createSimpleItem(button.material, button.name, button.lore);
+        if (item != null) {
+            inventory.setItem(button.slot, item);
+        }
+    }
+
+    private ItemStack createCobbleXRewardIcon(CobbleXReward reward, DropSectionConfig dropSection) {
+        Material material = Material.ENDER_CHEST;
+        String key = reward.key();
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            String dropColor = ItemColorUtil.getColor(material);
+            String name = dropSection.name
+                    .replace("{drop}", key)
+                    .replace("{capitalized_drop}", capitalize(key))
+                    .replace("{material}", material.name())
+                    .replace("{color}", dropColor);
+            meta.displayName(miniMessage.deserialize(name));
+
+            List<Component> loreComponents = new ArrayList<>();
+            for (String line : dropSection.lore) {
+                String replaced = line
+                        .replace("{drop}", key)
+                        .replace("{capitalized_drop}", capitalize(key))
+                        .replace("{material}", material.name())
+                        .replace("{color}", dropColor)
+                        .replace("{chance}", formatChance(reward.chance()))
+                        .replace("{message}", reward.message());
+                if (replaced.contains("\n")) {
+                    for (String subLine : replaced.split("\\n")) {
+                        loreComponents.add(miniMessage.deserialize(subLine));
+                    }
+                } else {
+                    loreComponents.add(miniMessage.deserialize(replaced));
+                }
+            }
+            meta.lore(loreComponents);
+
+            item.setItemMeta(meta);
+        }
+
+        return item;
     }
 
     private void addStoneGeneratorButton(Inventory inventory, String type) {
@@ -340,12 +527,10 @@ public class GuiManager {
         };
     }
 
-    private ItemStack createDropIcon(String dropKey, ConfigurationSection drop, boolean enabled, DropSectionConfig dropSection) {
-        String materialName = drop.getString("material", "STONE");
-        Material material = Material.matchMaterial(materialName);
-        if (material == null) {
-            material = Material.STONE;
-        }
+    private ItemStack createDropIcon(DropConfig drop, boolean enabled, DropSectionConfig dropSection) {
+        Material material = drop.getMaterial();
+        String dropKey = drop.getKey();
+        String materialName = material.name();
 
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
@@ -386,12 +571,10 @@ public class GuiManager {
         return item;
     }
 
-    private ItemStack createAdminDropIcon(String dropKey, ConfigurationSection drop, boolean enabled, DropSectionConfig dropSection) {
-        String materialName = drop.getString("material", "STONE");
-        Material material = Material.matchMaterial(materialName);
-        if (material == null) {
-            material = Material.STONE;
-        }
+    private ItemStack createAdminDropIcon(DropConfig drop, boolean enabled, DropSectionConfig dropSection) {
+        Material material = drop.getMaterial();
+        String dropKey = drop.getKey();
+        String materialName = material.name();
 
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
@@ -424,46 +607,38 @@ public class GuiManager {
         return item;
     }
 
-    private String replaceDropPlaceholders(String line, ConfigurationSection drop, String materialName, String dropColor, String status, boolean enabled) {
-        int minY = drop.getInt("min-y", Integer.MIN_VALUE);
-        int maxY = drop.getInt("max-y", Integer.MAX_VALUE);
+    private String replaceDropPlaceholders(String line, DropConfig drop, String materialName, String dropColor, String status, boolean enabled) {
+        int minY = drop.getMinY();
+        int maxY = drop.getMaxY();
         String yLevel = (minY == Integer.MIN_VALUE && maxY == Integer.MAX_VALUE) ? "Any" : minY + " – " + maxY;
 
-        String requiredTool = drop.getString("required-tool", "");
-        String tool = requiredTool.isEmpty() ? "Any" : requiredTool;
+        String tool = drop.getRequiredTool().name();
 
-        double baseChance = drop.getDouble("chance", 0.0);
-        int minAmount = drop.getInt("min-amount", 1);
-        int maxAmount = drop.getInt("max-amount", 1);
+        double baseChance = drop.getChance();
+        int minAmount = drop.getMinAmount();
+        int maxAmount = drop.getMaxAmount();
 
-        boolean fortuneEnabled = isFortuneEnabled(drop);
-        String fortuneEnabledText = fortuneEnabled ? "<green>Yes</green>" : "<red>No</red>";
+        String fortuneEnabledText = drop.isFortuneEnabled() ? "<green>Yes</green>" : "<red>No</red>";
 
         // Fortune level placeholders
         StringBuilder fortuneLines = new StringBuilder();
-        ConfigurationSection levels = drop.getConfigurationSection("fortune.levels");
-        if (levels != null) {
-            for (int level = 1; level <= 3; level++) {
-                ConfigurationSection levelSection = levels.getConfigurationSection(String.valueOf(level));
-                if (levelSection != null) {
-                    double chance = levelSection.getDouble("chance", 0.0);
-                    int bonusMin = levelSection.getInt("bonus-min", 0);
-                    int bonusMax = levelSection.getInt("bonus-max", 0);
-                    String fortuneLine = " <dark_gray>▸</dark_gray> <yellow>F" + level + ":</yellow> <aqua>" + formatChance(chance)
-                            + "%</aqua> <dark_gray>➜</dark_gray> <green>+" + bonusMin + "-" + bonusMax + "</green>";
-                    if (!fortuneLines.isEmpty()) {
-                        fortuneLines.append("\n");
-                    }
-                    fortuneLines.append(fortuneLine);
+        for (int level = 1; level <= 3; level++) {
+            DropConfig.FortuneLevel levelConfig = drop.getFortuneLevel(level);
+            if (levelConfig != null) {
+                String fortuneLine = " <dark_gray>▸</dark_gray> <yellow>F" + level + ":</yellow> <aqua>" + formatChance(levelConfig.chance())
+                        + "%</aqua> <dark_gray>➜</dark_gray> <green>+" + levelConfig.bonusMin() + "-" + levelConfig.bonusMax() + "</green>";
+                if (!fortuneLines.isEmpty()) {
+                    fortuneLines.append("\n");
                 }
+                fortuneLines.append(fortuneLine);
             }
         }
 
         String toggleAction = enabled ? "<red>disable</red>" : "<green>enable</green>";
 
         return line
-                .replace("{drop}", drop.getName())
-                .replace("{capitalized_drop}", capitalize(drop.getName()))
+                .replace("{drop}", drop.getKey())
+                .replace("{capitalized_drop}", capitalize(drop.getKey()))
                 .replace("{material}", materialName)
                 .replace("{color}", dropColor)
                 .replace("{status}", status)
@@ -482,21 +657,24 @@ public class GuiManager {
                 .replace("{fortune3_max}", getFortuneValue(drop, 3, "bonus-max"))
                 .replace("{tool}", tool)
                 .replace("{y_level}", yLevel)
-                .replace("{exp}", String.valueOf(drop.getInt("exp", 0)))
+                .replace("{exp}", String.valueOf(drop.getExp()))
                 .replace("{line}", "<dark_gray>" + "▬".repeat(24) + "</dark_gray>")
                 .replace("{toggle_action}", toggleAction)
                 .replace("{fortune_lines}", fortuneLines.toString());
     }
 
-    private String getFortuneValue(ConfigurationSection drop, int level, String key) {
-        ConfigurationSection levelSection = drop.getConfigurationSection("fortune.levels." + level);
-        if (levelSection == null) {
+    private String getFortuneValue(DropConfig drop, int level, String key) {
+        DropConfig.FortuneLevel levelConfig = drop.getFortuneLevel(level);
+        if (levelConfig == null) {
             return "0";
         }
         if (key.equals("chance")) {
-            return formatChance(levelSection.getDouble(key, 0.0));
+            return formatChance(levelConfig.chance());
         }
-        return String.valueOf(levelSection.getInt(key, 0));
+        if (key.equals("bonus-min")) {
+            return String.valueOf(levelConfig.bonusMin());
+        }
+        return String.valueOf(levelConfig.bonusMax());
     }
 
     private ItemStack createSimpleItem(String materialName, String name, List<String> lore) {
@@ -523,11 +701,38 @@ public class GuiManager {
         return item;
     }
 
-    private boolean isFortuneEnabled(ConfigurationSection drop) {
-        if (drop.contains("fortune.enabled")) {
-            return drop.getBoolean("fortune.enabled", true);
+    private ItemStack createDecorationItem(DecorationConfig decoration) {
+        if (decoration.texture != null && !decoration.texture.isEmpty()) {
+            return createCustomHead(decoration.texture, decoration.name, decoration.lore);
         }
-        return drop.getBoolean("fortune-multiplier", true);
+        return createSimpleItem(decoration.material, decoration.name, decoration.lore);
+    }
+
+    private ItemStack createCustomHead(String base64Texture, String name, List<String> lore) {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        if (meta != null) {
+            meta.displayName(miniMessage.deserialize(name));
+
+            List<Component> loreComponents = new ArrayList<>();
+            for (String line : lore) {
+                loreComponents.add(miniMessage.deserialize(line));
+            }
+            if (!loreComponents.isEmpty()) {
+                meta.lore(loreComponents);
+            }
+
+            try {
+                PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+                profile.setProperty(new ProfileProperty("textures", base64Texture));
+                meta.setPlayerProfile(profile);
+            } catch (Exception e) {
+                plugin.getLogger().warning("Could not apply custom head texture: " + e.getMessage());
+            }
+
+            head.setItemMeta(meta);
+        }
+        return head;
     }
 
     private String formatChance(double chance) {

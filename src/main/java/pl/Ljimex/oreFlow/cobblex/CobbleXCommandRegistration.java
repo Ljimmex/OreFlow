@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -65,14 +66,14 @@ public final class CobbleXCommandRegistration {
 
     private static int executeUsage(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         CommandSender sender = ctx.getSource().getSender();
-        sender.sendMessage(colorize("&cUzyj: &e/cx craft&7, &e/cx drop&7, &e/cx info"));
+        plugin.getMessageManager().send(sender, "commands.cx-usage");
         return Command.SINGLE_SUCCESS;
     }
 
     private static int executeCraft(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(colorize("&cTej komendy moze uzyc tylko gracz!"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
@@ -81,7 +82,9 @@ public final class CobbleXCommandRegistration {
         int cobbleCount = countCobblestone(player);
 
         if (cobbleCount < cost) {
-            player.sendMessage(colorize("&cBrakuje cobble! Potrzebujesz &e" + cost + " &csztuk (" + (cost / 64) + " stakow)."));
+            plugin.getMessageManager().send(player, "commands.cobblex-insufficient",
+                    "required", String.valueOf(cost),
+                    "have", String.valueOf(cobbleCount));
             return 0;
         }
 
@@ -90,10 +93,11 @@ public final class CobbleXCommandRegistration {
         ItemStack cobbleX = cobbleXManager.createCobbleX(1);
         if (player.getInventory().firstEmpty() == -1) {
             player.getWorld().dropItemNaturally(player.getLocation(), cobbleX);
-            player.sendMessage(colorize("&aWytworzono 1x CobbleX. &7Ekwipunek pelny - wyrzucono na ziemie."));
+            plugin.getMessageManager().send(player, "commands.cobblex-crafted-ground");
         } else {
             player.getInventory().addItem(cobbleX);
-            player.sendMessage(colorize("&aWytworzono 1x CobbleX &7(koszt: " + cost + " cobble)."));
+            plugin.getMessageManager().send(player, "commands.cobblex-crafted",
+                    "required", String.valueOf(cost));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -101,22 +105,21 @@ public final class CobbleXCommandRegistration {
 
     private static int executeDrop(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         CommandSender sender = ctx.getSource().getSender();
-        sender.sendMessage(colorize(""));
-        sender.sendMessage(colorize("&6&lCobbleX - Tabela nagrod"));
-        sender.sendMessage(colorize("&7Pelna lista nagrod i ich szans bedzie dostepna"));
-        sender.sendMessage(colorize("&7w GUI w ramach Sprintu 11."));
-        sender.sendMessage(colorize(""));
+        sender.sendMessage(Component.empty());
+        plugin.getMessageManager().send(sender, "commands.cx-drop-header");
+        plugin.getMessageManager().send(sender, "commands.cx-drop-soon");
+        sender.sendMessage(Component.empty());
         return Command.SINGLE_SUCCESS;
     }
 
     private static int executeInfo(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         CommandSender sender = ctx.getSource().getSender();
-        sender.sendMessage(colorize(""));
-        sender.sendMessage(colorize("&6&lCobbleX"));
-        sender.sendMessage(colorize("&7Skrzynia craftowana z 9 stakow cobblestone."));
-        sender.sendMessage(colorize("&7Kliknij PPM, aby otworzyc i wylosowac nagrode."));
-        sender.sendMessage(colorize("&7Uzyj &e/cx craft &7aby wytworzyc automatycznie."));
-        sender.sendMessage(colorize(""));
+        sender.sendMessage(Component.empty());
+        plugin.getMessageManager().send(sender, "commands.cx-info-header");
+        plugin.getMessageManager().send(sender, "commands.cx-info-1");
+        plugin.getMessageManager().send(sender, "commands.cx-info-2");
+        plugin.getMessageManager().send(sender, "commands.cx-info-3");
+        sender.sendMessage(Component.empty());
         return Command.SINGLE_SUCCESS;
     }
 
@@ -127,14 +130,18 @@ public final class CobbleXCommandRegistration {
 
         Player target = Bukkit.getPlayer(targetName);
         if (target == null) {
-            sender.sendMessage(colorize("&cNie znaleziono gracza: &e" + targetName));
+            plugin.getMessageManager().send(sender, "commands.player-not-found",
+                    "player", targetName);
             return 0;
         }
 
         ItemStack cobbleX = plugin.getCobbleXManager().createCobbleX(amount);
         target.getInventory().addItem(cobbleX);
-        sender.sendMessage(colorize("&aDano &e" + amount + "x CobbleX &agraczowi &e" + target.getName() + "&a."));
-        target.sendMessage(colorize("&aOtrzymales &e" + amount + "x CobbleX&a!"));
+        plugin.getMessageManager().send(sender, "commands.cx-given",
+                "amount", String.valueOf(amount),
+                "target", target.getName());
+        plugin.getMessageManager().send(target, "commands.cx-received",
+                "amount", String.valueOf(amount));
 
         return Command.SINGLE_SUCCESS;
     }
@@ -142,10 +149,10 @@ public final class CobbleXCommandRegistration {
     private static int executeReload(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         CommandSender sender = ctx.getSource().getSender();
         try {
-            plugin.getConfigManager().reloadConfigs();
-            sender.sendMessage(colorize("&a&lSUKCES! &aPrzeladowano konfiguracje CobbleX."));
+            plugin.reload();
+            plugin.getMessageManager().send(sender, "commands.cx-reload-success");
         } catch (Exception e) {
-            sender.sendMessage(colorize("&c&lBLAD! &cNie udalo sie przeladowac konfiguracji."));
+            plugin.getMessageManager().send(sender, "commands.cx-reload-error");
             plugin.getLogger().log(Level.SEVERE, "Blad podczas przeladowywania CobbleX", e);
         }
         return Command.SINGLE_SUCCESS;
@@ -178,12 +185,5 @@ public final class CobbleXCommandRegistration {
                 }
             }
         }
-    }
-
-    private static String colorize(String text) {
-        if (text == null || text.isEmpty()) {
-            return text;
-        }
-        return org.bukkit.ChatColor.translateAlternateColorCodes('&', text);
     }
 }

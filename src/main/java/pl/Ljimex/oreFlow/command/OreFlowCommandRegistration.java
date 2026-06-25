@@ -7,6 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -29,7 +30,8 @@ public final class OreFlowCommandRegistration {
         String remaining = builder.getRemainingLowerCase();
         OreFlow plugin = getPlugin(ctx);
         if (plugin != null) {
-            plugin.getConfigManager().getDrops().getKeys(false).stream()
+            plugin.getDropConfigManager().getDrops().stream()
+                    .map(drop -> drop.getKey())
                     .filter(key -> key.toLowerCase().startsWith(remaining))
                     .forEach(builder::suggest);
         }
@@ -142,7 +144,7 @@ public final class OreFlowCommandRegistration {
     private static int executeGui(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(colorize("&cTej komendy moze uzyc tylko gracz!"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
@@ -154,7 +156,7 @@ public final class OreFlowCommandRegistration {
     private static int executeDropGui(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(colorize("&cTej komendy moze uzyc tylko gracz!"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
@@ -167,7 +169,7 @@ public final class OreFlowCommandRegistration {
     private static int executeAdmin(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(plugin.getMessageManager().getMessage("commands.player-only"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
@@ -182,22 +184,14 @@ public final class OreFlowCommandRegistration {
         long startTime = System.currentTimeMillis();
 
         try {
-            plugin.getConfigManager().reloadConfigs();
-            plugin.getGuiConfigManager().reload();
-
-            if (plugin.getCobbleXManager() != null) {
-                plugin.getCobbleXManager().registerRecipe();
-            }
-            if (plugin.getStoneGeneratorManager() != null) {
-                plugin.getStoneGeneratorManager().registerRecipe();
-            }
+            plugin.reload();
 
             long elapsed = System.currentTimeMillis() - startTime;
-            sender.sendMessage(plugin.getMessageManager().getMessage("commands.reload-success",
-                    "time", String.valueOf(elapsed)));
+            plugin.getMessageManager().send(sender, "commands.reload-success",
+                    "time", String.valueOf(elapsed));
             plugin.getLogger().info(sender.getName() + " przeladowal konfiguracje OreFlow.");
         } catch (Exception e) {
-            sender.sendMessage(plugin.getMessageManager().getMessage("commands.reload-error"));
+            plugin.getMessageManager().send(sender, "commands.reload-error");
             plugin.getLogger().log(Level.SEVERE, "Blad podczas przeladowywania konfiguracji OreFlow", e);
         }
 
@@ -206,15 +200,18 @@ public final class OreFlowCommandRegistration {
 
     private static int executeInfo(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         CommandSender sender = ctx.getSource().getSender();
-        List<String> authorsList = plugin.getDescription().getAuthors();
+        List<String> authorsList = plugin.getPluginMeta().getAuthors();
         String authors = String.join(", ", authorsList);
 
-        sender.sendMessage("");
-        sender.sendMessage(colorize("&6&lOreFlow &7- &fSystem dropow ze stone"));
-        sender.sendMessage(colorize("&7Wersja: &e" + plugin.getDescription().getVersion()));
-        sender.sendMessage(colorize("&7Autorzy: &e" + authors));
-        sender.sendMessage(colorize("&7Target: &ePaper 1.21.x"));
-        sender.sendMessage("");
+        sender.sendMessage(Component.empty());
+        plugin.getMessageManager().send(sender, "commands.info-header");
+        plugin.getMessageManager().send(sender, "commands.info-version",
+                "version", plugin.getPluginMeta().getVersion());
+        plugin.getMessageManager().send(sender, "commands.info-authors",
+                "authors", authors);
+        plugin.getMessageManager().send(sender, "commands.info-target",
+                "target", "Paper 1.21.x");
+        sender.sendMessage(Component.empty());
 
         return Command.SINGLE_SUCCESS;
     }
@@ -222,17 +219,17 @@ public final class OreFlowCommandRegistration {
     private static int executeCreativeMsg(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(plugin.getMessageManager().getMessage("commands.player-only"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
         var disabled = plugin.getDisabledCreativeMessagePlayers();
         if (disabled.contains(player.getUniqueId())) {
             disabled.remove(player.getUniqueId());
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.creativemsg-enabled"));
+            plugin.getMessageManager().send(player, "commands.creativemsg-enabled");
         } else {
             disabled.add(player.getUniqueId());
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.creativemsg-disabled"));
+            plugin.getMessageManager().send(player, "commands.creativemsg-disabled");
         }
 
         return Command.SINGLE_SUCCESS;
@@ -241,14 +238,14 @@ public final class OreFlowCommandRegistration {
     private static int executeCobble(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(plugin.getMessageManager().getMessage("commands.player-only"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
         boolean newState = plugin.getPlayerSettingsManager().toggleCobble(player.getUniqueId());
-        player.sendMessage(newState
-                ? plugin.getMessageManager().getMessage("commands.cobble-enabled")
-                : plugin.getMessageManager().getMessage("commands.cobble-disabled"));
+        plugin.getMessageManager().send(player, newState
+                ? "commands.cobble-enabled"
+                : "commands.cobble-disabled");
 
         return Command.SINGLE_SUCCESS;
     }
@@ -256,57 +253,55 @@ public final class OreFlowCommandRegistration {
     private static int executeToggle(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(plugin.getMessageManager().getMessage("commands.player-only"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
         String dropKey = StringArgumentType.getString(ctx, "drop");
-        if (!plugin.getConfigManager().getDrops().contains(dropKey)) {
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.invalid-drop",
-                    "drop", dropKey));
+        if (!plugin.getDropConfigManager().hasDrop(dropKey)) {
+            plugin.getMessageManager().send(player, "commands.invalid-drop",
+                    "drop", dropKey);
             return 0;
         }
 
         boolean enabled = plugin.getPlayerSettingsManager().toggleDrop(player.getUniqueId(), dropKey);
-        player.sendMessage(enabled
-                ? plugin.getMessageManager().getMessage("commands.drop-toggled-on", "drop", dropKey)
-                : plugin.getMessageManager().getMessage("commands.drop-toggled-off", "drop", dropKey));
+        plugin.getMessageManager().send(player, enabled
+                ? "commands.drop-toggled-on"
+                : "commands.drop-toggled-off", "drop", dropKey);
         return Command.SINGLE_SUCCESS;
     }
 
     private static int executeToggleOther(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(plugin.getMessageManager().getMessage("commands.player-only"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
         String dropKey = StringArgumentType.getString(ctx, "drop");
-        if (!plugin.getConfigManager().getDrops().contains(dropKey)) {
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.invalid-drop",
-                    "drop", dropKey));
+        if (!plugin.getDropConfigManager().hasDrop(dropKey)) {
+            plugin.getMessageManager().send(player, "commands.invalid-drop",
+                    "drop", dropKey);
             return 0;
         }
 
         String targetName = StringArgumentType.getString(ctx, "gracz");
         Player target = plugin.getServer().getPlayer(targetName);
         if (target == null) {
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.player-not-found",
-                    "player", targetName));
+            plugin.getMessageManager().send(player, "commands.player-not-found",
+                    "player", targetName);
             return 0;
         }
 
         boolean enabled = plugin.getPlayerSettingsManager().toggleDrop(target.getUniqueId(), dropKey);
-        player.sendMessage(enabled
-                ? plugin.getMessageManager().getMessage("commands.drop-toggled-on-other",
-                        "drop", dropKey, "target", target.getName())
-                : plugin.getMessageManager().getMessage("commands.drop-toggled-off-other",
-                        "drop", dropKey, "target", target.getName()));
-        target.sendMessage(enabled
-                ? plugin.getMessageManager().getMessage("commands.drop-toggled-on-by",
-                        "drop", dropKey, "player", player.getName())
-                : plugin.getMessageManager().getMessage("commands.drop-toggled-off-by",
-                        "drop", dropKey, "player", player.getName()));
+        plugin.getMessageManager().send(player, enabled
+                ? "commands.drop-toggled-on-other"
+                : "commands.drop-toggled-off-other",
+                "drop", dropKey, "target", target.getName());
+        plugin.getMessageManager().send(target, enabled
+                ? "commands.drop-toggled-on-by"
+                : "commands.drop-toggled-off-by",
+                "drop", dropKey, "player", player.getName());
         return Command.SINGLE_SUCCESS;
     }
 
@@ -314,40 +309,40 @@ public final class OreFlowCommandRegistration {
         CommandSender sender = ctx.getSource().getSender();
 
         if (language == null) {
-            String current = plugin.getConfigManager().getConfig().getString("settings.language", "pl");
-            sender.sendMessage(colorize("&7Aktualny jezyk: &e" + current));
-            sender.sendMessage(colorize("&7Uzycie: &e/oreflow language <pl|en|de>"));
+            String current = plugin.getOreFlowConfig().getLanguage();
+            plugin.getMessageManager().send(sender, "commands.language-current",
+                    "language", current);
+            plugin.getMessageManager().send(sender, "commands.language-usage");
             return Command.SINGLE_SUCCESS;
         }
 
         String langLower = language.toLowerCase();
         List<String> available = List.of("pl", "en", "de");
         if (!available.contains(langLower)) {
-            sender.sendMessage(plugin.getMessageManager().getMessage("commands.language-invalid",
-                    "languages", String.join(", ", available)));
+            plugin.getMessageManager().send(sender, "commands.language-invalid",
+                    "languages", String.join(", ", available));
             return 0;
         }
 
         plugin.getConfigManager().getConfig().set("settings.language", langLower);
-        plugin.saveConfig();
-        plugin.getConfigManager().reloadConfigs();
-        plugin.getGuiConfigManager().reload();
+        plugin.getConfigManager().saveConfigs();
+        plugin.reload();
 
-        sender.sendMessage(plugin.getMessageManager().getMessage("commands.language-changed",
-                "language", langLower.toUpperCase()));
+        plugin.getMessageManager().send(sender, "commands.language-changed",
+                "language", langLower.toUpperCase());
         return Command.SINGLE_SUCCESS;
     }
 
     private static int executeDebug(CommandContext<CommandSourceStack> ctx, OreFlow plugin, int blocks, int fortuneLevel) {
         Player player = getPlayer(ctx.getSource());
         if (player == null) {
-            ctx.getSource().getSender().sendMessage(plugin.getMessageManager().getMessage("commands.player-only"));
+            plugin.getMessageManager().send(ctx.getSource().getSender(), "commands.player-only");
             return 0;
         }
 
-        player.sendMessage(plugin.getMessageManager().getMessage("commands.debug-header"));
-        player.sendMessage(plugin.getMessageManager().getMessage("commands.debug-blocks",
-                "blocks", String.valueOf(blocks)));
+        plugin.getMessageManager().send(player, "commands.debug-header");
+        plugin.getMessageManager().send(player, "commands.debug-blocks",
+                "blocks", String.valueOf(blocks));
 
         ItemStack tool;
         String fortuneInfo;
@@ -357,14 +352,16 @@ public final class OreFlowCommandRegistration {
                 tool.addEnchantment(Enchantment.FORTUNE, fortuneLevel);
                 fortuneInfo = "Fortune " + fortuneLevel;
             } else {
-                fortuneInfo = "brak Fortune";
+                fortuneInfo = plugin.getMessageManager().getRawString("commands.debug-no-fortune");
             }
         } else {
             tool = player.getInventory().getItemInMainHand();
             int actualFortune = tool.getEnchantmentLevel(Enchantment.FORTUNE);
-            fortuneInfo = actualFortune > 0 ? "Fortune " + actualFortune : "brak Fortune";
+            fortuneInfo = actualFortune > 0 ? "Fortune " + actualFortune
+                    : plugin.getMessageManager().getRawString("commands.debug-no-fortune");
         }
-        player.sendMessage(colorize("&7Symulacja dla narzedzia: &e" + fortuneInfo));
+        plugin.getMessageManager().send(player, "commands.debug-tool",
+                "fortune", fortuneInfo);
 
         var dropManager = plugin.getDropManager();
         Map<String, Integer> totals = new HashMap<>();
@@ -379,17 +376,17 @@ public final class OreFlowCommandRegistration {
             }
         }
 
-        player.sendMessage(plugin.getMessageManager().getMessage("commands.debug-total",
-                "total", String.valueOf(totalDrops)));
+        plugin.getMessageManager().send(player, "commands.debug-total",
+                "total", String.valueOf(totalDrops));
         if (totals.isEmpty()) {
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.debug-empty"));
+            plugin.getMessageManager().send(player, "commands.debug-empty");
         } else {
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.debug-distribution"));
+            plugin.getMessageManager().send(player, "commands.debug-distribution");
             totals.entrySet().stream()
                     .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                    .forEach(entry -> player.sendMessage(plugin.getMessageManager().getMessage("commands.debug-entry",
+                    .forEach(entry -> plugin.getMessageManager().send(player, "commands.debug-entry",
                             "material", entry.getKey(),
-                            "amount", String.valueOf(entry.getValue()))));
+                            "amount", String.valueOf(entry.getValue())));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -397,25 +394,18 @@ public final class OreFlowCommandRegistration {
 
     private static int executeHelp(CommandContext<CommandSourceStack> ctx, OreFlow plugin) {
         CommandSender sender = ctx.getSource().getSender();
-        sender.sendMessage("");
-        sender.sendMessage(colorize("&6&lOreFlow - Pomoc"));
-        sender.sendMessage(colorize("&e/oreflow reload &7- Przeladowuje konfiguracje"));
-        sender.sendMessage(colorize("&e/oreflow info &7- Informacje o pluginie"));
-        sender.sendMessage(colorize("&e/oreflow cobble &7- Wlacza/wylacza drop cobblestone"));
-        sender.sendMessage(colorize("&e/oreflow toggle <drop> [gracz] &7- Wlacza/wylacza drop"));
-        sender.sendMessage(colorize("&e/oreflow language <pl|en|de> &7- Zmienia jezyk"));
-        sender.sendMessage(colorize("&e/oreflow admin &7- Panel administratora"));
-        sender.sendMessage(colorize("&e/oreflow creativemsg &7- Wlacza/wylacza wiadomosc creative (admin)"));
-        sender.sendMessage(colorize("&e/oreflow debug [bloki] [fortune] &7- Symulacja dropow (admin)"));
-        sender.sendMessage(colorize("&e/oreflow help &7- Wyswietla te pomoc"));
-        sender.sendMessage("");
+        sender.sendMessage(Component.empty());
+        plugin.getMessageManager().send(sender, "commands.help-header");
+        plugin.getMessageManager().send(sender, "commands.help-reload");
+        plugin.getMessageManager().send(sender, "commands.help-info");
+        plugin.getMessageManager().send(sender, "commands.help-cobble");
+        plugin.getMessageManager().send(sender, "commands.help-toggle");
+        plugin.getMessageManager().send(sender, "commands.help-language");
+        plugin.getMessageManager().send(sender, "commands.help-admin");
+        plugin.getMessageManager().send(sender, "commands.help-creativemsg");
+        plugin.getMessageManager().send(sender, "commands.help-debug");
+        plugin.getMessageManager().send(sender, "commands.help-help");
+        sender.sendMessage(Component.empty());
         return Command.SINGLE_SUCCESS;
-    }
-
-    private static String colorize(String text) {
-        if (text == null || text.isEmpty()) {
-            return text;
-        }
-        return org.bukkit.ChatColor.translateAlternateColorCodes('&', text);
     }
 }

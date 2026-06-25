@@ -3,48 +3,84 @@
 # Variables: {player}, {drop}, {amount}, {material}, {exp}, {fortune}, {permission}, {time}, {target}, {status}
 # ============================================================
 
+# Config version - DO NOT MODIFY. Used for automatic migrations.
+config-version: 1
+
 # Commands
 commands:
-  no-permission: "&cDu hast keine Berechtigung! (&e{permission}&c)"
-  player-only: "&cNur Spieler konnen diesen Befehl verwenden!"
-  reload-success: "&a&lERFOLG! &aOreFlow-Konfiguration in &e{time}ms&a neu geladen."
-  reload-error: "&c&lFEHLER! &cKonfiguration konnte nicht neu geladen werden. Siehe Konsole."
-  invalid-drop: "&cDrop &e{drop} &cexistiert nicht in der Konfiguration!"
-  drop-toggled-on: "&a&lAKTIVIERT! &aDrop &e{drop} &awurde aktiviert."
-  drop-toggled-off: "&c&lDEAKTIVIERT! &cDrop &e{drop} &cwurde deaktiviert."
-  drop-toggled-on-other: "&aDrop &e{drop} &awurde fur &e{target}&a aktiviert."
-  drop-toggled-off-other: "&cDrop &e{drop} &cwurde fur &e{target}&c deaktiviert."
-  drop-toggled-on-by: "&aDrop &e{drop} &awurde fur dich von &e{player}&a aktiviert."
-  drop-toggled-off-by: "&cDrop &e{drop} &cwurde fur dich von &e{player}&c deaktiviert."
-  cobble-enabled: "&aCobblestone-Drop von Stein wurde &2AKTIVIERT&a."
-  cobble-disabled: "&cCobblestone-Drop von Stein wurde &4DEAKTIVIERT&c."
-  drop-destination-inventory: "&aDrops landen im &2Inventar&a."
-  drop-destination-ground: "&cDrops fallen &4auf den Boden&c."
-  exp-enabled: "&aMining-EXP wurde &2AKTIVIERT&a."
-  exp-disabled: "&cMining-EXP wurde &4DEAKTIVIERT&c."
-  player-not-found: "&cSpieler nicht gefunden: &e{player}"
-  creativemsg-enabled: "&aCreative-Modus-Nachricht ist &2AKTIVIERT&a."
-  creativemsg-disabled: "&cCreative-Modus-Nachricht ist &4DEAKTIVIERT&c."
-  language-changed: "&aSprache geandert zu &e{language}&a."
-  language-invalid: "&cUngultige Sprache. Verfugbar: &e{languages}"
-  debug-header: "&6&lOreFlow Debug"
-  debug-blocks: "&7Simulation des Abbauens von &e{blocks} &7Steinblocken..."
-  debug-total: "&aGesamte Gegenstande: &e{total}"
-  debug-empty: "&cKeine Drops - prufe Y-Level, Werkzeug und Chancen in drops.yml"
-  debug-distribution: "&aVerteilung:"
-  debug-entry: "&7- &e{material}&7: &f{amount}"
-  cobblex-insufficient: "&cNicht genug Cobblestone! Du brauchst &e{required}&c, du hast &e{have}&c."
-  cobblex-crafted: "&a1x CobbleX hergestellt &7(Kosten: {required} Cobble)."
-  cobblex-crafted-ground: "&a1x CobbleX hergestellt. &7Inventar voll - auf den Boden geworfen."
-  generator-insufficient-items: "&cNicht genug &e{material}&c! Du brauchst &e{required}&c, du hast &e{have}&c."
-  generator-crafted: "&a&eSteingenerator &ahergestellt!"
-  generator-crafted-ground: "&a&eSteingenerator &ahergestellt! &7Inventar voll - auf den Boden geworfen."
+  no-permission: "<red>Du hast keine Berechtigung! (</red><yellow>{permission}</yellow><red>)</red>"
+  player-only: "<red>Nur Spieler konnen diesen Befehl verwenden!</red>"
+  reload-success: "<green><bold>ERFOLG! </bold></green><green>OreFlow-Konfiguration in </green><yellow>{time}ms</yellow><green> neu geladen.</green>"
+  reload-error: "<red><bold>FEHLER! </bold></red><red>Konfiguration konnte nicht neu geladen werden. Siehe Konsole.</red>"
+  invalid-drop: "<red>Drop </red><yellow>{drop} </yellow><red>existiert nicht in der Konfiguration!</red>"
+  drop-toggled-on: "<green><bold>AKTIVIERT! </bold></green><green>Drop </green><yellow>{drop} </yellow><green>wurde aktiviert.</green>"
+  drop-toggled-off: "<red><bold>DEAKTIVIERT! </bold></red><red>Drop </red><yellow>{drop} </yellow><red>wurde deaktiviert.</red>"
+  drop-toggled-on-other: "<green>Drop </green><yellow>{drop} </yellow><green>wurde fur </green><yellow>{target}</yellow><green> aktiviert.</green>"
+  drop-toggled-off-other: "<red>Drop </red><yellow>{drop} </yellow><red>wurde fur </red><yellow>{target}</yellow><red> deaktiviert.</red>"
+  drop-toggled-on-by: "<green>Drop </green><yellow>{drop} </yellow><green>wurde fur dich von </green><yellow>{player}</yellow><green> aktiviert.</green>"
+  drop-toggled-off-by: "<red>Drop </red><yellow>{drop} </yellow><red>wurde fur dich von </red><yellow>{player}</yellow><red> deaktiviert.</red>"
+  cobble-enabled: "<green>Cobblestone-Drop von Stein wurde </green><dark_green>AKTIVIERT</dark_green><green>.</green>"
+  cobble-disabled: "<red>Cobblestone-Drop von Stein wurde </red><dark_red>DEAKTIVIERT</dark_red><red>.</red>"
+  drop-destination-inventory: "<green>Drops landen im </green><dark_green>Inventar</dark_green><green>.</green>"
+  drop-destination-ground: "<red>Drops fallen </red><dark_red>auf den Boden</dark_red><red>.</red>"
+  exp-enabled: "<green>Mining-EXP wurde </green><dark_green>AKTIVIERT</dark_green><green>.</green>"
+  exp-disabled: "<red>Mining-EXP wurde </red><dark_red>DEAKTIVIERT</dark_red><red>.</red>"
+  player-not-found: "<red>Spieler nicht gefunden: </red><yellow>{player}</yellow>"
+  creativemsg-enabled: "<green>Creative-Modus-Nachricht ist </green><dark_green>AKTIVIERT</dark_green><green>.</green>"
+  creativemsg-disabled: "<red>Creative-Modus-Nachricht ist </red><dark_red>DEAKTIVIERT</dark_red><red>.</red>"
+  language-current: "<gray>Aktuelle Sprache: </gray><yellow>{language}</yellow>"
+  language-usage: "<gray>Verwendung: </gray><yellow>/oreflow language <pl|en|de></yellow>"
+  language-changed: "<green>Sprache geandert zu </green><yellow>{language}</yellow><green>.</green>"
+  language-invalid: "<red>Ungultige Sprache. Verfugbar: </red><yellow>{languages}</yellow>"
+  debug-header: "<gold><bold>OreFlow Debug</bold></gold>"
+  debug-blocks: "<gray>Simulation des Abbauens von </gray><yellow>{blocks} </yellow><gray>Steinblocken...</gray>"
+  debug-tool: "<gray>Simulationswerkzeug: </gray><yellow>{fortune}</yellow>"
+  debug-no-fortune: "kein Fortune"
+  debug-total: "<green>Gesamte Gegenstande: </green><yellow>{total}</yellow>"
+  debug-empty: "<red>Keine Drops - prufe Y-Level, Werkzeug und Chancen in drops.yml</red>"
+  debug-distribution: "<green>Verteilung:</green>"
+  debug-entry: "<gray>- </gray><yellow>{material}</yellow><gray>: </gray><white>{amount}</white>"
+  cobblex-insufficient: "<red>Nicht genug Cobblestone! Du brauchst </red><yellow>{required}</yellow><red>, du hast </red><yellow>{have}</yellow><red>.</red>"
+  cobblex-crafted: "<green></green><yellow>{amount}x CobbleX</yellow><green> hergestellt!</green>"
+  cobblex-crafted-ground: "<green></green><yellow>{amount}x CobbleX</yellow><green> hergestellt! </green><gray>Inventar voll - auf den Boden geworfen.</gray>"
+  generator-insufficient-items: "<red>Nicht genug </red><yellow>{material}</yellow><red>! Du brauchst </red><yellow>{required}</yellow><red>, du hast </red><yellow>{have}</yellow><red>.</red>"
+  cx-usage: "<red>Verwende: </red><yellow>/cx craft</yellow><gray>, </gray><yellow>/cx drop</yellow><gray>, </gray><yellow>/cx info</yellow>"
+  cx-cooldown: "<red>Du musst </red><yellow>{time}s</yellow> <red>warten, bevor du erneut offnest!</red>"
+  cx-drop-header: "<gold><bold>CobbleX - Belohnungstabelle</bold></gold>"
+  cx-drop-soon: "<gray>Verwende das CobbleX-Menu, um Belohnungen und Chancen anzusehen.</gray>"
+  cx-info-header: "<gold><bold>CobbleX</bold></gold>"
+  cx-info-1: "<gray>Eine Kiste aus 9 Stacks Cobblestone.</gray>"
+  cx-info-2: "<gray>Rechtsklick zum Offnen und Belohnung ziehen.</gray>"
+  cx-info-3: "<gray>Verwende </gray><yellow>/cx craft</yellow> <gray>um automatisch herzustellen.</gray>"
+  cx-given: "<green>Gegeben </green><yellow>{amount}x CobbleX</yellow> <green>an </green><yellow>{target}</yellow><green>.</green>"
+  cx-received: "<green>Du hast </green><yellow>{amount}x CobbleX</yellow> <green>erhalten!</green>"
+  cx-reload-success: "<green><bold>ERFOLG! </bold></green><green>CobbleX-Konfiguration neu geladen.</green>"
+  cx-reload-error: "<red><bold>FEHLER! </bold></red><red>CobbleX-Konfiguration konnte nicht neu geladen werden.</red>"
+
+  generator-crafted: "<green></green><yellow>Steingenerator </yellow><green>hergestellt!</green>"
+  generator-crafted-ground: "<green></green><yellow>Steingenerator </yellow><green>hergestellt! </green><gray>Inventar voll - auf den Boden geworfen.</gray>"
+
+  info-header: "<gold><bold>OreFlow</bold></gold> <gray>-</gray> <white>Stone-Drop-System</white>"
+  info-version: "<gray>Version: </gray><yellow>{version}</yellow>"
+  info-authors: "<gray>Autoren: </gray><yellow>{authors}</yellow>"
+  info-target: "<gray>Ziel: </gray><yellow>{target}</yellow>"
+
+  help-header: "<gold><bold>OreFlow - Hilfe</bold></gold>"
+  help-reload: "<yellow>/oreflow reload</yellow> <gray>- Konfiguration neu laden</gray>"
+  help-info: "<yellow>/oreflow info</yellow> <gray>- Plugin-Informationen</gray>"
+  help-cobble: "<yellow>/oreflow cobble</yellow> <gray>- Cobblestone-Drop umschalten</gray>"
+  help-toggle: "<yellow>/oreflow toggle <drop> [spieler]</yellow> <gray>- Drop umschalten</gray>"
+  help-language: "<yellow>/oreflow language <pl|en|de></yellow> <gray>- Sprache andern</gray>"
+  help-admin: "<yellow>/oreflow admin</yellow> <gray>- Admin-Panel</gray>"
+  help-creativemsg: "<yellow>/oreflow creativemsg</yellow> <gray>- Kreativmodus-Nachricht umschalten (admin)</gray>"
+  help-debug: "<yellow>/oreflow debug [blocke] [fortune]</yellow> <gray>- Drop-Simulation (admin)</gray>"
+  help-help: "<yellow>/oreflow help</yellow> <gray>- Zeigt diese Hilfe</gray>"
 
 status:
-  enabled: "&aAktiviert"
-  disabled: "&cDeaktiviert"
-  inventory: "&aInventar"
-  ground: "&cBoden"
+  enabled: "<green>Aktiviert</green>"
+  disabled: "<red>Deaktiviert</red>"
+  inventory: "<green>Inventar</green>"
+  ground: "<red>Boden</red>"
 
 # Action Bar
 actionbar:
@@ -67,28 +103,31 @@ actionbar:
     duration: 40
   generator-placed:
     enabled: true
-    message: "&aGenerator platziert!"
+    message: "<green>Generator platziert!</green>"
     duration: 60
   generator-ready:
     enabled: true
-    message: "&eGenerator bereit!"
+    message: "<yellow>Generator bereit!</yellow>"
     duration: 40
 
 # GUI titles
 # Note: most titles are configured in gui.yml
 # These keys are used for chat messages and fallback titles
 gui:
-  title: "&8&lStone-Drops verwalten"
-  title-admin: "&8&lAdmin-Panel - Drops"
-  title-main-menu: "&6&lOreFlow"
-  title-stone-generator: "&b&lSteingenerator"
+  title: "<dark_gray><bold>Stone-Drops verwalten</bold></dark_gray>"
+  title-admin: "<dark_gray><bold>Admin-Panel - Drops</bold></dark_gray>"
+  title-main-menu: "<gold><bold>OreFlow</bold></gold>"
+  title-stone-generator: "<aqua><bold>Steingenerator</bold></aqua>"
+  title-cobblex-menu: "<gold><bold>CobbleX</bold></gold>"
+  title-cobblex-craft: "<gold><bold>CobbleX Crafting</bold></gold>"
+  title-cobblex-drop: "<gold><bold>CobbleX Drops</bold></gold>"
 
   buttons:
-    next-page: "&aNachste Seite &7>>"
-    prev-page: "&7<< &aVorherige Seite"
-    close: "&cSchliessen"
+    next-page: "<green>Nachste Seite </green><gray>>></gray>"
+    prev-page: "<gray><< </gray><green>Vorherige Seite</green>"
+    close: "<red>Schliessen</red>"
 
 # GUI chat messages
 gui-messages:
-  drop-message-enabled: "&aDrop-Nachricht fur &e{drop} &awurde &2AKTIVIERT&a."
-  drop-message-disabled: "&cDrop-Nachricht fur &e{drop} &cwurde &4DEAKTIVIERT&c."
+  drop-message-enabled: "<green>Drop-Nachricht fur </green><yellow>{drop} </yellow><green>wurde </green><dark_green>AKTIVIERT</dark_green><green>.</green>"
+  drop-message-disabled: "<red>Drop-Nachricht fur </red><yellow>{drop} </yellow><red>wurde </red><dark_red>DEAKTIVIERT</dark_red><red>.</red>"

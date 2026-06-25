@@ -36,7 +36,7 @@ public class GuiConfigManager {
             plugin.saveResource("gui.yml", false);
         }
 
-        guiConfig = YamlConfiguration.loadConfiguration(guiFile);
+        guiConfig = plugin.getConfigManager().getMigration().loadAndMigrate(guiFile, "gui.yml");
         loadDefaultsFromResources();
     }
 
@@ -45,11 +45,14 @@ public class GuiConfigManager {
     }
 
     private void loadDefaultsFromResources() {
-        InputStream defaultStream = plugin.getResource("gui.yml");
-        if (defaultStream != null) {
-            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
-            guiConfig.setDefaults(defaultConfig);
+        try (InputStream defaultStream = plugin.getResource("gui.yml")) {
+            if (defaultStream != null) {
+                YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
+                        new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
+                guiConfig.setDefaults(defaultConfig);
+            }
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not load gui.yml defaults", e);
         }
     }
 
@@ -92,27 +95,27 @@ public class GuiConfigManager {
         }
 
         for (Object obj : decorations) {
-            if (!(obj instanceof ConfigurationSection section) && !(obj instanceof java.util.LinkedHashMap)) {
+            if (!(obj instanceof ConfigurationSection) && !(obj instanceof java.util.LinkedHashMap)) {
                 continue;
             }
 
             ConfigurationSection section;
-            if (obj instanceof ConfigurationSection) {
-                section = (ConfigurationSection) obj;
+            if (obj instanceof ConfigurationSection configSection) {
+                section = configSection;
             } else {
-                section = guiConfig.createSection("temp");
-                for (java.util.Map.Entry<?, ?> entry : ((java.util.LinkedHashMap<?, ?>) obj).entrySet()) {
-                    section.set(String.valueOf(entry.getKey()), entry.getValue());
-                }
+                section = createMemorySectionFromMap((java.util.LinkedHashMap<?, ?>) obj);
             }
 
             String slots = section.getString("slots", "");
             String material = section.getString("material", "BLACK_STAINED_GLASS_PANE");
             String name = section.getString("name", " ");
             List<String> lore = section.getStringList("lore");
+            String texture = section.getString("texture", null);
 
             for (int slot : parseSlots(slots)) {
-                result.add(new DecorationConfig(slot, material, name, lore));
+                if (isValidSlot(slot)) {
+                    result.add(new DecorationConfig(slot, material, name, lore, texture));
+                }
             }
         }
 
@@ -185,10 +188,6 @@ public class GuiConfigManager {
         return getDecorationsFromSection("stone-generator.decorations");
     }
 
-    public ButtonConfig getStoneGeneratorCraftButton() {
-        return getButtonFromSection("stone-generator.craft-button", "craft_generator");
-    }
-
     public ButtonConfig getStoneGeneratorButton(String type) {
         return getButtonFromSection("stone-generator.buttons", type);
     }
@@ -210,6 +209,115 @@ public class GuiConfigManager {
 
     public int getStoneGeneratorResultSlot() {
         return guiConfig.getInt("stone-generator.result-slot", 24);
+    }
+
+    // CobbleX Menu
+    public String getCobbleXMenuTitle() {
+        return guiConfig.getString("cobblex-menu.title", "<gold><bold>CobbleX</bold></gold>");
+    }
+
+    public Component getCobbleXMenuTitleComponent() {
+        return MiniMessage.miniMessage().deserialize(getCobbleXMenuTitle());
+    }
+
+    public int getCobbleXMenuRows() {
+        return Math.max(1, Math.min(6, guiConfig.getInt("cobblex-menu.rows", 3)));
+    }
+
+    public int getCobbleXMenuSize() {
+        return getCobbleXMenuRows() * 9;
+    }
+
+    public List<DecorationConfig> getCobbleXMenuDecorations() {
+        return getDecorationsFromSection("cobblex-menu.decorations");
+    }
+
+    public ButtonConfig getCobbleXMenuButton(String type) {
+        return getButtonFromSection("cobblex-menu.buttons", type);
+    }
+
+    // CobbleX Craft GUI
+    public String getCobbleXCraftTitle() {
+        return guiConfig.getString("cobblex-craft.title", "<gold><bold>CobbleX Crafting</bold></gold>");
+    }
+
+    public Component getCobbleXCraftTitleComponent() {
+        return MiniMessage.miniMessage().deserialize(getCobbleXCraftTitle());
+    }
+
+    public int getCobbleXCraftRows() {
+        return Math.max(1, Math.min(6, guiConfig.getInt("cobblex-craft.rows", 5)));
+    }
+
+    public int getCobbleXCraftSize() {
+        return getCobbleXCraftRows() * 9;
+    }
+
+    public List<DecorationConfig> getCobbleXCraftDecorations() {
+        return getDecorationsFromSection("cobblex-craft.decorations");
+    }
+
+    public ButtonConfig getCobbleXCraftButton(String type) {
+        return getButtonFromSection("cobblex-craft.buttons", type);
+    }
+
+    public List<Integer> getCobbleXCraftRecipeSlots() {
+        List<Integer> result = new ArrayList<>();
+        List<?> slots = guiConfig.getList("cobblex-craft.recipe-slots");
+        if (slots == null) {
+            return List.of(10, 11, 12, 19, 20, 21, 28, 29, 30);
+        }
+        for (Object obj : slots) {
+            if (obj instanceof Number number) {
+                result.add(number.intValue());
+            }
+        }
+        return result;
+    }
+
+    public int getCobbleXCraftResultSlot() {
+        return guiConfig.getInt("cobblex-craft.result-slot", 24);
+    }
+
+    // CobbleX Drop GUI
+    public String getCobbleXDropTitle() {
+        return guiConfig.getString("cobblex-drop.title", "<gold><bold>CobbleX Drops</bold></gold>");
+    }
+
+    public Component getCobbleXDropTitleComponent() {
+        return MiniMessage.miniMessage().deserialize(getCobbleXDropTitle());
+    }
+
+    public int getCobbleXDropRows() {
+        return Math.max(1, Math.min(6, guiConfig.getInt("cobblex-drop.rows", 5)));
+    }
+
+    public int getCobbleXDropSize() {
+        return getCobbleXDropRows() * 9;
+    }
+
+    public List<DecorationConfig> getCobbleXDropDecorations() {
+        return getDecorationsFromSection("cobblex-drop.decorations");
+    }
+
+    public DropSectionConfig getCobbleXDropSection() {
+        ConfigurationSection drops = guiConfig.getConfigurationSection("cobblex-drop.drops");
+        if (drops == null) {
+            return new DropSectionConfig(9, 9, "<{color}>{capitalized_drop}</{color}>", Collections.emptyList());
+        }
+
+        int startSlot = drops.getInt("start-slot", 9);
+        int maxSlots = drops.getInt("max-slots", 9);
+        ConfigurationSection item = drops.getConfigurationSection("item");
+
+        String name = item != null ? item.getString("name", "<{color}>{capitalized_drop}</{color}>") : "<{color}>{capitalized_drop}</{color}>";
+        List<String> lore = item != null ? item.getStringList("lore") : Collections.emptyList();
+
+        return new DropSectionConfig(startSlot, maxSlots, name, lore);
+    }
+
+    public ButtonConfig getCobbleXDropButton(String type) {
+        return getButtonFromSection("cobblex-drop.buttons", type);
     }
 
     // Helpers
@@ -245,31 +353,48 @@ public class GuiConfigManager {
         }
 
         for (Object obj : decorations) {
-            if (!(obj instanceof ConfigurationSection section) && !(obj instanceof java.util.LinkedHashMap)) {
+            if (!(obj instanceof ConfigurationSection) && !(obj instanceof java.util.LinkedHashMap)) {
                 continue;
             }
 
             ConfigurationSection section;
-            if (obj instanceof ConfigurationSection) {
-                section = (ConfigurationSection) obj;
+            if (obj instanceof ConfigurationSection configSection) {
+                section = configSection;
             } else {
-                section = guiConfig.createSection("temp");
-                for (java.util.Map.Entry<?, ?> entry : ((java.util.LinkedHashMap<?, ?>) obj).entrySet()) {
-                    section.set(String.valueOf(entry.getKey()), entry.getValue());
-                }
+                section = createMemorySectionFromMap((java.util.LinkedHashMap<?, ?>) obj);
             }
 
             String slots = section.getString("slots", "");
             String material = section.getString("material", "BLACK_STAINED_GLASS_PANE");
             String name = section.getString("name", " ");
             List<String> lore = section.getStringList("lore");
+            String texture = section.getString("texture", null);
 
             for (int slot : parseSlots(slots)) {
-                result.add(new DecorationConfig(slot, material, name, lore));
+                if (isValidSlot(slot)) {
+                    result.add(new DecorationConfig(slot, material, name, lore, texture));
+                }
             }
         }
 
         return result;
+    }
+
+    private ConfigurationSection createMemorySectionFromMap(java.util.LinkedHashMap<?, ?> map) {
+        org.bukkit.configuration.MemoryConfiguration section = new org.bukkit.configuration.MemoryConfiguration();
+        for (java.util.Map.Entry<?, ?> entry : map.entrySet()) {
+            section.set(String.valueOf(entry.getKey()), entry.getValue());
+        }
+        return section;
+    }
+
+    private boolean isValidSlot(int slot) {
+        int maxSlot = getSize() - 1;
+        if (slot < 0 || slot > maxSlot) {
+            plugin.getLogger().warning("Invalid GUI slot " + slot + " in gui.yml (max: " + maxSlot + ")");
+            return false;
+        }
+        return true;
     }
 
     public List<Integer> parseSlots(String slots) {
@@ -308,12 +433,14 @@ public class GuiConfigManager {
         public final String material;
         public final String name;
         public final List<String> lore;
+        public final String texture;
 
-        public DecorationConfig(int slot, String material, String name, List<String> lore) {
+        public DecorationConfig(int slot, String material, String name, List<String> lore, String texture) {
             this.slot = slot;
             this.material = material;
             this.name = name;
             this.lore = lore;
+            this.texture = texture;
         }
     }
 

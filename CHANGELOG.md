@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Back and Exit buttons in the Stone Generator crafting GUI.
 - Hidden `Unbreaking X` enchant on the Stone Generator item for visual glow.
 - Emerald Ore with hidden enchant glow for the CobbleX button in the main menu.
+- Config versioning (`config-version`) and automatic migration system (`ConfigMigration`).
+- Type-safe config wrappers: `OreFlowConfig`, `DropConfig`/`DropConfigManager`, `GeneratorConfig`/`GeneratorConfigManager`.
+- Central `OreFlow.reload()` that correctly reloads configs, recipes, and the stone generator task.
+- `PlayerListener` that saves and evicts player settings on quit.
+- Extra glass row in the Stone Generator GUI.
 
 ### Changed
 - `/oreflow` command now uses native Brigadier tree structure (no more `CommandExecutor` + `String[] args`).
@@ -27,9 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Creative mode message now only appears when breaking blocks with a pickaxe.
 - Main Menu GUI panels are now fully filled in all rows.
 - Plugin load phase changed from `STARTUP` to `POSTWORLD` to fix recipe registration timing.
+- Replaced legacy `&` color codes with MiniMessage across all `lang/*.yml`, `config.yml`, and `generators.yml`.
+- `MessageManager` now returns Adventure `Component` and deserializes MiniMessage.
+- `ConfigManager` now closes resource streams, validates core values, and uses `ConfigMigration` for automatic upgrades.
+- `PlayerSettingsManager` now saves player toggles immediately and on quit.
 
 ### Fixed
 - Stone Generator crafting recipe now works reliably in the crafting table.
+- `/oreflow reload` now fully restarts the stone generator task.
+- Language changes now persist correctly (saved via `ConfigManager` instead of Bukkit's internal config).
+- `GuiConfigManager` no longer mutates the live config while parsing decorations.
 
 ---
 

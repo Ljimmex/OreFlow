@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -17,6 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -27,15 +27,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class StoneGeneratorManager {
 
     private final OreFlow plugin;
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final NamespacedKey generatorKey;
     private final File dataFile;
     private FileConfiguration dataConfig;
     private final List<Location> generators = new ArrayList<>();
+    private BukkitTask generationTask;
 
     public StoneGeneratorManager(OreFlow plugin) {
         this.plugin = plugin;
@@ -51,23 +54,28 @@ public class StoneGeneratorManager {
 
     public void unload() {
         saveData();
+        stopGenerationTask();
+    }
+
+    /**
+     * Pelne przeładowanie: zapisuje dane, rejestruje przepisy od nowa i restartuje task.
+     */
+    public void reload() {
+        saveData();
+        stopGenerationTask();
+        registerRecipe();
+        startGenerationTask();
     }
 
     public void discoverRecipes(Player player) {
         if (player == null) {
             return;
         }
-        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
-                .getConfigurationSection("generators");
-        if (generatorsSection == null) {
-            return;
-        }
-        for (String key : generatorsSection.getKeys(false)) {
-            ConfigurationSection generatorSection = generatorsSection.getConfigurationSection(key);
-            if (generatorSection == null || !generatorSection.getBoolean("enabled", true)) {
+        for (GeneratorConfig generator : plugin.getGeneratorConfigManager().getGenerators()) {
+            if (!generator.isEnabled()) {
                 continue;
             }
-            NamespacedKey recipeKey = new NamespacedKey(plugin, "stone_generator_" + key);
+            NamespacedKey recipeKey = new NamespacedKey(plugin, "stone_generator_" + generator.getKey());
             player.discoverRecipe(recipeKey);
         }
     }
@@ -110,35 +118,22 @@ public class StoneGeneratorManager {
     }
 
     public void registerRecipe() {
-        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
-                .getConfigurationSection("generators");
-        if (generatorsSection == null) {
-            return;
-        }
-
-        for (String key : generatorsSection.getKeys(false)) {
-            ConfigurationSection generatorSection = generatorsSection.getConfigurationSection(key);
-            if (generatorSection == null || !generatorSection.getBoolean("enabled", true)) {
+        for (GeneratorConfig generator : plugin.getGeneratorConfigManager().getGenerators()) {
+            if (!generator.isEnabled()) {
                 continue;
             }
-
-            registerRecipe(key, generatorSection);
+            registerRecipe(generator);
         }
     }
 
-    private void registerRecipe(String key, ConfigurationSection generatorSection) {
-        ConfigurationSection craftingSection = generatorSection.getConfigurationSection("crafting");
-        if (craftingSection == null) {
-            return;
-        }
-
-        List<String> shape = craftingSection.getStringList("shape");
+    private void registerRecipe(GeneratorConfig generator) {
+        List<String> shape = generator.getCraftingShape();
         if (shape.size() != 3) {
-            plugin.getLogger().warning("Stone generator recipe '" + key + "' must have exactly 3 shape rows.");
+            plugin.getLogger().warning("Stone generator recipe '" + generator.getKey() + "' must have exactly 3 shape rows.");
             return;
         }
 
-        NamespacedKey recipeKey = new NamespacedKey(plugin, "stone_generator_" + key);
+        NamespacedKey recipeKey = new NamespacedKey(plugin, "stone_generator_" + generator.getKey());
 
         // Remove old recipe if it exists (supports /reload)
         try {
@@ -147,24 +142,13 @@ public class StoneGeneratorManager {
             plugin.getLogger().log(Level.WARNING, "Could not remove old stone generator recipe: " + recipeKey, e);
         }
 
-        ItemStack result = createGeneratorItem(generatorSection);
+        ItemStack result = createGeneratorItem(generator);
         ShapedRecipe recipe = new ShapedRecipe(recipeKey, result);
         recipe.shape(shape.toArray(new String[0]));
 
-        ConfigurationSection ingredientsSection = craftingSection.getConfigurationSection("ingredients");
-        if (ingredientsSection != null) {
-            for (String ingredientKey : ingredientsSection.getKeys(false)) {
-                if (ingredientKey.length() != 1) {
-                    continue;
-                }
-                String materialName = ingredientsSection.getString(ingredientKey, "STONE");
-                Material material = Material.matchMaterial(materialName);
-                if (material == null) {
-                    plugin.getLogger().warning("Unknown ingredient material in stone generator recipe '" + key + "': " + materialName);
-                    return;
-                }
-                recipe.setIngredient(ingredientKey.charAt(0), material);
-            }
+        Map<Character, Material> ingredients = generator.getIngredients();
+        for (Map.Entry<Character, Material> entry : ingredients.entrySet()) {
+            recipe.setIngredient(entry.getKey(), entry.getValue());
         }
 
         if (!Bukkit.addRecipe(recipe)) {
@@ -180,56 +164,47 @@ public class StoneGeneratorManager {
         plugin.getLogger().info("Registered stone generator recipe: " + recipeKey);
     }
 
-    public ItemStack createGeneratorItem(ConfigurationSection generatorSection) {
-        ConfigurationSection itemSection = generatorSection.getConfigurationSection("item");
-        Material material = Material.END_STONE;
-
-        if (itemSection != null) {
-            Material matched = Material.matchMaterial(itemSection.getString("material", "END_STONE"));
-            if (matched != null) {
-                material = matched;
-            }
-        }
-
-        int interval = generatorSection.getInt("generation.interval", 3);
-
+    public ItemStack createGeneratorItem(GeneratorConfig generator) {
+        Material material = generator.getItemMaterial();
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.displayName(MiniMessage.miniMessage().deserialize("<gold>Stoniarka</gold> <dark_gray>•</dark_gray> <gray>Generator</gray>"));
+            meta.displayName(miniMessage.deserialize(generator.getItemName()));
 
             List<Component> lore = new ArrayList<>();
-            lore.add(line());
-            lore.add(MiniMessage.miniMessage().deserialize("<gray>Opis"));
-            lore.add(desc("Generuje kamień po postawieniu"));
-            lore.add(desc("Kamień odnawia się po wykopaniu"));
-            lore.add(line());
-            lore.add(MiniMessage.miniMessage().deserialize("<gray>Statystyki"));
-            lore.add(stat("Interval", interval + "s", "yellow"));
+            for (String line : generator.getItemLore()) {
+                String processed = line.replace("{interval}", String.valueOf(generator.getGenerationInterval()));
+                lore.add(miniMessage.deserialize(processed));
+            }
             meta.lore(lore);
 
-            meta.addEnchant(Enchantment.UNBREAKING, 10, true);
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            if (generator.isItemEnchantGlow()) {
+                meta.addEnchant(Enchantment.UNBREAKING, 10, true);
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            }
 
             PersistentDataContainer container = meta.getPersistentDataContainer();
             container.set(generatorKey, PersistentDataType.BYTE, (byte) 1);
 
             item.setItemMeta(meta);
         }
-
         return item;
     }
 
-    private Component line() {
-        return MiniMessage.miniMessage().deserialize("<dark_gray>" + "▬".repeat(24) + "</dark_gray>");
+    public ItemStack createGeneratorItem(String key) {
+        GeneratorConfig generator = plugin.getGeneratorConfigManager().getGenerator(key);
+        if (generator == null || !generator.isEnabled()) {
+            return null;
+        }
+        return createGeneratorItem(generator);
     }
 
-    private Component desc(String text) {
-        return MiniMessage.miniMessage().deserialize(" <dark_gray>▸</dark_gray> <gray>" + text + "</gray>");
-    }
-
-    private Component stat(String name, String value, String color) {
-        return MiniMessage.miniMessage().deserialize(" <dark_gray>▸</dark_gray> <gray>" + name + ":</gray> <" + color + ">" + value + "</" + color + ">");
+    public ItemStack getGeneratorDropItem() {
+        GeneratorConfig generator = getFirstEnabledGenerator();
+        if (generator == null) {
+            return null;
+        }
+        return createGeneratorItem(generator);
     }
 
     public boolean isGeneratorItem(ItemStack item) {
@@ -260,55 +235,19 @@ public class StoneGeneratorManager {
         saveData();
     }
 
-    public ItemStack createGeneratorItem(String key) {
-        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
-                .getConfigurationSection("generators");
-        if (generatorsSection == null) {
-            return null;
-        }
-        ConfigurationSection generatorSection = generatorsSection.getConfigurationSection(key);
-        if (generatorSection == null || !generatorSection.getBoolean("enabled", true)) {
-            return null;
-        }
-        return createGeneratorItem(generatorSection);
-    }
-
-    public ItemStack getGeneratorDropItem() {
-        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
-                .getConfigurationSection("generators");
-        if (generatorsSection == null) {
-            return null;
-        }
-
-        for (String key : generatorsSection.getKeys(false)) {
-            ConfigurationSection generatorSection = generatorsSection.getConfigurationSection(key);
-            if (generatorSection != null && generatorSection.getBoolean("enabled", true)) {
-                return createGeneratorItem(generatorSection);
-            }
-        }
-        return null;
+    public GeneratorConfig getFirstEnabledGenerator() {
+        return plugin.getGeneratorConfigManager().getFirstEnabledGenerator();
     }
 
     private void startGenerationTask() {
-        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
-                .getConfigurationSection("generators");
-        if (generatorsSection == null) {
+        GeneratorConfig generator = getFirstEnabledGenerator();
+        if (generator == null) {
             return;
         }
 
-        // Use the first enabled generator's interval
-        int interval = 3;
-        for (String key : generatorsSection.getKeys(false)) {
-            ConfigurationSection generatorSection = generatorsSection.getConfigurationSection(key);
-            if (generatorSection != null && generatorSection.getBoolean("enabled", true)) {
-                interval = generatorSection.getInt("generation.interval", 3);
-                break;
-            }
-        }
+        long ticks = generator.getGenerationInterval() * 20L;
 
-        long ticks = interval * 20L;
-
-        new BukkitRunnable() {
+        generationTask = new BukkitRunnable() {
             @Override
             public void run() {
                 if (!plugin.isEnabled()) {
@@ -320,48 +259,25 @@ public class StoneGeneratorManager {
         }.runTaskTimer(plugin, ticks, ticks);
     }
 
+    private void stopGenerationTask() {
+        if (generationTask != null) {
+            generationTask.cancel();
+            generationTask = null;
+        }
+    }
+
     private void tickGenerators() {
-        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
-                .getConfigurationSection("generators");
-        if (generatorsSection == null) {
+        GeneratorConfig generator = getFirstEnabledGenerator();
+        if (generator == null) {
             return;
         }
 
-        ConfigurationSection generatorSection = null;
-        for (String key : generatorsSection.getKeys(false)) {
-            ConfigurationSection section = generatorsSection.getConfigurationSection(key);
-            if (section != null && section.getBoolean("enabled", true)) {
-                generatorSection = section;
-                break;
-            }
-        }
-
-        if (generatorSection == null) {
-            return;
-        }
-
-        ConfigurationSection generationSection = generatorSection.getConfigurationSection("generation");
-        if (generationSection == null) {
-            return;
-        }
-
-        Material generatedMaterial = Material.matchMaterial(generationSection.getString("material", "STONE"));
-        if (generatedMaterial == null) {
-            generatedMaterial = Material.STONE;
-        }
-
-        boolean requirePlayerNearby = generationSection.getBoolean("require-player-nearby", true);
-        int radius = generationSection.getInt("radius", 32);
-
-        String soundName = null;
-        String particleName = null;
-        int particleCount = 0;
-        ConfigurationSection effectsSection = generationSection.getConfigurationSection("effects");
-        if (effectsSection != null) {
-            soundName = effectsSection.getString("sound", null);
-            particleName = effectsSection.getString("particle", null);
-            particleCount = effectsSection.getInt("particle-count", 0);
-        }
+        Material generatedMaterial = generator.getGenerationMaterial();
+        boolean requirePlayerNearby = generator.isRequirePlayerNearby();
+        int radius = generator.getRadius();
+        String soundName = generator.getSoundName();
+        String particleName = generator.getParticleName();
+        int particleCount = generator.getParticleCount();
 
         List<Location> toRemove = new ArrayList<>();
 
@@ -437,12 +353,5 @@ public class StoneGeneratorManager {
         } catch (NumberFormatException e) {
             return null;
         }
-    }
-
-    private String colorize(String text) {
-        if (text == null || text.isEmpty()) {
-            return text;
-        }
-        return org.bukkit.ChatColor.translateAlternateColorCodes('&', text);
     }
 }

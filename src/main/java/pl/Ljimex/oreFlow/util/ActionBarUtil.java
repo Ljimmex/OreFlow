@@ -3,7 +3,6 @@ package pl.Ljimex.oreFlow.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import pl.Ljimex.oreFlow.OreFlow;
@@ -33,15 +32,17 @@ public class ActionBarUtil {
         if (message == null || message.isEmpty()) {
             return;
         }
+        send(player, miniMessage.deserialize(message), durationTicks);
+    }
 
-        Component component;
-        try {
-            component = miniMessage.deserialize(message);
-        } catch (Exception e) {
-            component = Component.text(org.bukkit.ChatColor.translateAlternateColorCodes('&', message));
+    /**
+     * Wysyla gotowy Component na Action Bar.
+     */
+    public void send(Player player, Component component, int durationTicks) {
+        if (component == null) {
+            return;
         }
 
-        final Component finalComponent = component;
         final int repeats = Math.max(1, (int) Math.ceil(durationTicks / 20.0));
 
         new BukkitRunnable() {
@@ -53,21 +54,9 @@ public class ActionBarUtil {
                     cancel();
                     return;
                 }
-                player.sendActionBar(finalComponent);
+                player.sendActionBar(component);
                 count++;
             }
         }.runTaskTimer(plugin, 0L, 20L);
-    }
-
-    /**
-     * Wysyla wiadomosc na Action Bar w formacie legacy (&kolor).
-     * Uzyj send() jesli chcesz gradienty i efekty MiniMessage.
-     */
-    public void sendLegacy(Player player, String message) {
-        if (message == null || message.isEmpty()) {
-            return;
-        }
-        String colored = org.bukkit.ChatColor.translateAlternateColorCodes('&', message);
-        player.sendActionBar(Component.text(colored));
     }
 }

@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 import pl.Ljimex.oreFlow.OreFlow;
 import pl.Ljimex.oreFlow.config.MessageManager;
+import pl.Ljimex.oreFlow.config.OreFlowConfig;
 import pl.Ljimex.oreFlow.config.PlayerSettingsManager;
 import pl.Ljimex.oreFlow.util.ActionBarUtil;
 import pl.Ljimex.oreFlow.util.ItemColorUtil;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class BlockBreakListener implements Listener {
 
-    private final OreFlow plugin;
+    private final OreFlowConfig config;
     private final DropManager dropManager;
     private final PlayerSettingsManager playerSettings;
     private final MessageManager messageManager;
@@ -59,9 +60,10 @@ public class BlockBreakListener implements Listener {
             Material.ANCIENT_DEBRIS
     );
 
-    public BlockBreakListener(OreFlow plugin, DropManager dropManager) {
-        this.plugin = plugin;
+    public BlockBreakListener(DropManager dropManager) {
+        this.config = dropManager.getPlugin().getOreFlowConfig();
         this.dropManager = dropManager;
+        OreFlow plugin = dropManager.getPlugin();
         this.playerSettings = plugin.getPlayerSettingsManager();
         this.messageManager = plugin.getMessageManager();
         this.actionBarUtil = new ActionBarUtil(plugin);
@@ -134,15 +136,11 @@ public class BlockBreakListener implements Listener {
 
         // Bazowy EXP za zniszczenie bloku
         if (playerSettings.isExpEnabled(player.getUniqueId())) {
-            int baseExp = plugin.getConfigManager().getConfig().getInt("settings.base-exp", 0);
+            int baseExp = config.getBaseExp();
             if (baseExp > 0) {
-                double multiplier = plugin.getConfigManager().getConfig()
-                        .getDouble("settings.exp-multiplier", 1.0);
-                int finalExp = (int) Math.round(baseExp * multiplier);
+                int finalExp = (int) Math.round(baseExp * config.getExpMultiplier());
 
-                String expMode = plugin.getConfigManager().getConfig()
-                        .getString("settings.exp-mode", "direct-give");
-                if ("orb-spawn".equalsIgnoreCase(expMode)) {
+                if ("orb-spawn".equalsIgnoreCase(config.getExpMode())) {
                     event.setExpToDrop(event.getExpToDrop() + finalExp);
                 } else {
                     player.giveExp(finalExp);
@@ -155,8 +153,9 @@ public class BlockBreakListener implements Listener {
         if (!messageManager.isActionBarEnabled("creative")) {
             return;
         }
+        String prefix = messageManager.getRawString("actionbar.prefix", new HashMap<>());
         actionBarUtil.send(player, messageManager.getActionBarMessage("creative",
-                "prefix", messageManager.getRaw("actionbar.prefix", new HashMap<>())),
+                "prefix", prefix),
                 messageManager.getActionBarDuration("creative"));
     }
 
@@ -169,7 +168,7 @@ public class BlockBreakListener implements Listener {
             return;
         }
 
-        String prefix = messageManager.getRaw("actionbar.prefix", new HashMap<>());
+        String prefix = messageManager.getRawString("actionbar.prefix", new HashMap<>());
 
         if (visible.size() == 1) {
             if (!messageManager.isActionBarEnabled("drop-success")) {
@@ -224,14 +223,7 @@ public class BlockBreakListener implements Listener {
         }
 
         // Inne bloki (np. stone) sa konfigurowalne w config.yml
-        List<String> mineableBlocks = plugin.getConfigManager().getConfig()
-                .getStringList("settings.mineable-blocks");
-
-        if (mineableBlocks.isEmpty()) {
-            return material == Material.STONE;
-        }
-
-        return mineableBlocks.contains(material.name());
+        return config.isMineableBlock(material);
     }
 
     private boolean hasSilkTouch(ItemStack tool) {
@@ -257,7 +249,7 @@ public class BlockBreakListener implements Listener {
         if (!messageManager.isActionBarEnabled("ore-blocked")) {
             return;
         }
-        String prefix = messageManager.getRaw("actionbar.prefix", new HashMap<>());
+        String prefix = messageManager.getRawString("actionbar.prefix", new HashMap<>());
         actionBarUtil.send(player, messageManager.getActionBarMessage("ore-blocked",
                 "prefix", prefix),
                 messageManager.getActionBarDuration("ore-blocked"));

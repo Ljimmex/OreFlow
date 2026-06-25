@@ -1,14 +1,15 @@
 package pl.Ljimex.oreFlow.drop;
 
 import pl.Ljimex.oreFlow.OreFlow;
+import pl.Ljimex.oreFlow.config.OreFlowConfig;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -16,11 +17,17 @@ import java.util.concurrent.ThreadLocalRandom;
 public class DropManager {
 
     private final OreFlow plugin;
+    private final OreFlowConfig config;
     private final FortuneCalculator fortuneCalculator;
 
     public DropManager(OreFlow plugin) {
         this.plugin = plugin;
+        this.config = plugin.getOreFlowConfig();
         this.fortuneCalculator = new FortuneCalculator();
+    }
+
+    public OreFlow getPlugin() {
+        return plugin;
     }
 
     /**
@@ -39,23 +46,20 @@ public class DropManager {
         }
 
         int fortuneLevel = fortuneCalculator.getFortuneLevel(tool);
-        ConfigurationSection dropsSection = plugin.getConfigManager().getDrops();
-
-        int maxDrops = plugin.getConfigManager().getConfig().getInt("settings.max-drops-per-block", 0);
+        int maxDrops = config.getMaxDropsPerBlock();
         int dropsProcessed = 0;
 
-        for (String dropKey : dropsSection.getKeys(false)) {
+        for (DropConfig drop : plugin.getDropConfigManager().getDrops()) {
             if (maxDrops > 0 && dropsProcessed >= maxDrops) {
                 break;
             }
 
-            ConfigurationSection drop = dropsSection.getConfigurationSection(dropKey);
-            if (drop == null || !drop.getBoolean("enabled", true)) {
+            if (!drop.isEnabled()) {
                 continue;
             }
 
             // Sprawdzenie per-gracz wylaczenia dropu
-            if (!plugin.getPlayerSettingsManager().isDropEnabled(player.getUniqueId(), dropKey)) {
+            if (!plugin.getPlayerSettingsManager().isDropEnabled(player.getUniqueId(), drop.getKey())) {
                 continue;
             }
 
@@ -63,19 +67,17 @@ public class DropManager {
                 continue;
             }
 
-            double chance = drop.getDouble("chance", 0.0);
-            if (ThreadLocalRandom.current().nextDouble(100.0) > chance) {
+            if (ThreadLocalRandom.current().nextDouble(100.0) > drop.getChance()) {
                 continue;
             }
 
             ItemStack item = createDropItem(drop, fortuneLevel);
             if (item != null && item.getAmount() > 0) {
-                result.add(new DropResult(dropKey, item));
+                result.add(new DropResult(drop.getKey(), item));
                 dropsProcessed++;
 
-                int exp = drop.getInt("exp", 0);
-                if (exp > 0) {
-                    giveExp(player, location, exp);
+                if (drop.getExp() > 0) {
+                    giveExp(player, location, drop.getExp());
                 }
             }
         }
@@ -113,118 +115,44 @@ public class DropManager {
         if (!player.hasPermission("oreflow.mine")) {
             return false;
         }
-
-        String worldMode = plugin.getConfigManager().getConfig()
-                .getString("settings.world-mode", "blacklist");
-        List<String> worlds = plugin.getConfigManager().getConfig()
-                .getStringList("settings.worlds");
-
-        if (worlds.isEmpty()) {
-            return true;
-        }
-
-        boolean isListed = worlds.contains(world.getName());
-
-        if ("whitelist".equalsIgnoreCase(worldMode)) {
-            return isListed;
-        } else {
-            return !isListed;
-        }
+        return config.isWorldAllowed(world.getName());
     }
 
-    private boolean isDropApplicable(ConfigurationSection drop, Player player, Location location, ItemStack tool) {
+    private boolean isDropApplicable(DropConfig drop, Player player, Location location, ItemStack tool) {
         // Sprawdzenie poziomu Y
-        int minY = drop.getInt("min-y", Integer.MIN_VALUE);
-        int maxY = drop.getInt("max-y", Integer.MAX_VALUE);
-        int blockY = location.getBlockY();
-        if (blockY < minY || blockY > maxY) {
+        if (!drop.isInYRange(location.getBlockY())) {
             return false;
         }
 
         // Sprawdzenie wymaganego narzedzia
-        String requiredTool = drop.getString("required-tool", "");
-        if (!requiredTool.isEmpty()) {
-            if (tool == null) {
-                return false;
-            }
-
-            Material requiredMaterial = Material.matchMaterial(requiredTool);
-            if (requiredMaterial == null) {
-                return false;
-            }
-
-            int requiredTier = getToolTier(requiredMaterial);
-            if (requiredTier > 0) {
-                // Dla narzedzi z tierami (kilofy) sprawdzamy czy gracz ma co najmniej taki tier
-                int actualTier = getToolTier(tool.getType());
-                if (actualTier < requiredTier) {
-                    return false;
-                }
-            } else {
-                // Dla innych narzedzi dokladne dopasowanie
-                if (tool.getType() != requiredMaterial) {
-                    return false;
-                }
-            }
+        if (tool == null) {
+            return false;
+        }
+        if (!drop.canUseTool(tool.getType())) {
+            return false;
         }
 
         return true;
     }
 
-    /**
-     * Zwraca tier narzedzia (tylko dla kilofow).
-     * Wyzszy numer = lepszy kilof.
-     */
-    private int getToolTier(Material material) {
-        if (material == null) {
-            return 0;
-        }
-        return switch (material) {
-            case WOODEN_PICKAXE, GOLDEN_PICKAXE -> 1;
-            case STONE_PICKAXE -> 2;
-            case IRON_PICKAXE -> 3;
-            case DIAMOND_PICKAXE -> 4;
-            case NETHERITE_PICKAXE -> 5;
-            default -> 0;
-        };
-    }
+    private ItemStack createDropItem(DropConfig drop, int fortuneLevel) {
+        Material material = drop.getMaterial();
+        int amount = drop.rollBaseAmount();
 
-    private boolean isFortuneEnabled(ConfigurationSection drop) {
-        if (drop.contains("fortune.enabled")) {
-            return drop.getBoolean("fortune.enabled", true);
-        }
-        return drop.getBoolean("fortune-multiplier", true);
-    }
+        // Fortune - konfigurowalne bonusy z drops.yml
+        if (config.isFortuneEnabled() && drop.isFortuneEnabled() && amount > 0 && fortuneLevel > 0) {
+            DropConfig.FortuneLevel level = drop.getFortuneLevel(fortuneLevel);
+            if (level != null) {
+                // Zawsze dodajemy bonus-min, aby Fortune zawsze dawalo wiecej niz brak Fortune
+                amount += level.bonusMin();
 
-    private ItemStack createDropItem(ConfigurationSection drop, int fortuneLevel) {
-        String materialName = drop.getString("material", "STONE");
-        Material material = Material.matchMaterial(materialName);
-        if (material == null) {
-            plugin.getLogger().warning("Unknown material in drops.yml: " + materialName);
-            return null;
-        }
-
-        int minAmount = drop.getInt("min-amount", 1);
-        int maxAmount = drop.getInt("max-amount", 1);
-        int amount = ThreadLocalRandom.current().nextInt(minAmount, maxAmount + 1);
-
-        // Fortune - nowa konfigurowalna wersja
-        if (isFortuneEnabled(drop) && amount > 0 && fortuneLevel > 0) {
-            ConfigurationSection fortuneLevelSection = drop.getConfigurationSection("fortune.levels." + fortuneLevel);
-            if (fortuneLevelSection != null) {
-                double chance = fortuneLevelSection.getDouble("chance", 0.0);
-                int bonusMin = fortuneLevelSection.getInt("bonus-min", 0);
-                int bonusMax = fortuneLevelSection.getInt("bonus-max", 0);
-
-                if (ThreadLocalRandom.current().nextDouble(100.0) <= chance && bonusMax > 0) {
-                    int bonus = bonusMin;
-                    if (bonusMax > bonusMin) {
-                        bonus = ThreadLocalRandom.current().nextInt(bonusMin, bonusMax + 1);
-                    }
-                    amount += bonus;
+                // Dodatkowy losowy bonus z szansa `chance`
+                if (level.bonusMax() > level.bonusMin() && ThreadLocalRandom.current().nextDouble(100.0) <= level.chance()) {
+                    int extraBonus = ThreadLocalRandom.current().nextInt(0, level.bonusMax() - level.bonusMin() + 1);
+                    amount += extraBonus;
                 }
-            } else {
-                // Fallback do starej formuly jesli brak konfiguracji fortune levels
+            } else if (config.isAllowHigherFortune()) {
+                // Fallback do vanilla-like mnoznika jesli brak konfiguracji fortune levels
                 int multiplier = fortuneCalculator.calculateFortuneMultiplier(fortuneLevel);
                 amount = amount * multiplier;
             }
@@ -248,21 +176,15 @@ public class DropManager {
             return;
         }
 
-        String expMode = plugin.getConfigManager().getConfig()
-                .getString("settings.exp-mode", "direct-give");
-        double multiplier = plugin.getConfigManager().getConfig()
-                .getDouble("settings.exp-multiplier", 1.0);
-
-        int finalExp = (int) Math.round(exp * multiplier);
+        int finalExp = (int) Math.round(exp * config.getExpMultiplier());
         if (finalExp <= 0) {
             return;
         }
 
-        if ("orb-spawn".equalsIgnoreCase(expMode)) {
+        if ("orb-spawn".equalsIgnoreCase(config.getExpMode())) {
             location.getWorld().spawn(location, org.bukkit.entity.ExperienceOrb.class, orb -> orb.setExperience(finalExp));
         } else {
             player.giveExp(finalExp);
         }
     }
-
 }

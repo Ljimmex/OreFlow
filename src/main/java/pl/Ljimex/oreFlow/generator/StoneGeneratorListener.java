@@ -3,7 +3,6 @@ package pl.Ljimex.oreFlow.generator;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -68,8 +67,8 @@ public class StoneGeneratorListener implements Listener {
         }
 
         if (!player.hasPermission("oreflow.generator.place")) {
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.no-permission",
-                    "permission", "oreflow.generator.place"));
+            plugin.getMessageManager().send(player, "commands.no-permission",
+                    "permission", "oreflow.generator.place");
             event.setCancelled(true);
             return;
         }
@@ -78,8 +77,9 @@ public class StoneGeneratorListener implements Listener {
         generatorManager.addGenerator(location);
 
         if (plugin.getMessageManager().isActionBarEnabled("generator-placed")) {
-            String prefix = plugin.getMessageManager().getRaw("actionbar.prefix", new HashMap<>());
-            String message = prefix + " <dark_gray>» <green>Stoniarka postawiona!";
+            String prefix = plugin.getMessageManager().getRawString("actionbar.prefix", new HashMap<>());
+            String messageTemplate = plugin.getMessageManager().getRawString("actionbar.generator-placed.message");
+            String message = messageTemplate.replace("{prefix}", prefix);
             if (!message.isEmpty()) {
                 player.sendActionBar(net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(message));
             }
@@ -98,8 +98,8 @@ public class StoneGeneratorListener implements Listener {
         Player player = event.getPlayer();
 
         if (!player.hasPermission("oreflow.generator.place")) {
-            player.sendMessage(plugin.getMessageManager().getMessage("commands.no-permission",
-                    "permission", "oreflow.generator.place"));
+            plugin.getMessageManager().send(player, "commands.no-permission",
+                    "permission", "oreflow.generator.place");
             event.setCancelled(true);
             return;
         }
@@ -107,20 +107,11 @@ public class StoneGeneratorListener implements Listener {
         generatorManager.removeGenerator(location);
 
         // Drop the generator item if enabled
-        ConfigurationSection generatorsSection = plugin.getConfigManager().getGenerators()
-                .getConfigurationSection("generators");
-        if (generatorsSection != null) {
-            for (String key : generatorsSection.getKeys(false)) {
-                ConfigurationSection generatorSection = generatorsSection.getConfigurationSection(key);
-                if (generatorSection != null && generatorSection.getBoolean("enabled", true)) {
-                    if (generatorSection.getBoolean("pickup-on-break", true)) {
-                        ItemStack drop = generatorManager.getGeneratorDropItem();
-                        if (drop != null) {
-                            block.getWorld().dropItemNaturally(block.getLocation(), drop);
-                        }
-                    }
-                    break;
-                }
+        GeneratorConfig generator = generatorManager.getFirstEnabledGenerator();
+        if (generator != null && generator.isPickupOnBreak()) {
+            ItemStack drop = generatorManager.getGeneratorDropItem();
+            if (drop != null) {
+                block.getWorld().dropItemNaturally(block.getLocation(), drop);
             }
         }
 

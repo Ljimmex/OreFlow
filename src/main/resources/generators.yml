@@ -2,6 +2,9 @@
 # OreFlow - Stone Generator Configuration
 # ============================================================
 
+# Config version - DO NOT MODIFY. Used for automatic migrations.
+config-version: 1
+
 generators:
   # Basic stone generator
   basic:
@@ -24,12 +27,12 @@ generators:
     # Block received after crafting
     item:
       material: "END_STONE"
-      name: "&8&lStoniarka"
+      name: "<dark_gray><bold>Stoniarka</bold></dark_gray>"
       lore:
-        - "&7Place to generate stone"
-        - "&7Stone regrows after mining"
+        - "<gray>Place to generate stone</gray>"
+        - "<gray>Stone regrows after mining</gray>"
         - ""
-        - "&eInterval: &f{interval}s"
+        - "<yellow>Interval: </yellow><white>{interval}s</white>"
       # Optional glow effect
       enchant-glow: true
 

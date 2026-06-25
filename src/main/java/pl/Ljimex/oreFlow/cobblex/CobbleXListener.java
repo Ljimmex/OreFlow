@@ -27,7 +27,7 @@ public class CobbleXListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!plugin.getConfigManager().getConfig().getBoolean("cobblex.enabled", true)) {
+        if (!plugin.getOreFlowConfig().isCobbleXEnabled()) {
             return;
         }
 
@@ -46,13 +46,15 @@ public class CobbleXListener implements Listener {
         event.setCancelled(true);
 
         if (!player.hasPermission("cobblex.use")) {
-            player.sendMessage(colorize("&cNie masz uprawnien do uzywania CobbleX!"));
+            plugin.getMessageManager().send(player, "commands.no-permission",
+                    "permission", "cobblex.use");
             return;
         }
 
         if (isOnCooldown(player)) {
             long remaining = getRemainingCooldown(player);
-            player.sendMessage(colorize("&cMusisz poczekac &e" + remaining + "s &cprzed kolejnym otwarciem!"));
+            plugin.getMessageManager().send(player, "commands.cx-cooldown",
+                    "time", String.valueOf(remaining));
             return;
         }
 
@@ -84,7 +86,7 @@ public class CobbleXListener implements Listener {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), formattedCommand);
             }
 
-            player.sendMessage(colorize(drop.getMessage()));
+            player.sendMessage(plugin.getMessageManager().deserialize(drop.getMessage()));
         }
     }
 
@@ -110,12 +112,5 @@ public class CobbleXListener implements Listener {
 
     private void setCooldown(Player player) {
         cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
-    }
-
-    private String colorize(String text) {
-        if (text == null || text.isEmpty()) {
-            return text;
-        }
-        return org.bukkit.ChatColor.translateAlternateColorCodes('&', text);
     }
 }

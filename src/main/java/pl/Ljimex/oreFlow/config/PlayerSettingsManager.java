@@ -23,6 +23,10 @@ public class PlayerSettingsManager {
     // Cache ustawien w pamieci
     private final Map<UUID, PlayerSettings> cache = new HashMap<>();
 
+    private boolean defaultCobble;
+    private boolean defaultDropToInventory;
+    private boolean defaultExp;
+
     public PlayerSettingsManager(OreFlow plugin) {
         this.plugin = plugin;
         this.settingsFile = new File(plugin.getDataFolder(), "players.yml");
@@ -37,6 +41,23 @@ public class PlayerSettingsManager {
             }
         }
         settings = YamlConfiguration.loadConfiguration(settingsFile);
+        reloadDefaults();
+    }
+
+    /**
+     * Przeładowuje domyślne wartości z configu bez utraty cache graczy.
+     */
+    public void reload() {
+        load();
+    }
+
+    private void reloadDefaults() {
+        this.defaultCobble = plugin.getConfigManager().getConfig()
+                .getBoolean("settings.cobblestone-enabled", false);
+        this.defaultDropToInventory = plugin.getConfigManager().getConfig()
+                .getBoolean("settings.drop-to-inventory", true);
+        this.defaultExp = plugin.getConfigManager().getConfig()
+                .getBoolean("settings.exp-enabled", true);
     }
 
     public void save() {
@@ -46,17 +67,53 @@ public class PlayerSettingsManager {
 
         // Zapisz wszystkie ustawienia z cache do pliku
         for (Map.Entry<UUID, PlayerSettings> entry : cache.entrySet()) {
-            String path = entry.getKey().toString();
-            PlayerSettings playerSettings = entry.getValue();
-            settings.set(path + ".cobble-enabled", playerSettings.isCobbleEnabled());
-            settings.set(path + ".drop-to-inventory", playerSettings.isDropToInventory());
-            settings.set(path + ".exp-enabled", playerSettings.isExpEnabled());
-            settings.set(path + ".disabled-drops", playerSettings.getDisabledDrops().isEmpty()
-                    ? null : playerSettings.getDisabledDrops().stream().toList());
-            settings.set(path + ".disabled-drop-messages", playerSettings.getDisabledDropMessages().isEmpty()
-                    ? null : playerSettings.getDisabledDropMessages().stream().toList());
+            saveToConfig(entry.getKey(), entry.getValue());
         }
 
+        try {
+            settings.save(settingsFile);
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not save players.yml", e);
+        }
+    }
+
+    /**
+     * Zapisuje pojedynczego gracza i usuwa go z cache.
+     */
+    public void saveAndEvict(UUID uuid) {
+        PlayerSettings playerSettings = cache.get(uuid);
+        if (playerSettings == null) {
+            return;
+        }
+        saveToConfig(uuid, playerSettings);
+        cache.remove(uuid);
+        flush();
+    }
+
+    /**
+     * Zapisuje pojedynczego gracza, ale pozostawia w cache.
+     */
+    public void save(UUID uuid) {
+        PlayerSettings playerSettings = cache.get(uuid);
+        if (playerSettings == null) {
+            return;
+        }
+        saveToConfig(uuid, playerSettings);
+        flush();
+    }
+
+    private void saveToConfig(UUID uuid, PlayerSettings playerSettings) {
+        String path = uuid.toString();
+        settings.set(path + ".cobble-enabled", playerSettings.isCobbleEnabled());
+        settings.set(path + ".drop-to-inventory", playerSettings.isDropToInventory());
+        settings.set(path + ".exp-enabled", playerSettings.isExpEnabled());
+        settings.set(path + ".disabled-drops", playerSettings.getDisabledDrops().isEmpty()
+                ? null : playerSettings.getDisabledDrops().stream().toList());
+        settings.set(path + ".disabled-drop-messages", playerSettings.getDisabledDropMessages().isEmpty()
+                ? null : playerSettings.getDisabledDropMessages().stream().toList());
+    }
+
+    private void flush() {
         try {
             settings.save(settingsFile);
         } catch (IOException e) {
@@ -71,12 +128,14 @@ public class PlayerSettingsManager {
 
     public void setCobbleEnabled(UUID uuid, boolean enabled) {
         getSettings(uuid).setCobbleEnabled(enabled);
+        save(uuid);
     }
 
     public boolean toggleCobble(UUID uuid) {
         PlayerSettings playerSettings = getSettings(uuid);
         boolean newValue = !playerSettings.isCobbleEnabled();
         playerSettings.setCobbleEnabled(newValue);
+        save(uuid);
         return newValue;
     }
 
@@ -87,12 +146,14 @@ public class PlayerSettingsManager {
 
     public void setDropToInventory(UUID uuid, boolean enabled) {
         getSettings(uuid).setDropToInventory(enabled);
+        save(uuid);
     }
 
     public boolean toggleDropToInventory(UUID uuid) {
         PlayerSettings playerSettings = getSettings(uuid);
         boolean newValue = !playerSettings.isDropToInventory();
         playerSettings.setDropToInventory(newValue);
+        save(uuid);
         return newValue;
     }
 
@@ -103,12 +164,14 @@ public class PlayerSettingsManager {
 
     public void setExpEnabled(UUID uuid, boolean enabled) {
         getSettings(uuid).setExpEnabled(enabled);
+        save(uuid);
     }
 
     public boolean toggleExpEnabled(UUID uuid) {
         PlayerSettings playerSettings = getSettings(uuid);
         boolean newValue = !playerSettings.isExpEnabled();
         playerSettings.setExpEnabled(newValue);
+        save(uuid);
         return newValue;
     }
 
@@ -118,7 +181,9 @@ public class PlayerSettingsManager {
     }
 
     public boolean toggleDrop(UUID uuid, String dropKey) {
-        return getSettings(uuid).toggleDrop(dropKey);
+        boolean result = getSettings(uuid).toggleDrop(dropKey);
+        save(uuid);
+        return result;
     }
 
     // Per-drop message toggles
@@ -127,7 +192,13 @@ public class PlayerSettingsManager {
     }
 
     public boolean toggleDropMessage(UUID uuid, String dropKey) {
-        return getSettings(uuid).toggleDropMessage(dropKey);
+        boolean result = getSettings(uuid).toggleDropMessage(dropKey);
+        save(uuid);
+        return result;
+    }
+
+    public void evict(UUID uuid) {
+        cache.remove(uuid);
     }
 
     private PlayerSettings getSettings(UUID uuid) {
@@ -135,25 +206,19 @@ public class PlayerSettingsManager {
     }
 
     private PlayerSettings loadSettings(UUID uuid) {
-        boolean defaultCobble = plugin.getConfigManager().getConfig()
-                .getBoolean("settings.cobblestone-enabled", false);
-        boolean defaultDropToInventory = plugin.getConfigManager().getConfig()
-                .getBoolean("settings.drop-to-inventory", true);
-        boolean defaultExp = plugin.getConfigManager().getConfig()
-                .getBoolean("settings.exp-enabled", true);
-
         PlayerSettings playerSettings = new PlayerSettings(defaultCobble, defaultDropToInventory, defaultExp);
 
         if (settings != null && settings.contains(uuid.toString())) {
-            playerSettings.setCobbleEnabled(settings.getBoolean(uuid.toString() + ".cobble-enabled", defaultCobble));
-            playerSettings.setDropToInventory(settings.getBoolean(uuid.toString() + ".drop-to-inventory", defaultDropToInventory));
-            playerSettings.setExpEnabled(settings.getBoolean(uuid.toString() + ".exp-enabled", defaultExp));
+            String path = uuid.toString();
+            playerSettings.setCobbleEnabled(settings.getBoolean(path + ".cobble-enabled", defaultCobble));
+            playerSettings.setDropToInventory(settings.getBoolean(path + ".drop-to-inventory", defaultDropToInventory));
+            playerSettings.setExpEnabled(settings.getBoolean(path + ".exp-enabled", defaultExp));
 
-            if (settings.contains(uuid.toString() + ".disabled-drops")) {
-                playerSettings.getDisabledDrops().addAll(settings.getStringList(uuid.toString() + ".disabled-drops"));
+            if (settings.contains(path + ".disabled-drops")) {
+                playerSettings.getDisabledDrops().addAll(settings.getStringList(path + ".disabled-drops"));
             }
-            if (settings.contains(uuid.toString() + ".disabled-drop-messages")) {
-                playerSettings.getDisabledDropMessages().addAll(settings.getStringList(uuid.toString() + ".disabled-drop-messages"));
+            if (settings.contains(path + ".disabled-drop-messages")) {
+                playerSettings.getDisabledDropMessages().addAll(settings.getStringList(path + ".disabled-drop-messages"));
             }
         }
 

@@ -14,9 +14,13 @@ import pl.Ljimex.oreFlow.generator.StoneGeneratorManager;
 import pl.Ljimex.oreFlow.config.ConfigManager;
 import pl.Ljimex.oreFlow.config.GuiConfigManager;
 import pl.Ljimex.oreFlow.config.MessageManager;
+import pl.Ljimex.oreFlow.config.OreFlowConfig;
 import pl.Ljimex.oreFlow.config.PlayerSettingsManager;
 import pl.Ljimex.oreFlow.drop.BlockBreakListener;
+import pl.Ljimex.oreFlow.drop.DropConfigManager;
 import pl.Ljimex.oreFlow.drop.DropManager;
+import pl.Ljimex.oreFlow.generator.GeneratorConfigManager;
+import pl.Ljimex.oreFlow.listener.PlayerListener;
 import pl.Ljimex.oreFlow.gui.GuiListener;
 import pl.Ljimex.oreFlow.gui.GuiManager;
 
@@ -31,11 +35,14 @@ public final class OreFlow extends JavaPlugin {
     private ConfigManager configManager;
     private GuiConfigManager guiConfigManager;
     private MessageManager messageManager;
+    private OreFlowConfig oreFlowConfig;
+    private DropConfigManager dropConfigManager;
     private DropManager dropManager;
     private GuiManager guiManager;
     private GuiListener guiListener;
     private CobbleXManager cobbleXManager;
     private StoneGeneratorManager stoneGeneratorManager;
+    private GeneratorConfigManager generatorConfigManager;
     private PlayerSettingsManager playerSettingsManager;
     private final Set<UUID> disabledCreativeMessagePlayers = new HashSet<>();
 
@@ -49,6 +56,10 @@ public final class OreFlow extends JavaPlugin {
         try {
             this.configManager = new ConfigManager(this);
             this.configManager.loadConfigs();
+
+            this.oreFlowConfig = new OreFlowConfig(this);
+            this.dropConfigManager = new DropConfigManager(this);
+            this.generatorConfigManager = new GeneratorConfigManager(this);
 
             this.guiConfigManager = new GuiConfigManager(this);
             this.guiConfigManager.load();
@@ -69,13 +80,15 @@ public final class OreFlow extends JavaPlugin {
             this.stoneGeneratorManager.load();
 
             getServer().getPluginManager().registerEvents(
-                    new BlockBreakListener(this, dropManager), this);
+                    new BlockBreakListener(dropManager), this);
             getServer().getPluginManager().registerEvents(
                     new CobbleXListener(this, cobbleXManager), this);
             getServer().getPluginManager().registerEvents(
                     guiListener, this);
             getServer().getPluginManager().registerEvents(
                     new StoneGeneratorListener(this, stoneGeneratorManager), this);
+            getServer().getPluginManager().registerEvents(
+                    new PlayerListener(this), this);
 
             LifecycleEventManager<Plugin> lifecycleManager = this.getLifecycleManager();
             lifecycleManager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
@@ -86,14 +99,9 @@ public final class OreFlow extends JavaPlugin {
 
             long elapsed = System.currentTimeMillis() - startTime;
             logInfo("Plugin enabled successfully in " + elapsed + "ms");
-            logInfo("Loaded " + configManager.getDrops().getKeys(false).size() + " drops");
-
-            int generatorCount = configManager.getGenerators().getConfigurationSection("generators") != null
-                    ? configManager.getGenerators().getConfigurationSection("generators").getKeys(false).size()
-                    : 0;
-            logInfo("Loaded " + generatorCount + " generators");
-            logInfo("Mineable blocks: " + configManager.getConfig()
-                    .getStringList("settings.mineable-blocks").size());
+            logInfo("Loaded " + dropConfigManager.getDropCount() + " drops");
+            logInfo("Loaded " + generatorConfigManager.getGeneratorCount() + " generators");
+            logInfo("Mineable blocks: " + oreFlowConfig.getMineableBlocks().size());
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Failed to enable OreFlow!", e);
             getServer().getPluginManager().disablePlugin(this);
@@ -130,8 +138,36 @@ public final class OreFlow extends JavaPlugin {
         return instance;
     }
 
+    /**
+     * Pełne przeładowanie wszystkich configów i zależnych komponentów.
+     */
+    public void reload() {
+        configManager.reloadConfigs();
+        oreFlowConfig.reload();
+        dropConfigManager.reload();
+        generatorConfigManager.reload();
+        guiConfigManager.reload();
+        messageManager.reload();
+        playerSettingsManager.reload();
+
+        cobbleXManager.registerRecipe();
+        stoneGeneratorManager.reload();
+    }
+
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public OreFlowConfig getOreFlowConfig() {
+        return oreFlowConfig;
+    }
+
+    public DropConfigManager getDropConfigManager() {
+        return dropConfigManager;
+    }
+
+    public GeneratorConfigManager getGeneratorConfigManager() {
+        return generatorConfigManager;
     }
 
     public DropManager getDropManager() {
@@ -171,8 +207,8 @@ public final class OreFlow extends JavaPlugin {
     }
 
     private void printBanner(String mode) {
-        String version = getDescription().getVersion();
-        String authors = String.join(", ", getDescription().getAuthors());
+        String version = getPluginMeta().getVersion();
+        String authors = String.join(", ", getPluginMeta().getAuthors());
 
         logRaw(" ");
         logRaw("+==========================================================+");

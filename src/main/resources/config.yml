@@ -3,6 +3,9 @@
 # Documentation: https://github.com/Ljinmex/OreFlow/wiki
 # ============================================================
 
+# Config version - DO NOT MODIFY. Used for automatic migrations.
+config-version: 1
+
 # Main plugin settings
 settings:
 
@@ -79,12 +82,12 @@ cobblex:
   # CobbleX item
   item:
     material: "ENDER_CHEST"
-    name: "&8&lCobbleX"
+    name: "<dark_gray><bold>CobbleX</bold></dark_gray>"
     lore:
-      - "&7A chest made from 9 stacks of cobblestone"
-      - "&7Right-click to open and roll a reward"
+      - "<gray>A chest made from 9 stacks of cobblestone</gray>"
+      - "<gray>Right-click to open and roll a reward</gray>"
       - ""
-      - "&eCrafting cost: &f9 stacks of cobblestone"
+      - "<yellow>Crafting cost: </yellow><white>9 stacks of cobblestone</white>"
     enchant-glow: true
 
   # Crafting in the crafting table (3x3)
@@ -102,33 +105,33 @@ cobblex:
   drops:
     diamonds:
       command: "give %player DIAMOND 3"
-      message: "&aRolled: &f3x Diamond"
+      message: "<green>Rolled: </green><white>3x Diamond</white>"
       chance: 8
     gold:
       command: "give %player GOLD_INGOT 8"
-      message: "&aRolled: &f8x Gold"
+      message: "<green>Rolled: </green><white>8x Gold</white>"
       chance: 15
     iron:
       command: "give %player IRON_INGOT 16"
-      message: "&aRolled: &f16x Iron"
+      message: "<green>Rolled: </green><white>16x Iron</white>"
       chance: 20
     emerald:
       command: "give %player EMERALD 4"
-      message: "&aRolled: &f4x Emerald"
+      message: "<green>Rolled: </green><white>4x Emerald</white>"
       chance: 10
     curse_nausea:
       command: "effect %player NAUSEA 10"
-      message: "&cCurse! Nausea for 10s"
+      message: "<red>Curse! Nausea for 10s</red>"
       chance: 12
     curse_blindness:
       command: "effect %player BLINDNESS 5"
-      message: "&cCurse! Blindness for 5s"
+      message: "<red>Curse! Blindness for 5s</red>"
       chance: 10
     empty:
       command: ""
-      message: "&7Empty..."
+      message: "<gray>Empty...</gray>"
       chance: 15
     cobble_refund:
       command: "give %player COBBLESTONE 64"
-      message: "&7Refund: 64x Cobblestone"
+      message: "<gray>Refund: 64x Cobblestone</gray>"
       chance: 10
